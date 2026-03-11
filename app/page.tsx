@@ -146,13 +146,14 @@ export default function Home() {
             </div>
         </div>
 
-        {/* Footer and Compliance */}
-        <footer className="mt-24 pt-12 border-t border-slate-900 pb-24 text-center">
-            <div className="flex justify-center gap-12 mb-12">
-                <Link href="/about" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">About</Link>
-                <Link href="/privacy" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Privacy Policy</Link>
-                <Link href="/contact" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Contact</Link>
-            </div>
+                {/* Footer and Compliance */}
+                <footer className="mt-24 pt-12 border-t border-slate-900 pb-24 text-center">
+                    <div className="flex justify-center flex-wrap gap-8 md:gap-12 mb-12">
+                        <Link href="/about" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">About</Link>
+                        <Link href="/faq" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">FAQ</Link>
+                        <Link href="/privacy" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Privacy Policy</Link>
+                        <Link href="/contact" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Contact</Link>
+                    </div>
             <div className="text-slate-700 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">
                 OpSecForge v1.4.2 • Built for the Global Dev Community • 2026
             </div>
