@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound, ArrowRight, Zap } from 'lucide-react';
+import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound, ArrowRight, Zap, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -37,6 +37,14 @@ export default function Home() {
       icon: <Hash className="text-emerald-500" size={32} />,
       status: 'Live',
       color: 'emerald'
+    },
+    {
+      id: 'base64-converter',
+      name: 'Base64 Converter',
+      description: 'Securely encode and decode text or files to Base64 locally. Supports drag-and-drop and binary downloads.',
+      icon: <UploadCloud className="text-blue-500" size={32} />,
+      status: 'Live',
+      color: 'blue'
     },
     {
       id: 'webhook-debugger',
