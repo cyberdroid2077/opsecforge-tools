@@ -1,50 +1,50 @@
 import React from 'react';
-import { ShieldAlert, Terminal, Lock, ArrowLeft, ExternalLink, AlertCircle, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, Terminal, Lock, ArrowLeft, AlertCircle, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 
 const cases = [
   {
-    title: "Samsung ChatGPT 核心代码泄露",
+    title: "Samsung ChatGPT Source Code Leak",
     date: "2023",
-    description: "员工将敏感的晶圆设备测量程序源代码及会议记录输入 ChatGPT 寻求优化，导致机密进入 AI 训练池。",
-    tech: "不安全的在线工具使用。由于缺乏出口过滤，敏感数据作为 Prompt 泄露给了第三方 AI 平台。",
-    lesson: "严禁将公司内部代码或机密数据输入未经审计的在线 AI 工具。",
+    description: "Semiconductor division employees inputted sensitive wafer measurement source code and meeting notes into ChatGPT for optimization, inadvertently feeding proprietary secrets into the AI training pool.",
+    tech: "Unsafe use of online tools. Lack of egress filtering allowed sensitive data to be transmitted as prompts to a third-party AI platform.",
+    lesson: "Strictly prohibit the input of internal code or confidential data into unvetted online AI tools.",
     recommend: "/tools/env-sanitizer",
     toolName: ".env Sanitizer"
   },
   {
-    title: "Capital One 云端 SSRF 攻破案",
+    title: "Capital One SSRF Breach",
     date: "2019",
-    description: "攻击者通过 SSRF 漏洞访问 AWS 元数据服务，窃取了 1.06 亿客户数据，导致 8000 万美元罚款。",
-    tech: "SSRF (服务端请求伪造) + IAM 配置错误。攻击者利用 WAF 漏洞获取了具有过多权限的 IAM 角色凭据。",
-    lesson: "遵循最小权限原则，限制云端实例角色权限，并强制使用 IMDSv2。",
+    description: "An attacker exploited an SSRF vulnerability to access the AWS metadata service, stealing data from 106 million customers and resulting in an $80 million fine.",
+    tech: "SSRF (Server-Side Request Forgery) + IAM Misconfiguration. The attacker leveraged a WAF vulnerability to obtain temporary credentials for an IAM role with excessive S3 permissions.",
+    lesson: "Follow the Principle of Least Privilege, restrict cloud instance role permissions, and enforce IMDSv2 usage.",
     recommend: "/faq",
     toolName: "Security FAQ"
   },
   {
-    title: "Log4j (Log4Shell) 史诗级漏洞",
+    title: "Log4j (Log4Shell) Critical Vulnerability",
     date: "2021",
-    description: "影响全球数亿台设备的远程代码执行 (RCE) 漏洞，利用极其简单且破坏力巨大。",
-    tech: "JNDI 注入。Log4j 错误地支持了动态查找语法，允许攻击者诱导服务器从远程加载恶意代码。",
-    lesson: "永远不要信任输入，即使是日志记录。建立快速的依赖库更新机制。",
+    description: "A remote code execution (RCE) vulnerability that affected hundreds of millions of devices globally, characterized by its ease of exploitation and devastating impact.",
+    tech: "JNDI Injection. Log4j incorrectly supported dynamic lookup syntax, allowing attackers to induce the server into loading and executing malicious code from a remote source.",
+    lesson: "Never trust user input, even in logging utilities. Establish rapid dependency update mechanisms.",
     recommend: "/glossary",
     toolName: "Security Glossary"
   },
   {
-    title: "Toyota T-Connect 凭据 GitHub 泄露",
+    title: "Toyota T-Connect GitHub Credential Leak",
     date: "2022",
-    description: "丰田 T-Connect 源码在 GitHub 公开长达 5 年，暴露了近 30 万条客户数据。",
-    tech: "硬编码凭据 (Hardcoded Secrets)。外包人员误将包含数据库访问密钥的源码推送到公共仓库。",
-    lesson: "禁止在源码中硬编码任何 API Key 或数据库密码。强制实施代码审计流程。",
+    description: "Toyota T-Connect source code remained public on a GitHub repository for 5 years, exposing nearly 300,000 customer records.",
+    tech: "Hardcoded Secrets. External contractors accidentally pushed source code containing database access keys to a public repository.",
+    lesson: "Prohibit hardcoding API keys or database passwords in source code. Enforce mandatory secret scanning and code audit processes.",
     recommend: "/tools/env-sanitizer",
     toolName: ".env Sanitizer"
   },
   {
-    title: "Uber MFA 疲劳攻击陷阱",
+    title: "Uber MFA Fatigue Attack",
     date: "2022",
-    description: "黑客通过轰炸员工手机的 MFA 确认请求，利用人的疏忽最终获取了内部管理员权限。",
-    tech: "社会工程学 + 特权凭据管理不当。攻击者进入内网后，在脚本中发现了硬编码的管理员凭据。",
-    lesson: "MFA 并非万能，需警惕疲劳确认；脚本中严禁存放管理员凭据。",
+    description: "An 18-year-old hacker used an MFA fatigue attack—bombarding an employee with push notifications—to eventually gain internal administrative access.",
+    tech: "Social Engineering + Improper Privileged Credential Management. Once inside the network, the attacker found hardcoded PAM admin credentials in a script.",
+    lesson: "MFA is not a silver bullet; be wary of notification fatigue. Administrative credentials must never be stored in plain text scripts.",
     recommend: "/faq",
     toolName: "Security FAQ"
   }
@@ -66,7 +66,7 @@ export default function CaseStudiesPage() {
             <h1 className="text-4xl font-bold text-slate-100 tracking-tight">Case Studies</h1>
           </div>
           <p className="text-xl text-slate-400 leading-relaxed max-w-3xl">
-            A curated history of 20 high-impact security breaches. Learn from the mistakes of the past to build a more secure future.
+            A curated history of high-impact security breaches. Learn from the mistakes of the past to build a more secure future.
           </p>
         </header>
 
