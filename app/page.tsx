@@ -31,26 +31,26 @@ export default function Home() {
       color: 'amber'
     },
     {
+      id: 'uuid-generator',
+      name: 'UUID & ULID Generator',
+      description: 'Generate cryptographically secure, time-sortable identifiers locally. No server-side ID harvesting.',
+      icon: <Hash className="text-emerald-500" size={32} />,
+      status: 'Live',
+      color: 'emerald'
+    },
+    {
       id: 'webhook-debugger',
       name: 'Webhook Debugger',
       description: 'Debug and verify Stripe, GitHub, and Shopify webhook signatures client-side.',
       icon: <Webhook className="text-rose-500" size={32} />,
-      status: 'In Dev',
+      status: 'Live',
       color: 'rose'
-    },
-    {
-      id: 'k8s-secret-gen',
-      name: 'K8s Secret Generator',
-      description: 'Generate Kubernetes Secret YAML manifests with automatic base64 encoding.',
-      icon: <KeyRound className="text-indigo-500" size={32} />,
-      status: 'In Dev',
-      color: 'indigo'
     },
     {
       id: 'hash-generator',
       name: 'Secure Hash Generator',
       description: 'Generate Bcrypt, SHA-256, and MD5 hashes locally without logging your plaintext passwords.',
-      icon: <Hash className="text-purple-500" size={32} />,
+      icon: <Zap className="text-purple-500" size={32} />,
       status: 'In Dev',
       color: 'purple'
     }

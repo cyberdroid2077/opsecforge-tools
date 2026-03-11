@@ -9,7 +9,8 @@ const tools = [
   { id: 'jwt-decoder', name: 'JWT Decoder', icon: <TerminalSquare size={16} />, href: '/tools/jwt-decoder' },
   { id: 'json-formatter', name: 'JSON Formatter', icon: <Code size={16} />, href: '/tools/json-formatter' },
   { id: 'env-sanitizer', name: '.env Sanitizer', icon: <FileCode size={16} />, href: '/tools/env-sanitizer' },
-  { id: 'webhook-debugger', name: 'Webhook Debugger', icon: <Webhook size={16} />, href: '/tools/webhook-debugger' },
+  { id: 'uuid-generator', name: 'ID Gen', icon: <Hash size={16} />, href: '/tools/uuid-generator' },
+  { id: 'webhook-debugger', name: 'Webhook', icon: <Webhook size={16} />, href: '/tools/webhook-debugger' },
 ];
 
 export default function Navbar() {
