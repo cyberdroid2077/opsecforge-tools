@@ -28,7 +28,7 @@ export default function EnvSanitizer() {
     secretPatterns.forEach(({ name, pattern }) => {
       const matches = sanitized.match(pattern);
       if (matches) {
-        detections.push(\`\${name} (\${matches.length})\`);
+        detections.push(`${name} (${matches.length})`);
         // We use a more careful replace for the generic pattern to preserve keys
         if (name === 'Generic Password/Secret' || name === 'AWS Secret Key') {
             sanitized = sanitized.replace(pattern, (match, p1, p2) => {
@@ -120,7 +120,7 @@ export default function EnvSanitizer() {
               <button 
                 onClick={handleCopy}
                 disabled={!sanitizedData}
-                className={\`text-xs flex items-center gap-1 transition-colors px-3 py-1 rounded-md border \${sanitizedData ? 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-amber-400' : 'bg-slate-900 text-slate-700 border-slate-800 cursor-not-allowed'}\`}
+                className={`text-xs flex items-center gap-1 transition-colors px-3 py-1 rounded-md border ${sanitizedData ? 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-amber-400' : 'bg-slate-900 text-slate-700 border-slate-800 cursor-not-allowed'}`}
               >
                 <Copy size={12} /> {copied ? 'Copied!' : 'Copy Safe Config'}
               </button>
@@ -135,7 +135,7 @@ export default function EnvSanitizer() {
               ) : (
                 <div className="flex-1 flex flex-col overflow-hidden">
                   {/* Status Banner */}
-                  <div className={\`p-4 border-b flex items-center gap-3 \${sanitizedData?.hasSecrets ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}\`}>
+                  <div className={`p-4 border-b flex items-center gap-3 ${sanitizedData?.hasSecrets ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
                     {sanitizedData?.hasSecrets ? <ShieldAlert size={20} /> : <CheckCircle2 size={20} />}
                     <div className="flex-1">
                       <p className="font-bold text-xs uppercase tracking-tight">
@@ -190,12 +190,12 @@ export default function EnvSanitizer() {
         </section>
 
       </div>
-      <style dangerouslySetInnerHTML={{__html: \`
+      <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
-      \`}} />
+      `}} />
     </main>
   );
 }

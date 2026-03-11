@@ -80,13 +80,13 @@ export default function Home() {
         {/* Tool Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full pb-24">
           {tools.map((tool) => (
-            <Link href={tool.status === 'Live' ? \`/tools/\${tool.id}\` : '#'} key={tool.id} className={\`block group \${tool.status !== 'Live' && 'cursor-not-allowed opacity-60'}\`}>
+            <Link href={tool.status === 'Live' ? `/tools/${tool.id}` : '#'} key={tool.id} className={`block group ${tool.status !== 'Live' && 'cursor-not-allowed opacity-60'}`}>
               <div className="h-full flex flex-col p-6 bg-slate-900/80 border border-slate-800 rounded-2xl hover:bg-slate-800/80 hover:border-slate-600 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 shadow-inner group-hover:scale-110 transition-transform">
                     {tool.icon}
                   </div>
-                  <span className={\`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full \${tool.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}\`}>
+                  <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${tool.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
                     {tool.status}
                   </span>
                 </div>
