@@ -1,8 +1,17 @@
 import React from 'react';
-import { BookOpen, Terminal, ShieldCheck, ArrowRight, Clock, Brain } from 'lucide-react';
+import { BookOpen, Terminal, ShieldCheck, ArrowRight, Clock, Brain, Globe2 } from 'lucide-react';
 import Link from 'next/link';
 
 const posts = [
+  {
+    id: 'global-privacy-compliance-guide-2026',
+    title: 'The 2026 Global Privacy Compliance Guide: Navigating Data Sovereignty',
+    excerpt: 'Regulatory landscapes have reached a tipping point. Learn why local-only developer tools are now a mandate for global compliance.',
+    category: 'Compliance',
+    date: 'March 11, 2026',
+    readTime: '12 min',
+    icon: <Globe2 className="text-blue-400" size={24} />
+  },
   {
     id: 'ai-opsec-checklist-how-to-use-llms-safely',
     title: "The AI OpSec Checklist: How to Use LLMs Without Leaking Your Company's Secret Sauce",
