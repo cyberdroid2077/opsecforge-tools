@@ -102,14 +102,14 @@ export default function JsonFormatter() {
                 <button 
                   onClick={() => handleCopy('minified')}
                   disabled={!parsedData?.valid}
-                  className={\`text-xs flex items-center gap-1 transition-colors px-3 py-1 rounded-md border \${parsedData?.valid ? 'bg-slate-900 text-slate-400 border-slate-800 hover:text-blue-400' : 'opacity-50 cursor-not-allowed'}\`}
+                  className={`text-xs flex items-center gap-1 transition-colors px-3 py-1 rounded-md border ${parsedData?.valid ? 'bg-slate-900 text-slate-400 border-slate-800 hover:text-blue-400' : 'opacity-50 cursor-not-allowed'}`}
                 >
                   <Copy size={12} /> Minify
                 </button>
                 <button 
                   onClick={() => handleCopy('formatted')}
                   disabled={!parsedData?.valid}
-                  className={\`text-xs flex items-center gap-1 transition-colors px-3 py-1 rounded-md border \${parsedData?.valid ? 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-blue-400' : 'bg-slate-900 text-slate-700 border-slate-800 cursor-not-allowed'}\`}
+                  className={`text-xs flex items-center gap-1 transition-colors px-3 py-1 rounded-md border ${parsedData?.valid ? 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700 hover:text-blue-400' : 'bg-slate-900 text-slate-700 border-slate-800 cursor-not-allowed'}`}
                 >
                   <Copy size={12} /> {copied ? 'Copied!' : 'Copy Formatted'}
                 </button>
