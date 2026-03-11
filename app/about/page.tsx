@@ -11,12 +11,18 @@ export default function AboutPage() {
         </Link>
         <h1 className="text-4xl font-bold text-slate-100 mb-8">About OpSecForge</h1>
         <div className="prose prose-invert prose-slate lg:prose-lg max-w-none">
-          <p className="text-xl text-slate-400">
-            OpSecForge is a collection of privacy-first, developer-centric security tools built to run 100% locally in your browser.
-          </p>
           <h2 className="text-slate-100">Our Mission</h2>
+          <p className="text-xl text-slate-400">
+            OpSecForge was built on a non-negotiable principle: your data belongs to you alone.
+          </p>
           <p>
-            In an era where "online formatters" are often front-ends for data harvesting, we believe developers deserve tools they can trust. OpSecForge tools never send your data to a server. What you paste here, stays here.
+            In an industry that routinely sacrifices privacy for convenience, we chose a different path. Every tool we build operates entirely within your browser—no servers, no logging, no telemetry. We don&apos;t have access to your payloads because we architected our platform to make it technically impossible.
+          </p>
+          <p>
+            We are 100% open source. Our code is auditable, our methods are transparent, and our commitment to local-first architecture is absolute. We believe security tools should verify their trustworthiness through inspectable source code, not marketing claims.
+          </p>
+          <p>
+            OpSecForge exists to prove that zero-compromise security and exceptional developer experience are not mutually exclusive. When you use our tools, you are not trusting us with your secrets. You are trusting mathematics, open standards, and code you can verify yourself.
           </p>
           <h2 className="text-slate-100">Transparency</h2>
           <p>

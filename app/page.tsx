@@ -9,7 +9,7 @@ export default function Home() {
     {
       id: 'jwt-decoder',
       name: 'JWT Decoder',
-      description: 'Decode and inspect JSON Web Tokens 100% locally. Zero server uploads. Smart timestamp conversion.',
+      description: 'Decode and inspect JSON Web Tokens with complete data sovereignty. No external transmission. Includes intelligent timestamp parsing and validation.',
       icon: <TerminalSquare className="text-emerald-500" size={32} />,
       status: 'Live',
       color: 'emerald'
@@ -71,8 +71,7 @@ export default function Home() {
               OpSecForge <span className="text-emerald-500">Hub</span>
             </h1>
             <p className="text-lg text-slate-400 max-w-2xl font-sans">
-              A suite of zero-trust, 100% client-side tools for developers handling sensitive data. <br/>
-              <strong>Your payloads never touch our servers. Period.</strong>
+              A zero-trust, client-side developer toolkit engineered for secure data operations. All processing occurs locally within your browser—no data transmission, no server exposure, no exceptions.
             </p>
           </div>
         </div>
