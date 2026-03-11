@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ShieldCheck, TerminalSquare, Code, Hash, Lock } from 'lucide-react';
+import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -21,6 +21,30 @@ export default function Home() {
       icon: <Code className="text-blue-500" size={32} />,
       status: 'Live',
       color: 'blue'
+    },
+    {
+      id: 'env-sanitizer',
+      name: '.env Sanitizer',
+      description: 'Automatically detect and mask secrets in your environment variables before sharing.',
+      icon: <FileCode className="text-amber-500" size={32} />,
+      status: 'Live',
+      color: 'amber'
+    },
+    {
+      id: 'webhook-debugger',
+      name: 'Webhook Debugger',
+      description: 'Debug and verify Stripe, GitHub, and Shopify webhook signatures client-side.',
+      icon: <Webhook className="text-rose-500" size={32} />,
+      status: 'In Dev',
+      color: 'rose'
+    },
+    {
+      id: 'k8s-secret-gen',
+      name: 'K8s Secret Generator',
+      description: 'Generate Kubernetes Secret YAML manifests with automatic base64 encoding.',
+      icon: <KeyRound className="text-indigo-500" size={32} />,
+      status: 'In Dev',
+      color: 'indigo'
     },
     {
       id: 'hash-generator',
@@ -54,15 +78,15 @@ export default function Home() {
         </div>
         
         {/* Tool Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full pb-24">
           {tools.map((tool) => (
-            <Link href={tool.status === 'Live' ? `/tools/${tool.id}` : '#'} key={tool.id} className={`block group ${tool.status !== 'Live' && 'cursor-not-allowed opacity-60'}`}>
+            <Link href={tool.status === 'Live' ? \`/tools/\${tool.id}\` : '#'} key={tool.id} className={\`block group \${tool.status !== 'Live' && 'cursor-not-allowed opacity-60'}\`}>
               <div className="h-full flex flex-col p-6 bg-slate-900/80 border border-slate-800 rounded-2xl hover:bg-slate-800/80 hover:border-slate-600 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 shadow-inner group-hover:scale-110 transition-transform">
                     {tool.icon}
                   </div>
-                  <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${tool.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>
+                  <span className={\`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full \${tool.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}\`}>
                     {tool.status}
                   </span>
                 </div>
@@ -78,6 +102,27 @@ export default function Home() {
               </div>
             </Link>
           ))}
+        </div>
+
+        {/* Blog Teaser / SEO Section */}
+        <div className="w-full max-w-4xl mx-auto py-24 border-t border-slate-800/50">
+            <h2 className="text-3xl font-bold text-slate-200 mb-12 text-center lg:text-left">Security Briefings & Dev Tips</h2>
+            <div className="grid grid-cols-1 gap-8">
+                <Link href="/blog/stop-pasting-sensitive-json-online" className="group block">
+                    <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-emerald-500/30 transition-all">
+                        <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4">Privacy & Security</div>
+                        <h3 className="text-2xl font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-4">
+                            Stop Pasting Sensitive JSON Online: How to Format API Logs Locally Without Exposing Customer Data
+                        </h3>
+                        <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                            We've all been there. You're debugging a production API issue at 2 AM. The logs are spewing malformed JSON across your terminal, and you just need to make sense of it—fast. Don't let convenience compromise your security.
+                        </p>
+                        <div className="text-emerald-500 font-bold text-sm flex items-center gap-2">
+                            Read Full Report <TerminalSquare size={16} />
+                        </div>
+                    </div>
+                </Link>
+            </div>
         </div>
 
       </div>
