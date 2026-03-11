@@ -1,8 +1,17 @@
 import React from 'react';
-import { BookOpen, Terminal, ShieldCheck, ArrowRight, Clock } from 'lucide-react';
+import { BookOpen, Terminal, ShieldCheck, ArrowRight, Clock, Brain } from 'lucide-react';
 import Link from 'next/link';
 
 const posts = [
+  {
+    id: 'ai-opsec-checklist-how-to-use-llms-safely',
+    title: "The AI OpSec Checklist: How to Use LLMs Without Leaking Your Company's Secret Sauce",
+    excerpt: "The clipboard is the new security perimeter. Learn how to harness AI's power without sacrificing your proprietary code or infrastructure secrets.",
+    category: 'AI Safety',
+    date: 'March 11, 2026',
+    readTime: '15 min',
+    icon: <Brain className="text-blue-500" size={24} />
+  },
   {
     id: 'how-to-safely-share-env-files',
     title: 'How to Safely Share .env Files: A Guide to Local Secret Masking',
