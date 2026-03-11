@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound, ArrowRight } from 'lucide-react';
+import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound, ArrowRight, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {

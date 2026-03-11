@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Copy, RefreshCw, Zap, Shield, Clock, Hash, AlertTriangle, Check, ArrowLeft } from "lucide-react";
+import { Copy, RefreshCw, Zap, Shield, Clock, Hash, AlertTriangle, Check, ArrowLeft, ShieldCheck } from "lucide-react";
 import Link from 'next/link';
 
 // ULID implementation

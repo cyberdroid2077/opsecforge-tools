@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, ChevronDown, TerminalSquare, Code, FileCode, Webhook, Home } from 'lucide-react';
+import { ShieldCheck, ChevronDown, TerminalSquare, Code, FileCode, Webhook, Home, Hash } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
