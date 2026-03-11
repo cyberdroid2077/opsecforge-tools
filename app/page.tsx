@@ -150,6 +150,7 @@ export default function Home() {
                 <footer className="mt-24 pt-12 border-t border-slate-900 pb-24 text-center">
                     <div className="flex justify-center flex-wrap gap-8 md:gap-12 mb-12">
                         <Link href="/about" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">About</Link>
+                        <Link href="/glossary" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Glossary</Link>
                         <Link href="/faq" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">FAQ</Link>
                         <Link href="/privacy" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Privacy Policy</Link>
                         <Link href="/contact" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Contact</Link>
