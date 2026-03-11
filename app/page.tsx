@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound } from 'lucide-react';
+import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, KeyRound, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -108,6 +108,21 @@ export default function Home() {
         <div className="w-full max-w-4xl mx-auto py-24 border-t border-slate-800/50">
             <h2 className="text-3xl font-bold text-slate-200 mb-12 text-center lg:text-left">Security Briefings & Dev Tips</h2>
             <div className="grid grid-cols-1 gap-8">
+                <Link href="/blog/how-to-safely-share-env-files" className="group block">
+                    <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-amber-500/30 transition-all">
+                        <div className="text-amber-500 text-xs font-bold uppercase tracking-widest mb-4">Security Best Practices</div>
+                        <h3 className="text-2xl font-bold text-slate-200 group-hover:text-amber-400 transition-colors mb-4">
+                            How to Safely Share .env Files: A Guide to Local Secret Masking
+                        </h3>
+                        <p className="text-slate-400 text-sm leading-relaxed mb-6">
+                            AWS keys, database passwords, and API tokens are the keys to your kingdom. Learn why sharing plain-text environment files is a catastrophe waiting to happen.
+                        </p>
+                        <div className="text-amber-500 font-bold text-sm flex items-center gap-2">
+                            Read Security Guide <ShieldCheck size={16} />
+                        </div>
+                    </div>
+                </Link>
+
                 <Link href="/blog/stop-pasting-sensitive-json-online" className="group block">
                     <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-emerald-500/30 transition-all">
                         <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4">Privacy & Security</div>
@@ -115,7 +130,7 @@ export default function Home() {
                             Stop Pasting Sensitive JSON Online: How to Format API Logs Locally Without Exposing Customer Data
                         </h3>
                         <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                            We've all been there. You're debugging a production API issue at 2 AM. The logs are spewing malformed JSON across your terminal, and you just need to make sense of it—fast. Don't let convenience compromise your security.
+                            We&apos;ve all been there. You&apos;re debugging a production API issue at 2 AM. The logs are spewing malformed JSON across your terminal, and you just need to make sense of it—fast.
                         </p>
                         <div className="text-emerald-500 font-bold text-sm flex items-center gap-2">
                             Read Full Report <TerminalSquare size={16} />
@@ -123,7 +138,32 @@ export default function Home() {
                     </div>
                 </Link>
             </div>
+            
+            <div className="text-center mt-12">
+                <Link href="/blog" className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">
+                    View All Articles <ArrowRight size={14} />
+                </Link>
+            </div>
         </div>
+
+        {/* Footer and Compliance */}
+        <footer className="mt-24 pt-12 border-t border-slate-900 pb-24 text-center">
+            <div className="flex justify-center gap-12 mb-12">
+                <Link href="/about" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">About</Link>
+                <Link href="/privacy" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Privacy Policy</Link>
+                <Link href="/contact" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Contact</Link>
+            </div>
+            <div className="text-slate-700 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">
+                OpSecForge v1.4.2 • Built for the Global Dev Community • 2026
+            </div>
+            <div className="flex justify-center gap-4 text-slate-800 text-[8px] font-mono tracking-widest">
+                <span>EST. 2026.03.10</span>
+                <span>•</span>
+                <span>100% CLIENT-SIDE</span>
+                <span>•</span>
+                <span>ZERO-LOG POLICY</span>
+            </div>
+        </footer>
 
       </div>
     </main>
