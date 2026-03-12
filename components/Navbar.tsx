@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, ChevronDown, TerminalSquare, Code, FileCode, Webhook, Home, Hash, UploadCloud } from 'lucide-react';
+import { ShieldCheck, ChevronDown, TerminalSquare, Code, FileCode, Webhook, Home, Hash, UploadCloud, Database } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -11,6 +11,7 @@ const tools = [
   { id: 'env-sanitizer', name: '.env Sanitizer', icon: <FileCode size={16} />, href: '/tools/env-sanitizer' },
   { id: 'uuid-generator', name: 'ID Gen', icon: <Hash size={16} />, href: '/tools/uuid-generator' },
   { id: 'base64-converter', name: 'Base64', icon: <UploadCloud size={16} />, href: '/tools/base64-converter' },
+  { id: 'sql-formatter', name: 'SQL', icon: <Database size={16} />, href: '/tools/sql-formatter' },
   { id: 'webhook-debugger', name: 'Webhook', icon: <Webhook size={16} />, href: '/tools/webhook-debugger' },
 ];
 

@@ -47,6 +47,14 @@ export default function Home() {
       color: 'blue'
     },
     {
+      id: 'sql-formatter',
+      name: 'SQL Formatter & Minifier',
+      description: 'Beautify and optimize SQL queries locally. Supports MySQL and PostgreSQL dialects with zero data leakage.',
+      icon: <Database className="text-amber-500" size={32} />,
+      status: 'Live',
+      color: 'amber'
+    },
+    {
       id: 'webhook-debugger',
       name: 'Webhook Debugger',
       description: 'Debug and verify Stripe, GitHub, and Shopify webhook signatures client-side.',
