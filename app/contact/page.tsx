@@ -21,7 +21,7 @@ export default function ContactPage() {
               </div>
               <h3 className="text-slate-100 m-0">Email Support</h3>
               <p className="text-sm text-slate-400 mt-2 mb-6">Reach out to our engineering team directly.</p>
-              <a href="mailto:support@opsecforge.com" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">support@opsecforge.com</a>
+              <a href="mailto:admin@opsecforge.com" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">admin@opsecforge.com</a>
             </div>
             <div className="p-8 bg-slate-900/50 rounded-2xl border border-slate-800 flex flex-col items-center text-center opacity-60">
               <div className="p-4 bg-slate-800/50 rounded-full text-slate-500 mb-6">

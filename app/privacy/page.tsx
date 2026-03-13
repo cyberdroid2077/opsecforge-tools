@@ -38,7 +38,7 @@ export default function PrivacyPage() {
           </p>
           <h2 className="text-slate-100">Contact</h2>
           <p>
-            For questions about our privacy commitment, please contact us at <a href="mailto:support@opsecforge.com" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">support@opsecforge.com</a>.
+            For questions about our privacy commitment, please contact us at <a href="mailto:admin@opsecforge.com" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">admin@opsecforge.com</a>.
           </p>
         </div>
         <footer className="mt-24 pt-8 border-t border-slate-900 text-slate-600 text-sm">
