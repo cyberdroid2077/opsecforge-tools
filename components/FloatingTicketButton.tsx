@@ -10,7 +10,7 @@ export default function FloatingTicketButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center justify-center p-3 text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 transition-transform hover:scale-110"
+        className="fixed bottom-20 right-6 z-40 flex items-center justify-center p-3 text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 transition-transform hover:scale-110"
         title="Report a Bug"
       >
         <span className="sr-only">Report a Bug</span>
