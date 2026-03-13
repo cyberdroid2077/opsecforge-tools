@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LanguageSelector from "../components/LanguageSelector";
 import Navbar from "../components/Navbar";
+import FloatingTicketButton from "../components/FloatingTicketButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <LanguageSelector />
+        <FloatingTicketButton />
         <Analytics />
       </body>
     </html>
