@@ -24,7 +24,7 @@ export default function Home() {
     { id: 'sql-formatter', name: 'SQL Formatter & Minifier', description: 'Beautify and optimize SQL queries locally. Supports MySQL and PostgreSQL dialects with zero data leakage.', icon: <Database className="text-amber-500" size={32} />, status: 'Live' },
     { id: 'unix-timestamp', name: 'Unix Timestamp Converter', description: 'Convert Unix epochs to local or UTC dates and turn date selections back into seconds or milliseconds.', icon: <Zap className="text-cyan-500" size={32} />, status: 'Live' },
     { id: 'webhook-debugger', name: 'Webhook Debugger', description: 'Debug and verify Stripe, GitHub, and Shopify webhook signatures client-side.', icon: <Webhook className="text-rose-500" size={32} />, status: 'Live' },
-    { id: 'hash-generator', name: 'Secure Hash Generator', description: 'Generate Bcrypt, SHA-256, and MD5 hashes locally without logging your plaintext passwords.', icon: <Zap className="text-purple-500" size={32} />, status: 'In Dev' }
+    { id: 'hash-generator', name: 'Secure Hash Generator', description: 'Generate Bcrypt, SHA-256, and MD5 hashes locally without logging your plaintext passwords.', icon: <Zap className="text-purple-500" size={32} />, status: 'Live' }
   ];
 
   return (

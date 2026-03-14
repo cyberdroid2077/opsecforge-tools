@@ -1,5 +1,5 @@
-import UrlEncoderTool from '@/components/UrlEncoderTool';
+import URLEncoder from '@/components/Tool-URLEncoder';
 
 export default function UrlEncoderPage() {
-  return <UrlEncoderTool />;
+  return <URLEncoder />;
 }

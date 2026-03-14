@@ -1,5 +1,5 @@
-import TextCaseConverterTool from '@/components/TextCaseConverterTool';
+import CaseConverter from '@/components/Tool-CaseConverter';
 
 export default function TextCasePage() {
-  return <TextCaseConverterTool />;
+  return <CaseConverter />;
 }
