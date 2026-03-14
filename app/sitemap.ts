@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://opsecforge.com';
-  
+
   const staticRoutes = [
     '',
     '/about',
@@ -17,7 +17,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/blog/stop-pasting-sensitive-json-online',
     '/tools/jwt-decoder',
     '/tools/json-formatter',
+    '/tools/json-beautifier',
     '/tools/env-sanitizer',
+    '/tools/base64-converter',
+    '/tools/uuid-generator',
+    '/tools/unix-timestamp',
+    '/tools/password-generator',
+    '/tools/lorem-ipsum',
+    '/tools/url-encoder',
+    '/tools/text-case',
+    '/tools/word-counter',
+    '/tools/qr-generator',
+    '/tools/sha256-hash',
+    '/tools/hex-rgb-converter',
+    '/tools/markdown-to-html',
+    '/tools/text-diff',
     '/tools/webhook-debugger',
   ];
 
