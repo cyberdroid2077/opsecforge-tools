@@ -3,7 +3,7 @@
 import React, { useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { Download, Lock, QrCode } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react/lib/esm';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function QrGeneratorTool() {
   const [text, setText] = React.useState('https://opsecforge.com');
