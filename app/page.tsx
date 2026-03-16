@@ -91,7 +91,7 @@ export default function Home() {
             <Link href="/privacy" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Privacy Policy</Link>
             <Link href="/contact" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Contact</Link>
           </div>
-          <div className="text-slate-700 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">OpSecForge v1.7.0 • Built for the Global Dev Community • 2026</div>
+          <div className="text-slate-700 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">OpSecForge v1.8.1 • Built for the Global Dev Community • 2026</div>
           <div className="flex justify-center gap-4 text-slate-800 text-[8px] font-mono tracking-widest"><span>EST. 2026.03.10</span><span>•</span><span>100% CLIENT-SIDE</span><span>•</span><span>ZERO-LOG POLICY</span></div>
         </footer>
       </div>
