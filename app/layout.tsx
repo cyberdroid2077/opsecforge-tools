@@ -2,6 +2,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import LanguageSelector from "../components/LanguageSelector";
 import Navbar from "../components/Navbar";
@@ -47,10 +48,20 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased pt-16`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pt-28 md:pt-16`}
       >
         <Navbar />
         {children}
+        <footer className="border-t border-slate-800 bg-slate-950 px-4 py-6">
+          <div className="mx-auto flex max-w-[1400px] items-center justify-center">
+            <Link
+              href="/terms-of-service"
+              className="text-sm font-medium text-slate-400 transition-colors hover:text-emerald-400"
+            >
+              Terms of Service
+            </Link>
+          </div>
+        </footer>
         <LanguageSelector />
         <FloatingTicketButton />
         <Analytics />
