@@ -29,6 +29,7 @@ const tools = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const isBlogRoute = pathname === '/blog' || pathname.startsWith('/blog/');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftScroll, setShowLeftScroll] = useState(false);
   const [showRightScroll, setShowRightScroll] = useState(false);
@@ -114,7 +115,16 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4 shrink-0 pl-0 md:pl-4 md:border-l border-slate-800/50 md:ml-2 self-end md:self-auto">
           <ThemeToggle />
-          <Link href="/blog" className="text-xs font-bold text-slate-400 hover:text-emerald-400 uppercase tracking-widest px-3 py-2 transition-colors">Blog</Link>
+          <Link
+            href="/blog"
+            className={`text-xs font-bold uppercase tracking-widest px-3 py-2 rounded-xl transition-colors ${
+              isBlogRoute
+                ? 'bg-slate-800 text-emerald-400 border border-slate-700'
+                : 'text-slate-400 hover:text-emerald-400'
+            }`}
+          >
+            Blog
+          </Link>
           <Link href="/" className="md:hidden p-2 text-slate-400 hover:text-slate-100 transition-colors"><Home size={20} /></Link>
         </div>
       </div>
