@@ -10,9 +10,6 @@ const nextConfig = {
   // Silence Turbopack/Webpack conflict warning for now
   // as next-pwa still relies on some webpack internal injection
   turbopack: {},
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
