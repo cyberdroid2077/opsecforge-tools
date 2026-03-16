@@ -8,6 +8,18 @@ import LanguageSelector from "../components/LanguageSelector";
 import Navbar from "../components/Navbar";
 import FloatingTicketButton from "../components/FloatingTicketButton";
 
+const themeBootstrapScript = `
+  (function() {
+    const storageKey = "opsecforge-theme";
+    const storedTheme = window.localStorage.getItem(storageKey);
+    const resolvedTheme = storedTheme === "light" || storedTheme === "dark"
+      ? storedTheme
+      : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.dataset.theme = resolvedTheme;
+    document.documentElement.style.colorScheme = resolvedTheme;
+  })();
+`;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -37,9 +49,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7680565010427495"
@@ -48,11 +60,11 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased pt-28 md:pt-16`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-300 pt-28 md:pt-16`}
       >
         <Navbar />
         {children}
-        <footer className="border-t border-slate-800 bg-slate-950 px-4 py-6">
+        <footer className="border-t border-slate-800 bg-slate-950 px-4 py-6 transition-colors">
           <div className="mx-auto flex max-w-[1400px] items-center justify-center">
             <Link
               href="/terms-of-service"

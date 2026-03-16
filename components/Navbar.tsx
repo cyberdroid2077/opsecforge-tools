@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { ShieldCheck, TerminalSquare, Code, FileCode, Webhook, Home, Hash, UploadCloud, Database, Clock3, KeyRound, Pilcrow, Link2, CaseSensitive, Sigma, QrCode, Fingerprint, Palette, FileText, GitCompareArrows, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 
 const tools = [
   { name: 'JWT', icon: <TerminalSquare size={16} />, href: '/tools/jwt-decoder' },
@@ -112,6 +113,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4 shrink-0 pl-0 md:pl-4 md:border-l border-slate-800/50 md:ml-2 self-end md:self-auto">
+          <ThemeToggle />
           <Link href="/blog" className="text-xs font-bold text-slate-400 hover:text-emerald-400 uppercase tracking-widest px-3 py-2 transition-colors">Blog</Link>
           <Link href="/" className="md:hidden p-2 text-slate-400 hover:text-slate-100 transition-colors"><Home size={20} /></Link>
         </div>
