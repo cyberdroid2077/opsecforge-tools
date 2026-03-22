@@ -85,10 +85,10 @@ Ironically, AI assistants aren't the root cause. The report reveals a critical n
 **The leak still happens through a human workflow.** This distinction matters.
 
 <div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
-  <h3 class="mb-3 text-2xl font-bold text-slate-100">Catch Leaked Keys Before Commit</h3>
-  <p class="mb-8 text-slate-400 text-lg">Over 10 million secrets were leaked on GitHub last year. Run GitScan locally to identify hardcoded keys, .env files, and dangerous patterns before they reach your remote repository.</p>
-  <a href="https://opsecforge.tools/gitscan" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-    Install GitScan CLI →
+  <h3 class="mb-3 text-2xl font-bold text-slate-100">Sanitize .env Files Before Commit</h3>
+  <p class="mb-8 text-slate-400 text-lg">Over 10 million secrets were leaked on GitHub last year. Use our Env Sanitizer to detect sensitive values in environment files before they reach your repository.</p>
+  <a href="/tools/env-sanitizer" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+    Open Env Sanitizer →
   </a>
 </div>
 
