@@ -39,10 +39,8 @@ The distinction between **Web Application Firewalls (WAF)** and API Gateways is 
 
 Application-layer **DDoS attacks**, which target resource-intensive API endpoints, have become increasingly sophisticated. **AI-native gateway security** employs **endpoint-specific throttling** to counter these threats. If a particular API endpoint is bombarded with complex queries, the gateway can apply tighter, dynamic rate limits to that specific endpoint while allowing normal traffic to flow elsewhere. This granular approach, seen in **AWS WAF and Azure API Management**, ensures service availability by mitigating targeted attacks.
 
-<div class="my-8 border-l-4 border-indigo-500 bg-slate-800/50 p-5 rounded-r-lg shadow-md">
-  <div class="flex items-center gap-2 mb-2">
-    <strong class="font-semibold text-indigo-300 text-lg tracking-wide">🛡️ Proactive API Defense</strong>
-  </div>
+> **🛡️ Proactive API Defense**  
+> Don't wait for a breach to find your API misconfigurations. Use the [OpSecForge API Scanner](https://opsecforge.tools/api-scanner) to automatically audit your endpoints for CORS, JWT, and authentication flaws in seconds.
   <p class="text-slate-300 leading-relaxed m-0">Don't wait for a breach to find your API misconfigurations. Use the <a href="https://opsecforge.tools/api-scanner" class="font-medium text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors">OpSecForge API Scanner</a> to automatically audit your endpoints for CORS, JWT, and authentication flaws in seconds.</p>
 </div>
 
