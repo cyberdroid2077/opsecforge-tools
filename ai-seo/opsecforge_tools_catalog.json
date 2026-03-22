@@ -29,14 +29,14 @@
   },
   {
     "name": "Webhook Debugger",
-    "description": "Debug webhook integrations with detailed request/response logging. Test endpoints without exposing your dev environment.",
+    "description": "Debug and verify Stripe, GitHub, and Shopify webhook signatures client-side. 100% LOCAL.",
     "url": "/tools/webhook-debugger",
     "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Debug Webhooks Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Building webhook integrations? Use our debugger to inspect payloads, verify signatures, and test endpoints without exposing your dev environment.</p>\n  <a href=\"/tools/webhook-debugger\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Webhook Debugger →\n  </a>\n</div>\n",
     "topics": ["Webhooks", "API Integration", "Debugging", "HMAC"]
   },
   {
     "name": "SQL Formatter",
-    "description": "Format and beautify SQL queries locally. Keep your database schemas and queries private.",
+    "description": "Beautify and optimize SQL queries locally. Supports MySQL and PostgreSQL dialects with zero data leakage. 100% LOCAL.",
     "url": "/tools/sql-formatter",
     "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Format SQL Queries Privately</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Your database queries reveal your schema. Keep them private with our client-side SQL formatter—no server logging, no data exposure.</p>\n  <a href=\"/tools/sql-formatter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open SQL Formatter →\n  </a>\n</div>\n",
     "topics": ["SQL", "Database", "Privacy", "Formatting"]
@@ -61,5 +61,75 @@
     "url": "/tools/password-generator",
     "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate Secure Passwords Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Creating API keys or service accounts? Generate cryptographically secure passwords with customizable length and character sets—client-side only.</p>\n  <a href=\"/tools/password-generator\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Password Generator →\n  </a>\n</div>\n",
     "topics": ["Passwords", "Security", "API Keys", "Cryptography"]
+  },
+  {
+    "name": "URL Encoder",
+    "description": "Safely encode URI components, decode escaped strings, and normalize URLs client-side. 100% LOCAL.",
+    "url": "/tools/url-encoder",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Encode URLs Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Working with query parameters or URL paths? Encode and decode URI components securely in your browser without sending data to external servers.</p>\n  <a href=\"/tools/url-encoder\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open URL Encoder →\n  </a>\n</div>\n",
+    "topics": ["URL", "Encoding", "Web Development", "API"]
+  },
+  {
+    "name": "Text Case Converter",
+    "description": "Convert text to uppercase, lowercase, title case, camelCase, snake_case, and kebab-case. 100% LOCAL.",
+    "url": "/tools/text-case",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Convert Text Case Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need to standardize variable names or format text? Convert between camelCase, snake_case, kebab-case, and more—all processed locally in your browser.</p>\n  <a href=\"/tools/text-case\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Text Case Converter →\n  </a>\n</div>\n",
+    "topics": ["Text Processing", "Developer Tools", "Formatting"]
+  },
+  {
+    "name": "Unix Timestamp Converter",
+    "description": "Convert Unix epochs to local or UTC dates and turn date selections back into seconds or milliseconds. 100% LOCAL.",
+    "url": "/tools/unix-timestamp",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Convert Unix Timestamps Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Working with epoch timestamps? Convert between Unix time and human-readable dates instantly in your browser—no data transmission required.</p>\n  <a href=\"/tools/unix-timestamp\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Timestamp Converter →\n  </a>\n</div>\n",
+    "topics": ["Timestamps", "Date Conversion", "Developer Tools"]
+  },
+  {
+    "name": "Hash Generator",
+    "description": "Generate Bcrypt, SHA-256, and MD5 hashes locally without logging your plaintext passwords. 100% LOCAL.",
+    "url": "/tools/hash-generator",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate Secure Hashes Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need to hash passwords or verify checksums? Generate Bcrypt, SHA-256, and MD5 hashes client-side—your plaintext never leaves your browser.</p>\n  <a href=\"/tools/hash-generator\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Hash Generator →\n  </a>\n</div>\n",
+    "topics": ["Hashing", "Bcrypt", "Passwords", "Security"]
+  },
+  {
+    "name": "Markdown to HTML",
+    "description": "Preview Markdown live and inspect the generated raw HTML side by side. 100% LOCAL.",
+    "url": "/tools/markdown-to-html",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Convert Markdown Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Writing documentation? Preview your Markdown and inspect the generated HTML instantly in your browser—no server processing required.</p>\n  <a href=\"/tools/markdown-to-html\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Markdown Converter →\n  </a>\n</div>\n",
+    "topics": ["Markdown", "Documentation", "HTML", "Developer Tools"]
+  },
+  {
+    "name": "Text Diff Checker",
+    "description": "Compare two text snippets and visualize additions and deletions instantly in the browser. 100% LOCAL.",
+    "url": "/tools/text-diff",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Compare Text Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need to spot differences between code snippets or configuration files? Compare text side-by-side with visual diff highlighting—all client-side.</p>\n  <a href=\"/tools/text-diff\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Text Diff →\n  </a>\n</div>\n",
+    "topics": ["Diff", "Comparison", "Developer Tools"]
+  },
+  {
+    "name": "Hex RGB Converter",
+    "description": "Convert between hex, rgb(), and hsl() values with a live color preview and copy actions. 100% LOCAL.",
+    "url": "/tools/hex-rgb-converter",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Convert Colors Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Working with CSS colors? Convert between Hex, RGB, and HSL formats instantly with live preview—no data transmission required.</p>\n  <a href=\"/tools/hex-rgb-converter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Color Converter →\n  </a>\n</div>\n",
+    "topics": ["Colors", "CSS", "Design", "Developer Tools"]
+  },
+  {
+    "name": "Word Counter",
+    "description": "Measure words, characters, paragraphs, sentences, and reading time in real time. 100% LOCAL.",
+    "url": "/tools/word-counter",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Count Words Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Writing content? Get instant word count, character count, and reading time estimates—all processed locally in your browser.</p>\n  <a href=\"/tools/word-counter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Word Counter →\n  </a>\n</div>\n",
+    "topics": ["Writing", "Content", "Productivity"]
+  },
+  {
+    "name": "QR Code Generator",
+    "description": "Generate styled QR codes for links or payloads and download them as PNG files locally. 100% LOCAL.",
+    "url": "/tools/qr-generator",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate QR Codes Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need to share a link or text via QR code? Generate styled QR codes instantly and download as PNG—all client-side, no server upload.</p>\n  <a href=\"/tools/qr-generator\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open QR Generator →\n  </a>\n</div>\n",
+    "topics": ["QR Codes", "Sharing", "Utilities"]
+  },
+  {
+    "name": "Lorem Ipsum Generator",
+    "description": "Generate words, sentences, or paragraphs of placeholder copy directly in the browser. 100% LOCAL.",
+    "url": "/tools/lorem-ipsum",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate Placeholder Text Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Designing layouts? Generate Lorem Ipsum placeholder text instantly in your browser—no external service required.</p>\n  <a href=\"/tools/lorem-ipsum\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Lorem Ipsum Generator →\n  </a>\n</div>\n",
+    "topics": ["Design", "Prototyping", "Utilities"]
   }
 ]
