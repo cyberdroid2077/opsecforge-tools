@@ -1,38 +1,65 @@
 [
   {
     "name": "JWT Decoder",
-    "description": "Decode, inspect, and verify JSON Web Tokens locally in your browser. 100% client-side—your tokens never leave your machine.",
+    "description": "Decode and inspect JSON Web Tokens with complete data sovereignty. No external transmission. Includes intelligent timestamp parsing and validation. 100% LOCAL.",
     "url": "/tools/jwt-decoder",
-    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Decode JWTs Without Exposing Secrets</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Stop pasting your tokens into online decoders that log your payload. Use our fully client-side JWT decoder to inspect headers and payloads without sending data to any server.</p>\n  <a href=\"/tools/jwt-decoder\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open JWT Decoder →\n  </a>\n</div>\n"
-  },
-  {
-    "name": "Base64 Converter",
-    "description": "Encode and decode Base64 and Base64URL formats locally. Perfect for handling JWT segments and URL parameters securely.",
-    "url": "/tools/base64-converter",
-    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Secure Local Base64 Encoding</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Encode and decode sensitive strings without sending data over the network. Our local Base64 tool handles standard and URL-safe formats instantly in your browser.</p>\n  <a href=\"/tools/base64-converter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Base64 Converter →\n  </a>\n</div>\n"
-  },
-  {
-    "name": "Env Sanitizer",
-    "description": "Sanitize and validate environment variables before committing to version control. Detects secrets and sensitive patterns.",
-    "url": "/tools/env-sanitizer",
-    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Sanitize .env Files Before Commit</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Accidentally committed a secret? Use Env Sanitizer to detect sensitive values in environment files before they reach your repository.</p>\n  <a href=\"/tools/env-sanitizer\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Env Sanitizer →\n  </a>\n</div>\n"
-  },
-  {
-    "name": "Webhook Debugger",
-    "description": "Inspect, debug, and validate webhook payloads. Test your webhook integrations with detailed request/response logging.",
-    "url": "/tools/webhook-debugger",
-    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Debug Webhooks Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Building webhook integrations? Use our debugger to inspect payloads, verify signatures, and test endpoints without exposing your dev environment.</p>\n  <a href=\"/tools/webhook-debugger\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Webhook Debugger →\n  </a>\n</div>\n"
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Decode JWTs Without Exposing Secrets</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Stop pasting your tokens into online decoders that log your payload. Use our fully client-side JWT decoder to inspect headers and payloads without sending data to any server.</p>\n  <a href=\"/tools/jwt-decoder\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open JWT Decoder →\n  </a>\n</div>\n",
+    "topics": ["JWT", "API Security", "Authentication", "Token Validation"]
   },
   {
     "name": "JSON Formatter",
-    "description": "Format, validate, and beautify JSON data locally. No data sent to servers—100% client-side processing.",
-    "url": "/tools/json-formatter",
-    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Format JSON Without Data Leaks</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Stop pasting sensitive API responses into online formatters. Our client-side JSON tool handles your data locally, with validation and error highlighting.</p>\n  <a href=\"/tools/json-formatter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open JSON Formatter →\n  </a>\n</div>\n"
+    "description": "Securely format, validate, and minify sensitive JSON payloads entirely in your browser. 100% LOCAL.",
+    "url": "/tools/json-beautifier",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Format JSON Without Data Leaks</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Stop pasting sensitive API responses into online formatters. Our client-side JSON tool handles your data locally, with validation and error highlighting.</p>\n  <a href=\"/tools/json-beautifier\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open JSON Formatter →\n  </a>\n</div>\n",
+    "topics": ["JSON", "API", "Data Processing", "Formatting"]
+  },
+  {
+    "name": "Env Sanitizer",
+    "description": "Automatically detect and mask secrets in your environment variables before sharing. 100% LOCAL.",
+    "url": "/tools/env-sanitizer",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Sanitize .env Files Before Sharing</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need to share environment variables? Use Env Sanitizer to automatically detect and mask secrets. All processing happens client-side—your data never leaves your browser.</p>\n  <a href=\"/tools/env-sanitizer\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Env Sanitizer →\n  </a>\n</div>\n",
+    "topics": ["Secrets", "Environment Variables", "DevSecOps", "Credential Protection"]
+  },
+  {
+    "name": "Base64 Converter",
+    "description": "Encode plain text to Base64 or decode Base64 back to text entirely in your browser. 100% LOCAL.",
+    "url": "/tools/base64-converter",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Secure Local Base64 Encoding</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Encode and decode sensitive strings without sending data over the network. Our local Base64 tool handles standard and URL-safe formats instantly in your browser.</p>\n  <a href=\"/tools/base64-converter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Base64 Converter →\n  </a>\n</div>\n",
+    "topics": ["Base64", "Encoding", "JWT", "Data Processing"]
+  },
+  {
+    "name": "Webhook Debugger",
+    "description": "Debug webhook integrations with detailed request/response logging. Test endpoints without exposing your dev environment.",
+    "url": "/tools/webhook-debugger",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Debug Webhooks Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Building webhook integrations? Use our debugger to inspect payloads, verify signatures, and test endpoints without exposing your dev environment.</p>\n  <a href=\"/tools/webhook-debugger\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Webhook Debugger →\n  </a>\n</div>\n",
+    "topics": ["Webhooks", "API Integration", "Debugging", "HMAC"]
   },
   {
     "name": "SQL Formatter",
     "description": "Format and beautify SQL queries locally. Keep your database schemas and queries private.",
     "url": "/tools/sql-formatter",
-    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Format SQL Queries Privately</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Your database queries reveal your schema. Keep them private with our client-side SQL formatter—no server logging, no data exposure.</p>\n  <a href=\"/tools/sql-formatter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open SQL Formatter →\n  </a>\n</div>\n"
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Format SQL Queries Privately</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Your database queries reveal your schema. Keep them private with our client-side SQL formatter—no server logging, no data exposure.</p>\n  <a href=\"/tools/sql-formatter\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open SQL Formatter →\n  </a>\n</div>\n",
+    "topics": ["SQL", "Database", "Privacy", "Formatting"]
+  },
+  {
+    "name": "SHA Hash Generator",
+    "description": "Generate SHA-1, SHA-256, and SHA-512 hashes in real time using the browser crypto API. 100% LOCAL.",
+    "url": "/tools/sha256-hash",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate Secure Hashes Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need to verify file integrity or generate password hashes? Use our client-side SHA generator with support for SHA-1, SHA-256, and SHA-512.</p>\n  <a href=\"/tools/sha256-hash\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open SHA Generator →\n  </a>\n</div>\n",
+    "topics": ["Hashing", "SHA", "Cryptography", "Security"]
+  },
+  {
+    "name": "UUID Generator",
+    "description": "Generate one or many RFC-style v4 UUIDs locally with uppercase and hyphenless output options. 100% LOCAL.",
+    "url": "/tools/uuid-generator",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate UUIDs Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Need unique identifiers for your API resources? Generate RFC-compliant UUIDs client-side with options for uppercase and hyphenless formats.</p>\n  <a href=\"/tools/uuid-generator\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open UUID Generator →\n  </a>\n</div>\n",
+    "topics": ["UUID", "Identifiers", "API Design", "Database"]
+  },
+  {
+    "name": "Password Generator",
+    "description": "Generate cryptographically secure passwords locally with strength scoring and charset controls. 100% LOCAL.",
+    "url": "/tools/password-generator",
+    "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Generate Secure Passwords Locally</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Creating API keys or service accounts? Generate cryptographically secure passwords with customizable length and character sets—client-side only.</p>\n  <a href=\"/tools/password-generator\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open Password Generator →\n  </a>\n</div>\n",
+    "topics": ["Passwords", "Security", "API Keys", "Cryptography"]
   }
 ]
