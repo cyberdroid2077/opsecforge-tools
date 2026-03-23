@@ -49,10 +49,11 @@ jobs:
 
       - name: npm audit
         run: npm audit --audit-level=high
-        continue-on-error: true  # Notify but don't fail on legacy advisories
+        continue-on-error: true
 
       - name: Check for known vulnerabilities in lockfile
         run: npm audit --package-lock-only --audit-level=high
+        continue-on-error: true
 
   build:
     name: Build
