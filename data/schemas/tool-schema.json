@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpSecForge Tool Schema",
+  "description": "Schema for defining security/developer tools in OpSecForge",
+  "type": "object",
+  "required": ["id", "name", "category", "status", "path"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique kebab-case identifier"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable English name"
+    },
+    "name_zh": {
+      "type": "string",
+      "description": "Human-readable Chinese name"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["security", "developer", "utility", "seo"],
+      "description": "Tool category"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["production", "beta", "planned", "deprecated"],
+      "description": "Development status"
+    },
+    "path": {
+      "type": "string",
+      "description": "Relative path from repo root to tool directory"
+    },
+    "description": {
+      "type": "string",
+      "description": "English description"
+    },
+    "description_zh": {
+      "type": "string",
+      "description": "Chinese description"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Searchable tags"
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Expected input types"
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Expected output types"
+    },
+    "privacy": {
+      "type": "string",
+      "enum": ["zero-transmission", "local-only", "server-required"],
+      "description": "Data privacy level"
+    },
+    "monetization": {
+      "type": "string",
+      "enum": ["adsense-ready", "premium-only", "free"],
+      "description": "Monetization status"
+    },
+    "seo_keywords": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Target SEO keywords"
+    }
+  }
+}

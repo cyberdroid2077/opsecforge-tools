@@ -1,0 +1,106 @@
+name: OpSecForge CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Tools & Schema
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate inventory.json schema
+        run: |
+          node -e "
+            const inventory = require('./data/tools/inventory.json');
+            const schema = require('./data/schemas/tool-schema.json');
+            const Ajv = require('ajv');
+            const ajv = new Ajv();
+            const valid = ajv.validate(schema, inventory);
+            if (!valid) {
+              console.error('Inventory validation failed:', ajv.errors);
+              process.exit(1);
+            }
+            console.log('✓ inventory.json is valid');
+            console.log('Total tools:', inventory.stats.total);
+            console.log('Production:', inventory.stats.production);
+            console.log('Planned:', inventory.stats.planned);
+          "
+
+      - name: Check for required tool directories
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const inventory = require('./data/tools/inventory.json');
+            
+            let missing = [];
+            for (const tool of inventory.tools) {
+              const dir = path.join(process.cwd(), tool.path);
+              if (!fs.existsSync(dir)) {
+                missing.push(tool.id + ' -> ' + tool.path);
+              }
+            }
+            
+            if (missing.length > 0) {
+              console.error('Missing tool directories:');
+              missing.forEach(m => console.error('  -', m));
+              process.exit(1);
+            }
+            console.log('✓ All', inventory.tools.length, 'tool directories exist');
+          "
+
+  build:
+    name: Build Next.js
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: .next
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
