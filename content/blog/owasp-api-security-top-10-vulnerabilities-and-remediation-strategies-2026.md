@@ -297,3 +297,12 @@ SSRF attacks have become more prevalent as microservices increasingly make outbo
 </div>
 
 API security in 2026 is a comprehensive strategy built on Zero Trust principles. By understanding and addressing the critical OWASP API Security Top 10 vulnerabilities, and by implementing layered defenses—from AI-driven threat detection and robust authentication to automated governance—organizations can build a resilient API security posture. Prioritizing API security is essential for protecting sensitive data and maintaining customer trust.
+
+<!-- Tool Spotlight: JWT Decoder -->
+<div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
+  <h3 class="mb-3 text-2xl font-bold text-slate-100">Decode JWTs Without Exposing Secrets</h3>
+  <p class="mb-8 text-slate-400 text-lg">Stop pasting your tokens into online decoders that log your payload. Use our fully client-side JWT decoder to inspect headers and payloads without sending data to any server.</p>
+  <a href="/tools/jwt-decoder" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+    Open JWT Decoder →
+  </a>
+</div>

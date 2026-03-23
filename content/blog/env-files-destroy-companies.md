@@ -7,11 +7,27 @@ date: "2026-03-16"
 
 # Why Committing .env Files Destroys Companies: A Post-Mortem Analysis
 
+<!-- Threat Badge -->
+<div class="inline-flex items-center gap-2 rounded-full bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 border border-red-500/20 mb-6">
+  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+  </svg>
+  <span>Critical Security Risk</span>
+</div>
+
 It starts innocently enough. A developer creates a `.env` file to store local configuration. They run `git add .` without checking. The file ends up in a commit. Someone pushes to GitHub. And just like that, your company's most sensitive secrets are now indexed, searchable, and available to anyone with a browser.
 
 This isn't a hypothetical scenario. Companies have been destroyed by this exact mistake. This article examines the real technical, financial, and legal consequences of committing `.env` files to version control—and why "we'll rotate them later" is a death sentence.
 
-## What Makes .env Files So Dangerous
+<!-- Section Header: What Makes .env Files So Dangerous -->
+<div class="flex items-center gap-3 mb-4">
+  <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-emerald-400">
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+    </svg>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-100">What Makes .env Files So Dangerous</h2>
+</div>
 
 Environment files typically contain:
 
@@ -39,7 +55,16 @@ ELASTICSEARCH_PASSWORD=es-production-password
 
 A single `.env` file often contains the **entire authentication perimeter** of a company's infrastructure. These aren't just passwords—they're the keys to your kingdom.
 
-## Real-World Destruction: Case Studies
+<!-- Section Header: Real-World Destruction -->
+<div class="flex items-center gap-3 mb-4">
+  <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-amber-400">
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"/>
+    </svg>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-100">Real-World Destruction: Case Studies</h2>
+</div>
 
 ### Case Study 1: The $600,000 AWS Bill in 4 Hours
 
@@ -539,7 +564,15 @@ The only winning move is prevention:
 
 Companies have been destroyed by this mistake. Don't let yours be next.
 
-## Reference Checklist
+<!-- Section Header: Reference Checklist -->
+<div class="flex items-center gap-3 mb-4">
+  <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800 text-cyan-400">
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+    </svg>
+  </div>
+  <h2 class="text-2xl font-bold text-slate-100">Reference Checklist</h2>
+</div>
 
 **Project Setup:**
 - [ ] `.gitignore` includes `.env*` before any env files exist
@@ -561,3 +594,12 @@ Companies have been destroyed by this mistake. Don't let yours be next.
 - [ ] Emergency contact list current
 
 **Remember:** The `.env` file in your repository isn't just a configuration mistake—it's a company-ending event waiting to happen. Treat it with the gravity it deserves.
+
+<!-- Tool Spotlight: Env Sanitizer -->
+<div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
+  <h3 class="mb-3 text-2xl font-bold text-slate-100">Sanitize .env Files Before Sharing</h3>
+  <p class="mb-8 text-slate-400 text-lg">Need to share environment variables? Use Env Sanitizer to automatically detect and mask secrets. All processing happens client-side—your data never leaves your browser.</p>
+  <a href="/tools/env-sanitizer" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+    Open Env Sanitizer →
+  </a>
+</div>
