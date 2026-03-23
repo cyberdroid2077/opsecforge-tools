@@ -22,7 +22,7 @@ export default function WordCounterTool() {
     const lines = input ? input.split('\n').length : 0;
     const readingTime = wordCount === 0 ? '0 min' : `${Math.max(1, Math.ceil(wordCount / 200))} min`;
     const avgWordLength = wordCount > 0
-      ? (words.reduce((sum, w) => sum + w.replace(/[^a-zA-Z]/g, '').length, 0) / words.filter(w => w.replace(/[^a-zA-Z]/g, '').length > 0).toFixed(1)
+      ? (words.reduce((sum, w) => sum + w.replace(/[^a-zA-Z]/g, '').length, 0) / Math.max(1, words.filter(w => w.replace(/[^a-zA-Z]/g, '').length > 0).length)).toFixed(1)
       : '0';
 
     // Keyword density - top 5 words (min 3 chars, excluding stop words)
