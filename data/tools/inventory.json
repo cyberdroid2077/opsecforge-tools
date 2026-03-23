@@ -1,79 +1,133 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-23T16:48:00Z",
+  "lastUpdated": "2026-03-23T18:20:00Z",
   "tools": [
     {
       "id": "jwt-decoder",
       "name": "JWT Decoder",
-      "name_zh": "JWT 解码器",
+      "name_zh": "JWT \u89e3\u7801\u5668",
       "category": "security",
       "status": "production",
       "path": "app/tools/jwt-decoder",
       "description": "Decode and inspect JSON Web Tokens without sending data to any server. Client-side only.",
-      "description_zh": "在不解密数据的情况下解码和检查 JSON Web Token。仅客户端处理。",
-      "tags": ["jwt", "token", "security", "decoder"],
-      "inputs": ["jwt-string"],
-      "outputs": ["header-json", "payload-json", "signature-status"],
+      "description_zh": "\u5728\u4e0d\u89e3\u5bc6\u6570\u636e\u7684\u60c5\u51b5\u4e0b\u89e3\u7801\u548c\u68c0\u67e5 JSON Web Token\u3002\u4ec5\u5ba2\u6237\u7aef\u5904\u7406\u3002",
+      "tags": [
+        "jwt",
+        "token",
+        "security",
+        "decoder"
+      ],
+      "inputs": [
+        "jwt-string"
+      ],
+      "outputs": [
+        "header-json",
+        "payload-json",
+        "signature-status"
+      ],
       "privacy": "zero-transmission",
       "monetization": "adsense-ready"
     },
     {
       "id": "jwt-encoder",
       "name": "JWT Encoder",
-      "name_zh": "JWT 编码器",
+      "name_zh": "JWT \u7f16\u7801\u5668",
       "category": "security",
       "status": "beta",
       "path": "app/tools/jwt-encoder",
       "description": "Encode and sign JSON Web Tokens with HS256/HS512 algorithms. Client-side only.",
-      "description_zh": "使用 HS256/HS512 算法编码和签名 JSON Web Token。仅客户端处理。",
-      "tags": ["jwt", "token", "security", "encoder"],
-      "inputs": ["header-json", "payload-json", "secret-key"],
-      "outputs": ["jwt-string", "signature"],
+      "description_zh": "\u4f7f\u7528 HS256/HS512 \u7b97\u6cd5\u7f16\u7801\u548c\u7b7e\u540d JSON Web Token\u3002\u4ec5\u5ba2\u6237\u7aef\u5904\u7406\u3002",
+      "tags": [
+        "jwt",
+        "token",
+        "security",
+        "encoder"
+      ],
+      "inputs": [
+        "header-json",
+        "payload-json",
+        "secret-key"
+      ],
+      "outputs": [
+        "jwt-string",
+        "signature"
+      ],
       "privacy": "zero-transmission",
       "monetization": "adsense-ready"
     },
     {
       "id": "hash-generator",
       "name": "Hash Generator",
-      "name_zh": "哈希生成器",
+      "name_zh": "\u54c8\u5e0c\u751f\u6210\u5668",
       "category": "security",
       "status": "production",
       "path": "app/tools/hash-generator",
       "description": "Generate SHA-256, SHA-512, MD5 hashes from text. Client-side only.",
-      "description_zh": "从文本生成 SHA-256、SHA-512、MD5 哈希。仅客户端处理。",
-      "tags": ["hash", "sha256", "md5", "security"],
-      "inputs": ["plain-text"],
-      "outputs": ["hash-value"],
+      "description_zh": "\u4ece\u6587\u672c\u751f\u6210 SHA-256\u3001SHA-512\u3001MD5 \u54c8\u5e0c\u3002\u4ec5\u5ba2\u6237\u7aef\u5904\u7406\u3002",
+      "tags": [
+        "hash",
+        "sha256",
+        "md5",
+        "security"
+      ],
+      "inputs": [
+        "plain-text"
+      ],
+      "outputs": [
+        "hash-value"
+      ],
       "privacy": "zero-transmission",
       "monetization": "adsense-ready"
     },
     {
       "id": "env-sanitizer",
       "name": "Env Sanitizer",
-      "name_zh": "环境变量清理器",
+      "name_zh": "\u73af\u5883\u53d8\u91cf\u6e05\u7406\u5668",
       "category": "security",
       "status": "production",
       "path": "app/tools/env-sanitizer",
       "description": "Detect and highlight sensitive environment variables in .env files before sharing.",
-      "description_zh": "在分享 .env 文件前检测并高亮敏感环境变量。",
-      "tags": ["env", "security", "sanitizer", "secrets"],
-      "inputs": ["env-content"],
-      "outputs": ["sanitized-env", "detected-secrets"],
+      "description_zh": "\u5728\u5206\u4eab .env \u6587\u4ef6\u524d\u68c0\u6d4b\u5e76\u9ad8\u4eae\u654f\u611f\u73af\u5883\u53d8\u91cf\u3002",
+      "tags": [
+        "env",
+        "security",
+        "sanitizer",
+        "secrets"
+      ],
+      "inputs": [
+        "env-content"
+      ],
+      "outputs": [
+        "sanitized-env",
+        "detected-secrets"
+      ],
       "privacy": "zero-transmission",
       "monetization": "adsense-ready"
     },
     {
       "id": "api-key-validator",
       "name": "API Key Validator",
-      "name_zh": "API 密钥验证器",
+      "name_zh": "API \u5bc6\u94a5\u9a8c\u8bc1\u5668",
       "category": "security",
       "status": "planned",
       "path": "app/tools/api-key-validator",
       "description": "Validate and detect format of various API keys (AWS, Google, Stripe, etc).",
-      "description_zh": "验证和检测各种 API 密钥格式（AWS、Google、Stripe 等）。",
-      "tags": ["api-key", "validator", "security", "aws", "stripe"],
-      "inputs": ["api-key-string"],
-      "outputs": ["key-format", "key-type", "validity-indicator"],
+      "description_zh": "\u9a8c\u8bc1\u548c\u68c0\u6d4b\u5404\u79cd API \u5bc6\u94a5\u683c\u5f0f\uff08AWS\u3001Google\u3001Stripe \u7b49\uff09\u3002",
+      "tags": [
+        "api-key",
+        "validator",
+        "security",
+        "aws",
+        "stripe"
+      ],
+      "inputs": [
+        "api-key-string"
+      ],
+      "outputs": [
+        "key-format",
+        "key-type",
+        "validity-indicator"
+      ],
       "privacy": "zero-transmission",
       "monetization": "adsense-ready"
     }
