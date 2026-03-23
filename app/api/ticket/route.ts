@@ -45,7 +45,7 @@ ${description}
     await transporter.sendMail(mailOptions);
 
     return NextResponse.json({ success: true, message: 'Ticket submitted successfully.' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('SMTP Error:', error);
     return NextResponse.json({ error: 'Failed to send ticket. Please try again later.' }, { status: 500 });
   }
