@@ -10,6 +10,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/faq',
     '/glossary',
     '/case-studies',
+    '/privacy',
+    '/terms-of-service',
     '/blog',
     '/blog/ai-opsec-checklist-how-to-use-llms-safely',
     '/blog/global-privacy-compliance-guide-2026',
