@@ -7,6 +7,7 @@ import "./globals.css";
 import LanguageSelector from "../components/LanguageSelector";
 import Navbar from "../components/Navbar";
 import FloatingTicketButton from "../components/FloatingTicketButton";
+import AdBanner from "../components/AdBanner";
 
 const themeBootstrapScript = `
   (function() {
@@ -64,6 +65,7 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <AdBanner />
         <footer className="border-t border-slate-800 bg-slate-950 px-4 py-6 transition-colors">
           <div className="mx-auto flex max-w-[1400px] items-center justify-center">
             <Link
