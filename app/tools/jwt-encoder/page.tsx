@@ -12,7 +12,28 @@ export default function JwtEncoder() {
   const [algorithm, setAlgorithm] = useState<Algorithm>('HS256');
   const [encodedJwt, setEncodedJwt] = useState('');
   const [copied, setCopied] = useState(false);
+  const [segmentCopied, setSegmentCopied] = useState({ header: false, payload: false, signature: false });
   const [error, setError] = useState('');
+  const [headerError, setHeaderError] = useState('');
+  const [payloadError, setPayloadError] = useState('');
+
+  useEffect(() => {
+    try {
+      JSON.parse(headerJson);
+      setHeaderError('');
+    } catch (e) {
+      setHeaderError('Invalid JSON format');
+    }
+  }, [headerJson]);
+
+  useEffect(() => {
+    try {
+      JSON.parse(payloadJson);
+      setPayloadError('');
+    } catch (e) {
+      setPayloadError('Invalid JSON format');
+    }
+  }, [payloadJson]);
 
   const base64UrlEncode = (str: string): string => {
     const base64 = btoa(unescape(encodeURIComponent(str)));
@@ -55,6 +76,11 @@ export default function JwtEncoder() {
     setError('');
     setEncodedJwt('');
 
+    if (headerError || payloadError) {
+      setError('Please fix the JSON errors before encoding.');
+      return;
+    }
+
     if (!secret.trim()) {
       setError('Secret key is required');
       return;
@@ -85,6 +111,14 @@ export default function JwtEncoder() {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const copySegment = (segment: 'header' | 'payload' | 'signature') => {
+    const parts = encodedJwt.split('.');
+    const map = { header: 0, payload: 1, signature: 2 };
+    navigator.clipboard.writeText(parts[map[segment]]);
+    setSegmentCopied((prev) => ({ ...prev, [segment]: true }));
+    setTimeout(() => setSegmentCopied((prev) => ({ ...prev, [segment]: false })), 1800);
   };
 
   const resetForm = () => {
@@ -155,6 +189,7 @@ export default function JwtEncoder() {
               className="w-full h-40 bg-slate-800 border border-slate-600 rounded-lg p-3 font-mono text-sm text-emerald-300 focus:border-emerald-400 focus:outline-none resize-none"
               spellCheck={false}
             />
+            {headerError && <p className="text-red-400 text-xs mt-1">{headerError}</p>}
           </div>
 
           {/* Payload Input */}
@@ -168,6 +203,7 @@ export default function JwtEncoder() {
               className="w-full h-40 bg-slate-800 border border-slate-600 rounded-lg p-3 font-mono text-sm text-blue-300 focus:border-emerald-400 focus:outline-none resize-none"
               spellCheck={false}
             />
+            {payloadError && <p className="text-red-400 text-xs mt-1">{payloadError}</p>}
             <div className="mt-2 flex flex-wrap gap-2">
               {presetPayloads.map((preset) => (
                 <button
@@ -214,6 +250,13 @@ export default function JwtEncoder() {
             <RefreshCw className="w-4 h-4" />
             Reset
           </button>
+          <button
+            onClick={() => setSecret(crypto.randomUUID())}
+            className="flex items-center gap-2 px-4 py-3 bg-blue-500/80 hover:bg-blue-600 rounded-lg font-medium transition-colors"
+          >
+            <Key className="w-4 h-4" />
+            Generate Secret
+          </button>
         </div>
 
         {/* Error Display */}
@@ -242,23 +285,64 @@ export default function JwtEncoder() {
               </button>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-4 text-center">
-              <div className="p-3 bg-slate-800 rounded-lg">
-                <div className="text-xs text-slate-500 mb-1">Header</div>
+              <div className="p-3 bg-slate-800 rounded-lg relative">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <div className="text-xs text-slate-500">Header</div>
+                  <button onClick={() => copySegment('header')} className="p-1 hover:bg-slate-700 rounded transition-colors ml-1">
+                    {segmentCopied.header ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                  </button>
+                </div>
                 <div className="font-mono text-sm text-emerald-300 truncate">
                   {encodedJwt.split('.')[0]?.substring(0, 20)}...
                 </div>
               </div>
-              <div className="p-3 bg-slate-800 rounded-lg">
-                <div className="text-xs text-slate-500 mb-1">Payload</div>
+              <div className="p-3 bg-slate-800 rounded-lg relative">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <div className="text-xs text-slate-500">Payload</div>
+                  <button onClick={() => copySegment('payload')} className="p-1 hover:bg-slate-700 rounded transition-colors ml-1">
+                    {segmentCopied.payload ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                  </button>
+                </div>
                 <div className="font-mono text-sm text-blue-300 truncate">
                   {encodedJwt.split('.')[1]?.substring(0, 20)}...
                 </div>
               </div>
-              <div className="p-3 bg-slate-800 rounded-lg">
-                <div className="text-xs text-slate-500 mb-1">Signature</div>
+              <div className="p-3 bg-slate-800 rounded-lg relative">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <div className="text-xs text-slate-500">Signature</div>
+                  <button onClick={() => copySegment('signature')} className="p-1 hover:bg-slate-700 rounded transition-colors ml-1">
+                    {segmentCopied.signature ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                  </button>
+                </div>
                 <div className="font-mono text-sm text-purple-300 truncate">
                   {encodedJwt.split('.')[2]?.substring(0, 20)}...
                 </div>
+              </div>
+            </div>
+
+            {/* Decoded Preview */}
+            <div className="mt-4 grid md:grid-cols-2 gap-4">
+              <div className="bg-slate-900 rounded-lg p-3">
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Header</span>
+                  <button onClick={() => copySegment('header')} className="p-1 hover:bg-slate-700 rounded transition-colors">
+                    {segmentCopied.header ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                  </button>
+                </div>
+                <pre className="font-mono text-xs text-emerald-300 whitespace-pre-wrap break-all">
+                  {JSON.stringify(JSON.parse(atob(encodedJwt.split('.')[0])), null, 2)}
+                </pre>
+              </div>
+              <div className="bg-slate-900 rounded-lg p-3">
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Payload</span>
+                  <button onClick={() => copySegment('payload')} className="p-1 hover:bg-slate-700 rounded transition-colors">
+                    {segmentCopied.payload ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-slate-500" />}
+                  </button>
+                </div>
+                <pre className="font-mono text-xs text-blue-300 whitespace-pre-wrap break-all">
+                  {JSON.stringify(JSON.parse(atob(encodedJwt.split('.')[1])), null, 2)}
+                </pre>
               </div>
             </div>
           </div>

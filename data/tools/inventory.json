@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-03-23T18:20:00Z",
+  "lastUpdated": "2026-03-25T14:10:00Z",
   "tools": [
     {
       "id": "jwt-decoder",
@@ -33,7 +33,7 @@
       "name": "JWT Encoder",
       "name_zh": "JWT \u7f16\u7801\u5668",
       "category": "security",
-      "status": "beta",
+      "status": "production",
       "path": "app/tools/jwt-encoder",
       "description": "Encode and sign JSON Web Tokens with HS256/HS512 algorithms. Client-side only.",
       "description_zh": "\u4f7f\u7528 HS256/HS512 \u7b97\u6cd5\u7f16\u7801\u548c\u7b7e\u540d JSON Web Token\u3002\u4ec5\u5ba2\u6237\u7aef\u5904\u7406\u3002",
