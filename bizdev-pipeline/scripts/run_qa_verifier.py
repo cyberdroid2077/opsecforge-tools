@@ -20,7 +20,7 @@ from file_lock import acquire_lock, release_lock
 
 base = "/home/dingw/opsecforge-tools/ai-seo"
 log_file = f"{base}/logs/qa_verifier.log"
-OPENCLAW = "/home/dingw/.npm-global/bin/openclaw"
+OPENCLAW = "/home/dingw/.local/bin/openclaw"
 FETCH_TIMEOUT_SECONDS = 20
 FETCH_INTERVAL_SECONDS = 15
 FETCH_DEADLINE_SECONDS = 180

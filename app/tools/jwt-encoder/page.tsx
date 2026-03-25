@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import SocialShare from '@/components/ui/SocialShare';
 import { Lock, Key, Play, Copy, Check, RefreshCw, ShieldCheck } from 'lucide-react';
 
 type Algorithm = 'HS256' | 'HS512';
@@ -357,6 +358,10 @@ export default function JwtEncoder() {
             <li>• Signature is HMAC using the algorithm you selected</li>
             <li>• All encoding happens in your browser — no data is sent to any server</li>
           </ul>
+        </div>
+
+        <div className="mt-12">
+          <SocialShare url="https://opsecforge.com/tools/jwt-encoder" title="JWT Encoder - OpsecForge" />
         </div>
 
         {/* Link to Decoder */}
