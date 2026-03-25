@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import SocialShare from '@/components/ui/SocialShare';
 import { FileCode, ShieldCheck, Lock, Copy, Check, Trash2, ArrowRight, ShieldAlert, Cpu, Network, ScanFace, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 
@@ -168,10 +167,6 @@ export default function EnvSanitizer() {
                 </div>
             </article>
         </section>
-
-        <div className="mt-12 mb-24">
-          <SocialShare url="https://opsecforge.com/tools/env-sanitizer" title="Env Sanitizer - OpsecForge" />
-        </div>
 
       </div>
     </main>

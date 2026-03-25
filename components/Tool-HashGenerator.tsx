@@ -1,5 +1,4 @@
 "use client";
-import SocialShare from '@/components/ui/SocialShare';
 import React, { useState, useEffect, useCallback } from 'react';
 import CryptoJS from 'crypto-js';
 import bcrypt from 'bcryptjs';
@@ -176,10 +175,6 @@ export default function SecureHashGenerator() {
             <p><strong>Note on MD5/SHA-1:</strong> These algorithms are considered cryptographically broken and should only be used for backward compatibility or checksum validation, not for secure password hashing.</p>
           </div>
         </div>
-      </div>
-
-      <div className="mt-12">
-        <SocialShare url="https://opsecforge.com/tools/hash-generator" title="Hash Generator - OpsecForge" />
       </div>
     </div>
   );
