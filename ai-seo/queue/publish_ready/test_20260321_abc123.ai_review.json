@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 9,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 80,
+  "recommendation": "quick_edit",
+  "short_reason": "Strong, technically solid article with excellent H2/H3 hierarchy and good keyword integration throughout. The implementation roadmap section is a standout practical resource. The primary weaknesses are the generic introduction that lacks a compelling hook, and the article reads somewhat as a 'best practices listicle' rather than a distinctive editorial voice \u2014 adding a real-world case study or a vendor/platform-specific example would significantly elevate originality.",
+  "red_flags": [
+    "Introduction lacks a compelling hook; a concrete stat or breach example would improve opening impact",
+    "No specific real-world case study, enterprise example, or named platform referenced to ground the concepts",
+    "The conclusion reads as a generic summary rather than a memorable closing statement",
+    "Sections like the WAF convergence and machine identity governance would benefit from concrete examples of vendors or platforms"
+  ],
+  "reviewed_at": "2026-03-21T11:50:54",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": true,
+  "status": "approved"
+}

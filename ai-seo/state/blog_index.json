@@ -1,0 +1,9 @@
+{
+  "JWT": "jwt-none-algorithm-dangers",
+  "Environment variables": "how-to-safely-share-env-files",
+  "JSON": "the-developer-s-guide-to-json-minification-for-production-apis",
+  "Base64": "base64-vs-base64url",
+  "Webhook": "webhook-signature-validation-hmac-sha256-best-practices-2026",
+  "Security": "cors-misconfiguration-security-risks-and-fixes-for-modern-web-apis",
+  "Privacy": "global-privacy-compliance-guide-2026"
+}

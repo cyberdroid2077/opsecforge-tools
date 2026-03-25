@@ -1,0 +1,24 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 8,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 7
+  },
+  "total_score": 76,
+  "recommendation": "quick_edit",
+  "short_reason": "Technically solid article with good content breadth covering AI XSS detection, modern frameworks, CSP, DOMPurify, and cookie security. The implementation roadmap is practical. Key weaknesses: the title lacks the keyword 'techniques 2026' which was the target; the article body does not feature bolded keywords for SEO; several sections are bullet-list heavy rather than flowing prose; and the conclusion is generic without a memorable closing.",
+  "red_flags": [
+    "Title omits the target keyword 'techniques 2026' which was the specified focus",
+    "The target keyword 'AI-enhanced XSS detection and prevention techniques 2026' is not bolded anywhere in the article body",
+    "Multiple sections (WAF/CI/CD, Strict CSP Best Practices) are heavily bullet-list driven rather than integrated prose",
+    "The conclusion ends generically without a specific call-to-action or memorable closing statement",
+    "No specific vendor or tool names mentioned beyond DOMPurify and Bleach"
+  ],
+  "reviewed_at": "2026-03-21T12:56:21",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": true,
+  "status": "approved"
+}

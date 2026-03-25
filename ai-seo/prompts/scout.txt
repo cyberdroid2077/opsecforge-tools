@@ -1,0 +1,7 @@
+Use the custom `web-search` python script to find the latest industry news, stats, and developments for: {topic}.
+Do NOT use the built-in `web_search` tool. You must use the exec tool to run: 
+`python3 /home/dingw/.openclaw/workspace-fred/skills/web-search-ex-skill/scripts/web_search.py '{"action":"search", "query":"{topic}"}'`
+
+Synthesize the findings into a 'research_summary'. 
+Based on this, generate 3 long-tail SEO keywords. 
+Return ONLY valid JSON: {"research_summary": "...", "keywords": ["...", "..."], "selected": "..."}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { TerminalSquare, ShieldCheck, Lock, Copy, Check, Trash2, ArrowRight, ShieldAlert, Cpu, Network } from 'lucide-react';
 import Link from 'next/link';
+import SocialShare from '@/components/ui/SocialShare';
 
 export default function JwtDecoder() {
   const [input, setInput] = useState('');
@@ -78,6 +79,14 @@ export default function JwtDecoder() {
             <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-emerald-400">
                 <Network size={14} /> 0 Network Activity
             </div>
+          </div>
+
+          <div className="mt-8">
+            <SocialShare
+              url="https://opsecforge.com/tools/jwt-decoder"
+              title="Secure, client-side JWT Decoder for developers"
+              tags={['jwt', 'devtools', 'security', 'opsec']}
+            />
           </div>
         </div>
 

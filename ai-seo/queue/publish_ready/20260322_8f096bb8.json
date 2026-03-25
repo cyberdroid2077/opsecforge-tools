@@ -1,0 +1,37 @@
+{
+  "task_id": "20260322_8f096bb8",
+  "topic": "OAuth 2.0 Best Practices",
+  "created_at": 1774166404.050776,
+  "updated_at": 1774166404.0507762,
+  "status": "publish_ready",
+  "retries": 0,
+  "keyword_data": {
+    "research_summary": "As of early 2026, OAuth 2.0 remains the dominant authorization framework, with several critical best practices and vulnerabilities shaping the landscape. Key developments: (1) PKCE (Proof Key for Code Exchange) is now considered mandatory for all authorization code flows, including confidential clients \u2014 it prevents authorization code interception attacks; (2) The implicit grant flow is effectively deprecated; authorization code + PKCE is the only recommended grant type; (3) Token storage security is critical \u2014 access tokens must never be stored in localStorage; httpOnly, Secure, SameSite cookies are the recommended vehicle; (4) Short-lived access tokens combined with refresh token rotation is the standard; if a refresh token is compromised, the old one is immediately revoked; (5) redirect_uri validation must use exact string matching and must reject URIs not pre-registered; (6) The state parameter is non-negotiable for CSRF protection; (7) Scope validation must strictly enforce that clients cannot escalate their own privileges; (8) JWT access tokens must validate signature, expiration, issuer, audience, and use an allowlist for the algorithm (no none/jwt); (9) Client secrets must never be stored in frontend code or mobile apps; (10) Token revocation endpoints must be implemented so compromised tokens can be invalidated immediately.",
+    "keywords": [
+      "OAuth 2.0 authorization code flow with PKCE best practices 2026",
+      "OAuth 2.0 token security vulnerabilities and prevention strategies",
+      "OAuth 2.0 redirect_uri validation and state parameter security"
+    ],
+    "selected": "OAuth 2.0 authorization code flow with PKCE best practices 2026"
+  },
+  "outline_data": {
+    "title": "OAuth 2.0 Authorization Code Flow with PKCE: Best Practices for 2026",
+    "description": "A comprehensive guide to OAuth 2.0 authorization code flow with PKCE, covering token security, redirect_uri validation, scope enforcement, and real-world vulnerability prevention.",
+    "category": "API Security",
+    "sections": [
+      "What Is OAuth 2.0 and Why It Matters in 2026",
+      "Understanding OAuth 2.0 Grant Types: Why Authorization Code + PKCE Won",
+      "PKCE: The Proof Key for Code Exchange Explained",
+      "Token Storage Security: httpOnly Cookies vs. localStorage",
+      "Short-Lived Access Tokens and Refresh Token Rotation",
+      "redirect_uri Validation: Exact Matching and Pre-Registration",
+      "The state Parameter: Your CSRF Shield",
+      "Scope Validation and Privilege Escalation Prevention",
+      "JWT Access Token Validation: Signature, exp, iss, aud, and Algorithm Allowlist",
+      "Client Secret Security and Token Revocation Best Practices"
+    ]
+  },
+  "draft_file": "/home/dingw/opsecforge-tools/ai-seo/queue/enhance_ready/20260322_8f096bb8.md",
+  "publish_file": "/home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260322_8f096bb8.md",
+  "enhanced_file": "/home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260322_8f096bb8.md"
+}

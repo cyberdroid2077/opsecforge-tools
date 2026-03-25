@@ -1,0 +1,48 @@
+Index updated.
+Enqueued 20260319_7ad48ee8 with topic: Secret Management in CI/CD
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_89e6912f.json
+DEBUG: Processing 20260319_89e6912f
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_7ad48ee8.json
+DEBUG: Processing 20260319_7ad48ee8
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_8b601803.json
+DEBUG: Processing 20260319_8b601803
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_f71d1801.ai_review.json
+DEBUG: Processing 20260319_f71d1801.ai_review
+Failed 20260319_f71d1801.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_2af9c34a.json
+DEBUG: Processing 20260319_2af9c34a
+Failed 20260319_2af9c34a: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_2af9c34a.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_f71d1801.json
+DEBUG: Processing 20260319_f71d1801
+Failed 20260319_f71d1801: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_f71d1801.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_31ae8321.json
+DEBUG: Processing 20260319_31ae8321
+Failed 20260319_31ae8321: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_31ae8321.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_2af9c34a.ai_review.json
+DEBUG: Processing 20260319_2af9c34a.ai_review
+Failed 20260319_2af9c34a.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_70b54477.ai_review.json
+DEBUG: Processing 20260319_70b54477.ai_review
+Failed 20260319_70b54477.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_31ae8321.ai_review.json
+DEBUG: Processing 20260319_31ae8321.ai_review
+Failed 20260319_31ae8321.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_70b54477.json
+DEBUG: Processing 20260319_70b54477
+Failed 20260319_70b54477: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_70b54477.md'
+--- Running run_index_updater.py ---
+--- Finished run_index_updater.py ---
+--- Running enqueue_daily_topic.py ---
+--- Finished enqueue_daily_topic.py ---
+--- Running run_keyword_scout.py ---
+--- Finished run_keyword_scout.py ---
+--- Running run_outline_editor.py ---
+--- Finished run_outline_editor.py ---
+--- Running run_writer_qwen.py ---
+--- Finished run_writer_qwen.py ---
+--- Running run_seo_polish.py ---
+--- Finished run_seo_polish.py ---
+--- Running run_ai_review.py ---
+--- Finished run_ai_review.py ---
+--- Running run_approval_notifier.py ---
+--- Finished run_approval_notifier.py ---

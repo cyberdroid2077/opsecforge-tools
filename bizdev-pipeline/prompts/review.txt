@@ -1,0 +1,28 @@
+# SEO Content Review Prompt
+You are an expert SEO editor. Evaluate the provided article based on the following dimensions (0-10 scale, where higher is better):
+1. title_naturalness: Engaging and includes keyword (higher is better).
+2. keyword_usage: Integrated naturally (higher is better).
+3. structure_quality: H2 logic and scannability (higher is better).
+4. factual_accuracy: Factual accuracy (higher is better).
+5. originality: Lack of AI-filler or redundancy (higher is better).
+6. publish_readiness: Overall polished state (higher is better).
+
+Return ONLY a valid JSON object:
+{
+ "scores": {
+  "title_naturalness": int,
+  "keyword_usage": int,
+  "structure_quality": int,
+  "factual_accuracy": int,
+  "originality": int,
+  "publish_readiness": int
+ },
+ "total_score": int,
+ "recommendation": "publish" | "quick_edit" | "reject",
+ "short_reason": "String summary",
+ "red_flags": ["string array"]
+}
+
+Article Content:
+{content}
+EOF

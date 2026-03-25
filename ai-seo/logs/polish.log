@@ -1,0 +1,80 @@
+[Thu Mar 19 00:26:48 2026] Polished 20260319_280769b4 successfully
+[Thu Mar 19 00:35:01 2026] Polished 20260319_280769b4 successfully
+[Thu Mar 19 01:36:45 2026] Polished 20260319_31ae8321 successfully
+[Thu Mar 19 01:39:21 2026] Polished 20260319_70b54477 successfully
+[Thu Mar 19 04:03:43 2026] Polished 20260319_f71d1801 successfully
+[Thu Mar 19 08:04:58 2026] Polished 20260319_2af9c34a successfully
+[Thu Mar 19 08:07:57 2026] Polished 20260319_f71d1801 successfully
+[Thu Mar 19 08:27:43 2026] Polished 20260319_89e6912f successfully
+[Thu Mar 19 08:30:52 2026] Polished 20260319_7ad48ee8 successfully
+[Thu Mar 19 08:33:54 2026] Polished 20260319_8b601803 successfully
+[Thu Mar 19 09:04:42 2026] Polished 20260319_8b601803 successfully
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_f71d1801.ai_review.json
+DEBUG: Processing 20260319_f71d1801.ai_review
+Failed 20260319_f71d1801.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_2af9c34a.json
+DEBUG: Processing 20260319_2af9c34a
+Failed 20260319_2af9c34a: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_2af9c34a.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_f71d1801.json
+DEBUG: Processing 20260319_f71d1801
+Failed 20260319_f71d1801: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_f71d1801.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_89e6912f.json
+DEBUG: Processing 20260319_89e6912f
+Failed 20260319_89e6912f: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_89e6912f.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_31ae8321.json
+DEBUG: Processing 20260319_31ae8321
+Failed 20260319_31ae8321: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_31ae8321.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_8b601803.json
+DEBUG: Processing 20260319_8b601803
+Failed 20260319_8b601803: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_8b601803.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_2af9c34a.ai_review.json
+DEBUG: Processing 20260319_2af9c34a.ai_review
+Failed 20260319_2af9c34a.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_70b54477.ai_review.json
+DEBUG: Processing 20260319_70b54477.ai_review
+Failed 20260319_70b54477.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_89e6912f.ai_review.json
+DEBUG: Processing 20260319_89e6912f.ai_review
+Failed 20260319_89e6912f.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_31ae8321.ai_review.json
+DEBUG: Processing 20260319_31ae8321.ai_review
+Failed 20260319_31ae8321.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_8b601803.ai_review.json
+DEBUG: Processing 20260319_8b601803.ai_review
+Failed 20260319_8b601803.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_7ad48ee8.ai_review.json
+DEBUG: Processing 20260319_7ad48ee8.ai_review
+Failed 20260319_7ad48ee8.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_70b54477.json
+DEBUG: Processing 20260319_70b54477
+Failed 20260319_70b54477: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_70b54477.md'
+[Fri Mar 20 04:04:07 2026] Polished 20260320_d321d756 successfully
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260320_ac01556c.json
+DEBUG: Processing 20260320_ac01556c
+Failed 20260320_ac01556c: Failed to extract text from agent JSON: 'result'
+[Fri Mar 20 17:51:31 2026] Polished 20260320_ac01556c successfully
+[Sat Mar 21 00:43:06 2026] Polished 20260321_938dbbbc successfully
+[Sat Mar 21 04:00:47 2026] Polished 20260321_c41b4ad5 successfully
+[Sat Mar 21 09:13:07 2026] Polished 20260321_938dbbbc successfully
+[Sat Mar 21 09:13:23 2026] Polished 20260320_ac01556c successfully
+[Sat Mar 21 09:13:42 2026] Polished 20260320_d321d756 successfully
+[Sat Mar 21 09:13:48 2026] Polished 20260321_bfb389fa successfully
+[Sat Mar 21 10:48:22 2026] Polished 20260321_bfb389fa successfully
+[Sat Mar 21 10:48:45 2026] Polished 20260321_ba99cd4b successfully
+[Sat Mar 21 11:47:32 2026] Polished test_task successfully
+[Sat Mar 21 11:50:41 2026] Polished test_20260321_abc123 successfully
+[Sat Mar 21 11:52:11 2026] Polished 20260321_8af3933a successfully
+[Sat Mar 21 11:52:36 2026] Polished test_20260321_abc123 successfully
+[Sat Mar 21 11:55:12 2026] Polished test_20260321_abc123 successfully
+[Sat Mar 21 11:59:05 2026] Polished fix_test_1774108652 successfully
+[Sat Mar 21 11:59:20 2026] Polished test_1774108530 successfully
+[Sat Mar 21 12:04:22 2026] Polished test_20260321_abc123 successfully
+[Sat Mar 21 12:33:19 2026] Polished test_topic.env_management successfully
+[Sat Mar 21 12:55:32 2026] Polished 20260321_e2e_test_cors successfully
+[Sat Mar 21 12:55:50 2026] Polished 20260321_a6b320ca successfully
+[Sat Mar 21 13:26:03 2026] Polished 20260321_ae816679 successfully
+[Sat Mar 21 14:48:07 2026] Polished test_20260321_e2e001 successfully
+[Sun Mar 22 08:03:48 2026] Polished 20260322_94236865 successfully
+[Sun Mar 22 08:05:38 2026] Polished 20260322_8f096bb8 successfully
+[Sun Mar 22 08:12:57 2026] Polished 20260322_8ebcaaab successfully
+Failed review for 20260322_8ebcaaab: [Errno 2] No such file or directory: 'openclaw'

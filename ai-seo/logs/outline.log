@@ -1,0 +1,12 @@
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[2026-03-21 11:58:14] Outline OK: fix_test_1774108652
+[2026-03-21 11:58:24] Outline OK: test_1774108530
+[2026-03-21 12:32:45] Outline OK: test_topic.env_management
+[2026-03-21 12:54:49] Outline OK: 20260321_e2e_test_cors
+[2026-03-21 13:25:35] Outline OK: 20260321_ae816679
+[2026-03-21 14:47:39] Outline OK: test_20260321_e2e001
+[2026-03-22 08:01:27] Outline OK: 20260322_94236865
+[2026-03-22 08:01:38] Outline OK: 20260322_8f096bb8
+[2026-03-22 08:10:39] Outline OK: 20260322_8ebcaaab
+Failed review for 20260322_8ebcaaab: [Errno 2] No such file or directory: 'openclaw'

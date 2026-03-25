@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 9,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 80,
+  "recommendation": "quick_edit",
+  "short_reason": "Solid, well-structured article with logical H2/H3 hierarchy and accurate technical content. The implementation roadmap is practical and useful. Main weaknesses: the introduction lacks a compelling hook (no breach stat or concrete enterprise scenario), no named vendors or platforms ground the concepts, and several sections rehash familiar framing without a distinctive editorial angle. The keyword is well-integrated throughout.",
+  "red_flags": [
+    "Introduction lacks a compelling opening hook; generic framing does not grab attention",
+    "No specific enterprise case studies, named platforms, or vendor examples referenced anywhere",
+    "The 'AI-Driven Advantage' and 'Zero Trust' sections rehash commonly covered narratives without a unique angle",
+    "The conclusion ends generically without a memorable or actionable closing statement"
+  ],
+  "reviewed_at": "2026-03-21T11:59:40",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": false,
+  "status": "rejected"
+}

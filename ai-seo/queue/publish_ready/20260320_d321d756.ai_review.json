@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 6,
+    "keyword_usage": 4,
+    "structure_quality": 8,
+    "factual_accuracy": 8,
+    "originality": 7,
+    "publish_readiness": 7
+  },
+  "total_score": 66,
+  "recommendation": "quick_edit",
+  "short_reason": "Well-structured, accurate, and substantive article on AI-driven API rate limiting, but the target keyword 'security tool' is entirely absent from the title and body. The title also reads too academic for a blog format, and the H1/H2 could be sharpened for click-through appeal.",
+  "red_flags": [
+    "Target keyword 'security tool' does not appear anywhere in the article",
+    "Title is overly long and academic; lacks natural engagement",
+    "Introduction opens too technically for a general blog audience",
+    "Article covers a narrow niche (API rate limiting) but does not connect it to the broader 'security tool' category for SEO purposes"
+  ],
+  "reviewed_at": "2026-03-21T00:43:30",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": true,
+  "status": "approved"
+}

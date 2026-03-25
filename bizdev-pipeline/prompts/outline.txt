@@ -1,0 +1,2 @@
+Create a blog outline for the keyword: {keyword}. Research summary: {research}.
+Return ONLY valid JSON: {"title": "...", "description": "...", "category": "...", "sections": ["s1", "s2"]}

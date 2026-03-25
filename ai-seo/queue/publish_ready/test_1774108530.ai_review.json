@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 9,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 80,
+  "recommendation": "quick_edit",
+  "short_reason": "Similar article to the previous version \u2014 technically solid with good structure and keyword integration. The Zero Trust section is improved by referencing regulatory compliance across sectors. The primary weaknesses remain: no compelling opening hook, no named vendors or real-world case studies, and sections like the WAF convergence and machine identity governance read at a conceptual level without grounding examples. The conclusion is marginally stronger with a 'proactive' framing.",
+  "red_flags": [
+    "Introduction still lacks a compelling hook; a specific breach stat or enterprise scenario would significantly improve opening impact",
+    "No specific vendor, platform, or enterprise case study referenced anywhere in the article",
+    "The conclusion uses 'proactive' but still ends without a memorable, actionable closing statement",
+    "Sections covering WAF convergence and OIDC machine identity would benefit from concrete examples rather than only conceptual descriptions"
+  ],
+  "reviewed_at": "2026-03-21T11:59:54",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": false,
+  "status": "rejected"
+}

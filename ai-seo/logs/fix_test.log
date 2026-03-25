@@ -1,0 +1,7 @@
+[2026-03-21 11:57:57] Keyword scout OK: fix_test_1774108652 -> ['AI-native API gateway security for enterprise 2026', 'zero trust API security implementation strategies 2026']
+[2026-03-21 11:58:14] Outline OK: fix_test_1774108652
+[2026-03-21 11:58:24] Outline OK: test_1774108530
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/fix_test_1774108652.json
+DEBUG: Processing fix_test_1774108652
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/test_1774108530.json
+DEBUG: Processing test_1774108530

@@ -1,0 +1,9 @@
+Enqueued 20260319_89e6912f with topic: Cybersecurity tools and utilities
+Enqueued 20260320_ac01556c with topic: Rate Limiting APIs
+Enqueued 20260321_bfb389fa with topic: API Gateway Security
+Enqueued 20260322_8ebcaaab with topic: Cross-Site Scripting (XSS) Prevention
+[2026-03-22 08:10:18] Keyword scout OK: 20260322_8ebcaaab -> ['AI-enhanced XSS detection and prevention techniques 2026', 'Content Security Policy CSP strict configuration guide']
+[2026-03-22 08:10:39] Outline OK: 20260322_8ebcaaab
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260322_8ebcaaab.json
+DEBUG: Processing 20260322_8ebcaaab
+Failed review for 20260322_8ebcaaab: [Errno 2] No such file or directory: 'openclaw'

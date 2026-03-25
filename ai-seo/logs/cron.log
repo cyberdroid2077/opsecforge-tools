@@ -1,0 +1,122 @@
+Index updated.
+Enqueued 20260319_f71d1801
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_f71d1801.json
+DEBUG: Processing 20260319_f71d1801
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_31ae8321.json
+DEBUG: Processing 20260319_31ae8321
+Failed 20260319_31ae8321: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_31ae8321.md'
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_70b54477.ai_review.json
+DEBUG: Processing 20260319_70b54477.ai_review
+Failed 20260319_70b54477.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_31ae8321.ai_review.json
+DEBUG: Processing 20260319_31ae8321.ai_review
+Failed 20260319_31ae8321.ai_review: expected str, bytes or os.PathLike object, not NoneType
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/publish_ready/20260319_70b54477.json
+DEBUG: Processing 20260319_70b54477
+Failed 20260319_70b54477: [Errno 2] No such file or directory: '/home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260319_70b54477.md'
+Failed review for 20260319_f71d1801: [Errno 2] No such file or directory: 'openclaw'
+--- Running run_index_updater.py ---
+--- Finished run_index_updater.py ---
+--- Running enqueue_daily_topic.py ---
+--- Finished enqueue_daily_topic.py ---
+--- Running run_keyword_scout.py ---
+--- Finished run_keyword_scout.py ---
+--- Running run_outline_editor.py ---
+--- Finished run_outline_editor.py ---
+--- Running run_writer_qwen.py ---
+--- Finished run_writer_qwen.py ---
+--- Running run_seo_polish.py ---
+--- Finished run_seo_polish.py ---
+--- Running run_ai_review.py ---
+--- Finished run_ai_review.py ---
+--- Running run_approval_notifier.py ---
+--- Finished run_approval_notifier.py ---
+Index updated.
+Enqueued 20260320_d321d756 with topic: Rate Limiting APIs
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260320_d321d756.json
+DEBUG: Processing 20260320_d321d756
+Failed review for 20260320_d321d756: [Errno 2] No such file or directory: 'openclaw'
+--- Running run_index_updater.py ---
+--- Finished run_index_updater.py ---
+--- Running enqueue_daily_topic.py ---
+--- Finished enqueue_daily_topic.py ---
+--- Running run_keyword_scout.py ---
+--- Finished run_keyword_scout.py ---
+--- Running run_outline_editor.py ---
+--- Finished run_outline_editor.py ---
+--- Running run_writer_qwen.py ---
+--- Finished run_writer_qwen.py ---
+--- Running run_seo_polish.py ---
+--- Finished run_seo_polish.py ---
+--- Running run_ai_review.py ---
+--- Finished run_ai_review.py ---
+--- Running run_approval_notifier.py ---
+--- Finished run_approval_notifier.py ---
+Index updated.
+Enqueued 20260321_c41b4ad5 with topic: API Gateway Security
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260321_c41b4ad5.json
+DEBUG: Processing 20260321_c41b4ad5
+Skipping 20260321_c41b4ad5: source markdown contaminated
+--- Running run_index_updater.py ---
+--- Finished run_index_updater.py ---
+--- Running enqueue_daily_topic.py ---
+--- Finished enqueue_daily_topic.py ---
+--- Running run_keyword_scout.py ---
+--- Finished run_keyword_scout.py ---
+--- Running run_outline_editor.py ---
+--- Finished run_outline_editor.py ---
+--- Running run_writer_qwen.py ---
+--- Finished run_writer_qwen.py ---
+--- Running run_seo_polish.py ---
+--- Finished run_seo_polish.py ---
+--- Running run_ai_review.py ---
+--- Finished run_ai_review.py ---
+--- Running run_approval_notifier.py ---
+--- Finished run_approval_notifier.py ---
+Index updated.
+Enqueued 20260322_8f096bb8 with topic: OAuth 2.0 Best Practices
+Failed review for test_premium_ui: [Errno 2] No such file or directory: 'openclaw'
+Failed review for jwt-none-algorithm-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for base64-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_enhancer_kimi: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_premium_ui: [Errno 2] No such file or directory: 'openclaw'
+Failed review for jwt-none-algorithm-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for base64-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_enhancer_kimi: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_premium_ui: [Errno 2] No such file or directory: 'openclaw'
+Failed review for jwt-none-algorithm-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for base64-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_enhancer_kimi: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_premium_ui: [Errno 2] No such file or directory: 'openclaw'
+Failed review for jwt-none-algorithm-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for base64-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_enhancer_kimi: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_premium_ui: [Errno 2] No such file or directory: 'openclaw'
+Failed review for jwt-none-algorithm-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for base64-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_enhancer_kimi: [Errno 2] No such file or directory: 'openclaw'
+--- Running run_index_updater.py ---
+--- Finished run_index_updater.py ---
+--- Running enqueue_daily_topic.py ---
+--- Finished enqueue_daily_topic.py ---
+--- Running run_keyword_scout.py ---
+--- Finished run_keyword_scout.py ---
+--- Running run_outline_editor.py ---
+--- Finished run_outline_editor.py ---
+--- Running run_writer_qwen.py ---
+--- Finished run_writer_qwen.py ---
+--- Running run_seo_polish.py ---
+--- Finished run_seo_polish.py ---
+--- Running run_ai_review.py ---
+--- Finished run_ai_review.py ---
+--- Running run_approval_notifier.py ---
+--- Finished run_approval_notifier.py ---
+[2026-03-22 04:01:04] Timeout for 20260322_8f096bb8 (60s) — releasing lock for retry
+Failed review for test_premium_ui: [Errno 2] No such file or directory: 'openclaw'
+Failed review for jwt-none-algorithm-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for base64-master: [Errno 2] No such file or directory: 'openclaw'
+Failed review for test_enhancer_kimi: [Errno 2] No such file or directory: 'openclaw'

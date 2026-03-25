@@ -1,0 +1,21 @@
+{
+  "scores": {
+    "title_naturalness": 8,
+    "keyword_usage": 9,
+    "structure_quality": 9,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 83,
+  "recommendation": "publish",
+  "short_reason": "Strong, well-structured article with excellent keyword integration and comprehensive coverage. The anatomy section, wildcard+credentials banking scenario, and detailed audit checklist are all high-quality. Minor weaknesses: the GraphQL section is comparatively thin and the introduction could open with a more compelling hook. Overall, this is a publish-ready piece.",
+  "red_flags": [
+    "The introduction opens with a textbook-style definition; a real breach stat or exploit example would create a stronger opening hook",
+    "The GraphQL CORS section is the shortest and most conceptual \u2014 it could be strengthened with a specific exploit scenario",
+    "The article does not reference current browser enforcement changes (Chrome/Firefox tightening) mentioned in the research summary",
+    "No bolded keywords in the body for SEO enhancement"
+  ],
+  "reviewed_at": "2026-03-22T08:06:37",
+  "model": "gemini-3.1-flash-lite-preview"
+}

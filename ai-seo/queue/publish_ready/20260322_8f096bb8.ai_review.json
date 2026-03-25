@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 9,
+    "keyword_usage": 9,
+    "structure_quality": 8,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 83,
+  "recommendation": "publish",
+  "short_reason": "Excellent article with strong title match to keyword and comprehensive coverage of OAuth 2.0 Authorization Code + PKCE. The PKCE explanation, token storage recommendations, and JWT validation sections are all technically solid and well-structured. The article earns high marks for title_naturalness (keyword-rich but reads naturally), keyword_usage, and factual_accuracy. Recommend minor polish only.",
+  "red_flags": [
+    "The introduction paragraph is somewhat generic \u2014 a specific OAuth breach stat or example would strengthen the opening hook",
+    "The article lacks bolded keywords for SEO enhancement in the body text",
+    "No code implementation examples for PKCE flow \u2014 a concrete code walkthrough would significantly elevate practical utility",
+    "The refresh token rotation section is comparatively brief and could benefit from a sequential example"
+  ],
+  "reviewed_at": "2026-03-22T08:07:18",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": true,
+  "status": "approved"
+}

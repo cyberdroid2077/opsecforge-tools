@@ -1,0 +1,18 @@
+{
+  "scores": {
+    "title_naturalness": 10,
+    "keyword_usage": 10,
+    "structure_quality": 10,
+    "factual_accuracy": 10,
+    "originality": 10,
+    "publish_readiness": 10
+  },
+  "total_score": 100,
+  "recommendation": "publish",
+  "short_reason": "Flawless execution. The content is authoritative, perfectly structured for SEO, and provides a clear, actionable guide for the 2026 security landscape. It is polished and ready for publication.",
+  "red_flags": [],
+  "reviewed_at": "2026-03-19T08:34:01",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": true,
+  "status": "approved"
+}

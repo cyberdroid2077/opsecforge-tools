@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
+import SocialShare from '@/components/ui/SocialShare';
 
 type BlogPostPageProps = {
   params: Promise<{
@@ -68,6 +69,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           className="space-y-6 leading-8 text-slate-300 [&_a]:text-emerald-400 [&_a]:underline [&_a]:underline-offset-4 [&_h1]:mt-10 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-slate-100 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-slate-100 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-slate-100 [&_li]:ml-6 [&_li]:list-disc [&_p]:text-slate-300 [&_strong]:text-slate-100 [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-500 [&_blockquote]:bg-slate-800/50 [&_blockquote]:p-6 [&_blockquote]:rounded-r-lg [&_blockquote_p]:m-0 [&_blockquote_strong]:text-emerald-400"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
+
+        <div className="mt-12 border-t border-slate-800 pt-8">
+          <SocialShare
+            url={`https://opsecforge.com/blog/${slug}`}
+            title={post.title}
+          />
+        </div>
       </article>
     </main>
   );

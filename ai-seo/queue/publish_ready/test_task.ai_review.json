@@ -1,0 +1,21 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 8,
+    "factual_accuracy": 8,
+    "originality": 6,
+    "publish_readiness": 7
+  },
+  "total_score": 73,
+  "recommendation": "quick_edit",
+  "short_reason": "Solid, well-structured article with good keyword integration and logical flow. The sections on agentic workflows, E-E-A-T balance, and SEO pitfalls are practical and useful. The main weakness is originality \u2014 several sections (Real-Time Keyword Analysis bullets, Best AI Writing Tools comparison criteria, the step-by-step guide) feel templated and generic. The conclusion also trails off without a strong closing statement.",
+  "red_flags": [
+    "Several sections read as generic listicles without specific examples, vendor callouts, or original insights",
+    "The 'Best AI Writing Tools for SEO' section describes what to look for rather than naming actual tools or providing a real comparison",
+    "The implementation guide section is brief and lacks concrete examples or a sample workflow illustration",
+    "The conclusion lacks a memorable closing line and ends on a generic 'for the year ahead' note"
+  ],
+  "reviewed_at": "2026-03-21T11:47:55",
+  "model": "gemini-3.1-flash-lite-preview"
+}

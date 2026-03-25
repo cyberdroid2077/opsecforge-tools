@@ -1,0 +1,8 @@
+Review and polish the following markdown blog post for SEO and readability.
+1. Fix grammar, ensure headings are correct.
+2. Ensure the YAML Frontmatter block (title, date, description, category) is preserved and correct at the top.
+3. Use H2 for main sections, H3 for sub-sections.
+4. CRITICAL: Remove all broken or spammy internal markdown links (e.g. [Security](/blog/...) that appear repeatedly).
+5. CRITICAL: Do NOT include any introductory or conversational filler text (e.g., "Here is the polished markdown", "I have reviewed...", "Let me check..."). Return ONLY the raw, polished markdown content starting with the `---` YAML frontmatter.
+
+{draft}

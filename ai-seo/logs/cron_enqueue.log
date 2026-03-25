@@ -1,0 +1,9 @@
+Enqueued 20260322_94236865 with topic: CORS Configuration Security
+[2026-03-22 08:00:43] Keyword scout OK: 20260322_94236865 -> ['CORS misconfiguration security risks and fixes for modern web APIs', 'Access-Control-Allow-Origin wildcard vulnerability prevention 2026']
+[2026-03-22 08:01:03] Keyword scout OK: 20260322_8f096bb8 -> ['OAuth 2.0 authorization code flow with PKCE best practices 2026', 'OAuth 2.0 token security vulnerabilities and prevention strategies']
+[2026-03-22 08:01:27] Outline OK: 20260322_94236865
+[2026-03-22 08:01:38] Outline OK: 20260322_8f096bb8
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260322_94236865.json
+DEBUG: Processing 20260322_94236865
+DEBUG: Found file /home/dingw/opsecforge-tools/ai-seo/queue/draft_ready/20260322_8f096bb8.json
+DEBUG: Processing 20260322_8f096bb8

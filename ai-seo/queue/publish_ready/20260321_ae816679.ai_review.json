@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 9,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 80,
+  "recommendation": "quick_edit",
+  "short_reason": "Strong, technically accurate article with excellent structure and good keyword integration. The HMAC-SHA256 process explanation is clear and well-structured, the timing-safe comparison section addresses an important and often overlooked vulnerability, and the checklist adds genuine practical value. Minor weaknesses: the title does not include 'HMAC SHA256' or '2026' as specified in the keyword; the introduction could open with a more compelling breach scenario rather than generic framing; and the conclusion is solid but ends without a memorable closing statement.",
+  "red_flags": [
+    "Title omits the target keyword 'HMAC SHA256' and '2026' year marker that were specified in the brief",
+    "The target keyword 'webhook signature validation HMAC SHA256 best practices 2026' is not bolded anywhere in the article body",
+    "The introduction opens with a generic statement about webhooks rather than a concrete hook (e.g., a specific breach caused by unvalidated webhooks)",
+    "The conclusion ends without a memorable or actionable closing statement specific to the webhook security topic"
+  ],
+  "reviewed_at": "2026-03-21T13:26:16",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": true,
+  "status": "approved"
+}

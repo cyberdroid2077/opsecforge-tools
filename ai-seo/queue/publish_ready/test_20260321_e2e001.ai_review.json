@@ -1,0 +1,21 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 9,
+    "structure_quality": 8,
+    "factual_accuracy": 8,
+    "originality": 7,
+    "publish_readiness": 7
+  },
+  "total_score": 76,
+  "recommendation": "quick_edit",
+  "short_reason": "Solid, well-structured article with strong keyword integration and comprehensive coverage of the OWASP API Security Top 10. The BOLA and Broken Authentication sections are the strongest. The remediation roadmap section is a standout practical addition. Primary weaknesses: the introduction lacks a compelling breach stat or concrete hook; SSRF is covered briefly but missing a real-world scenario; the 10-step roadmap is bullet-list dense and reads as a summary rather than a conclusion.",
+  "red_flags": [
+    "Introduction opens with a generic statement rather than a compelling hook (e.g., a real breach stat or specific enterprise incident)",
+    "SSRF section is the shortest and most conceptual \u2014 a concrete exploit scenario would strengthen it significantly",
+    "The 10-step remediation roadmap is bullet-list heavy and reads as a summary rather than a compelling closing argument",
+    "The conclusion ends generically with no memorable takeaway or forward-looking statement"
+  ],
+  "reviewed_at": "2026-03-21T14:48:21",
+  "model": "gemini-3.1-flash-lite-preview"
+}

@@ -1,0 +1,23 @@
+{
+  "scores": {
+    "title_naturalness": 7,
+    "keyword_usage": 8,
+    "structure_quality": 9,
+    "factual_accuracy": 9,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 80,
+  "recommendation": "quick_edit",
+  "short_reason": "Technically solid and well-structured article with logical H2/H3 hierarchy and good keyword integration. The implementation roadmap is a standout practical section. Main weaknesses: the introduction lacks a compelling hook (stat or breach example), no specific vendor/platform names ground the concepts, and the conclusion is somewhat generic. The originality score is slightly held back by familiar framing in sections like Zero Trust and WAF convergence that many competitors cover identically.",
+  "red_flags": [
+    "Introduction opens with generic framing rather than a concrete hook (e.g., a real breach stat or specific enterprise scenario)",
+    "No named vendors, platforms, or real-world case studies referenced anywhere in the article",
+    "The AI-driven advantage section rehashes a familiar narrative without a distinctive editorial angle",
+    "Conclusion ends generically without a memorable or actionable closing statement"
+  ],
+  "reviewed_at": "2026-03-21T11:52:24",
+  "model": "gemini-3.1-flash-lite-preview",
+  "approved": false,
+  "status": "rejected"
+}

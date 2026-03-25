@@ -1,0 +1,20 @@
+{
+  "scores": {
+    "title_naturalness": 8,
+    "keyword_usage": 9,
+    "structure_quality": 9,
+    "factual_accuracy": 8,
+    "originality": 7,
+    "publish_readiness": 8
+  },
+  "total_score": 81,
+  "recommendation": "publish",
+  "short_reason": "Strong, well-structured article with excellent keyword integration and clear practical value. The language-specific implementations (JS, Python, Go) and the common bug patterns section are standout practical additions. The quick reference table and security implications sections add real depth. Recommend minor polish only \u2014 the padding explanation in the Go section could be clarified.",
+  "red_flags": [
+    "The Go encoding example could clarify that `base64.RawURLEncoding` produces unpadded output by default \u2014 this may confuse readers familiar with standard Base64 behavior",
+    "The security implications section is comparatively brief; the 'signature bypass' claim could be illustrated with a concrete code example",
+    "The JWT example signature appears to be truncated placeholder text rather than a real signature"
+  ],
+  "reviewed_at": "2026-03-22T08:07:02",
+  "model": "gemini-3.1-flash-lite-preview"
+}

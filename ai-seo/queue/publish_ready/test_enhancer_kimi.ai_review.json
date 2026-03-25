@@ -1,0 +1,24 @@
+{
+  "scores": {
+    "title_naturalness": 4,
+    "keyword_usage": 2,
+    "structure_quality": 5,
+    "factual_accuracy": 7,
+    "originality": 4,
+    "publish_readiness": 3
+  },
+  "total_score": 41,
+  "recommendation": "reject",
+  "short_reason": "The article is severely underwritten and lacks a target keyword, meaningful depth, or SEO optimization. The description field contains a placeholder ('A short article'), the CORS and JWT sections are single-paragraph summaries with no exploitation detail, and there is no introduction, no audit checklist, and no practical guidance. The embedded CTA is also the only substantive content section.",
+  "red_flags": [
+    "Description field contains placeholder text ('A short article') \u2014 must be replaced with a proper meta description",
+    "No target keyword \u2014 the title 'Why APIs are vulnerable' is unoptimized and too generic for any SEO value",
+    "The CORS section is a single paragraph with no explanation of the actual exploitation mechanics",
+    "The JWT section similarly lacks depth \u2014 no mention of alg:none, weak secrets patterns, or validation failures",
+    "No introduction section to hook the reader or establish stakes",
+    "No H3 sub-sections despite covering multiple distinct vulnerability categories",
+    "The embedded OpSecForge CTA is the only 'content' section and appears to be filler"
+  ],
+  "reviewed_at": "2026-03-22T08:07:38",
+  "model": "gemini-3.1-flash-lite-preview"
+}

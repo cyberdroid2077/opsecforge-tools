@@ -1,0 +1,19 @@
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[2026-03-21 11:57:57] Keyword scout OK: fix_test_1774108652 -> ['AI-native API gateway security for enterprise 2026', 'zero trust API security implementation strategies 2026']
+[2026-03-21 12:32:22] Keyword scout OK: test_topic.env_management -> ['how to securely manage and share .env files in development teams', 'best practices for .env file secrets management 2026']
+[2026-03-21 12:47:00] Failed enhancer_fix_test_20260321: openclaw agent exited 1: Gateway agent failed; falling back to embedded: Error: gateway closed (1006 abnormal closure (no close frame)): no close reason
+Gateway target: ws://127.0.0.1:18789
+Source: local loopback
+Config: /home/dingw/.openclaw/openclaw.json
+Bind: loopback
+[plugins] plugins.allow is empty; discovered non-bund
+[2026-03-21 12:54:38] Keyword scout OK: 20260321_e2e_test_cors -> ['CORS misconfiguration security risks and fixes for modern web APIs', 'how to fix Access-Control-Allow-Origin wildcard vulnerabilities 2026']
+[2026-03-21 13:24:45] Timeout for 20260321_ae816679 (60s) — releasing lock for retry
+[2026-03-21 13:25:24] Keyword scout OK: 20260321_ae816679 -> ['webhook signature validation HMAC SHA256 best practices 2026', 'how to securely validate webhook signatures and prevent replay attacks']
+[2026-03-21 14:47:27] Keyword scout OK: test_20260321_e2e001 -> ['OWASP API security top 10 vulnerabilities and remediation strategies 2026', 'most common API security vulnerabilities and how to prevent them']
+[2026-03-22 04:01:04] Timeout for 20260322_8f096bb8 (60s) — releasing lock for retry
+[2026-03-22 08:00:43] Keyword scout OK: 20260322_94236865 -> ['CORS misconfiguration security risks and fixes for modern web APIs', 'Access-Control-Allow-Origin wildcard vulnerability prevention 2026']
+[2026-03-22 08:01:03] Keyword scout OK: 20260322_8f096bb8 -> ['OAuth 2.0 authorization code flow with PKCE best practices 2026', 'OAuth 2.0 token security vulnerabilities and prevention strategies']
+[2026-03-22 08:10:18] Keyword scout OK: 20260322_8ebcaaab -> ['AI-enhanced XSS detection and prevention techniques 2026', 'Content Security Policy CSP strict configuration guide']
+Failed review for 20260322_8ebcaaab: [Errno 2] No such file or directory: 'openclaw'

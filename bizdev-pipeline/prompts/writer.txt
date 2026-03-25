@@ -1,0 +1,14 @@
+Write a 1000-word SEO blog post in Markdown based on this outline: {outline}. 
+Research data: {research}.
+Keyword to target: {keyword}. 
+
+Include a Markdown Frontmatter block at the top with: 
+---
+title: "[Catchy SEO Title]"
+date: "{date}"
+description: "[Concise Description]"
+category: "[Category]"
+---
+
+Use proper H1 for the title, H2 for main sections, and H3 for sub-sections.
+Do not include introductory filler, just the markdown.

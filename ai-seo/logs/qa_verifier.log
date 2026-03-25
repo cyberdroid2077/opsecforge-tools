@@ -1,0 +1,77 @@
+[Sat Mar 21 12:58:28 2026] Running QA for 20260321_e2e_test_cors...
+[Sat Mar 21 12:58:38 2026] ERROR: Failed to send QA report to coo for 20260321_e2e_test_cors: [plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+[plugins] plugins.allow is empty; discovered non-bundled plugins may auto-load: cognee-openclaw (/home/dingw/.openclaw/extensions/cognee-openclaw/dist/index.js). Set plugins.allow to explicit trusted ids.
+Error: Channel is required when multiple channels are configured: whatsapp, discord
+
+[Sat Mar 21 12:58:38 2026] SUCCESS: QA completed and marked done for 20260321_e2e_test_cors
+[Sat Mar 21 12:58:38 2026] QA Verifier run complete.
+[Sat Mar 21 13:28:04 2026] Running QA for 20260321_a6b320ca...
+[Sat Mar 21 13:28:19 2026] SUCCESS: QA report sent to coo for 20260321_a6b320ca
+[Sat Mar 21 13:28:19 2026] SUCCESS: QA completed and marked done for 20260321_a6b320ca
+[Sat Mar 21 13:28:19 2026] Running QA for 20260321_ae816679...
+[Sat Mar 21 13:28:30 2026] SUCCESS: QA report sent to coo for 20260321_ae816679
+[Sat Mar 21 13:28:30 2026] SUCCESS: QA completed and marked done for 20260321_ae816679
+[Sat Mar 21 13:28:30 2026] QA Verifier run complete.
+[Sat Mar 21 14:51:13 2026] INFO: Waiting for live URL for test_20260321_e2e001: https://opsecforge.com/blog/owasp-api-security-top-10-vulnerabilities-and-remediation-strategies-2026
+[Sat Mar 21 14:51:14 2026] INFO: Live URL not ready for https://opsecforge.com/blog/owasp-api-security-top-10-vulnerabilities-and-remediation-strategies-2026: HTTP 404
+[Sat Mar 21 14:51:30 2026] INFO: Live URL ready for test_20260321_e2e001; running QA agent
+[Sat Mar 21 14:51:42 2026] INFO: QA result for test_20260321_e2e001: PASS - Clean page — no AI leakage, no markdown artifacts, no broken formatting. Content renders well with proper H2/H3 hierarchy, bullet lists are intact, and the footer elements (Terms of Service, Report a Bug) are normal site
+[Sat Mar 21 14:51:42 2026] DEBUG: QA raw response for test_20260321_e2e001: STATUS: PASS
+REASON: Clean page — no AI leakage, no markdown artifacts, no broken formatting. Content renders well with proper H2/H3 hierarchy, bullet lists are intact, and the footer elements (Terms of Service, Report a Bug) are normal site chrome.
+[Sat Mar 21 14:51:42 2026] SUCCESS: QA webhook sent for test_20260321_e2e001
+[Sat Mar 21 14:51:42 2026] SUCCESS: QA completed and removed queue item for test_20260321_e2e001
+[Sat Mar 21 14:51:42 2026] QA Verifier run complete.
+[Sat Mar 21 21:36:52 2026] INFO: Waiting for live URL for 20260320_d321d756: https://opsecforge.com/blog/ai-driven-dynamic-rate-limiting-strategies-for-enterprise-apis
+[Sat Mar 21 21:36:53 2026] INFO: Live URL not ready for https://opsecforge.com/blog/ai-driven-dynamic-rate-limiting-strategies-for-enterprise-apis: HTTP 404
+[Sat Mar 21 21:37:09 2026] INFO: Live URL not ready for https://opsecforge.com/blog/ai-driven-dynamic-rate-limiting-strategies-for-enterprise-apis: HTTP 404
+[Sat Mar 21 21:37:24 2026] INFO: Live URL ready for 20260320_d321d756; running QA agent
+[Sat Mar 21 21:37:42 2026] INFO: QA result for 20260320_d321d756: PASS - Clean page — no AI leakage, no markdown artifacts, no broken formatting. The article title was refreshed to a stronger, more engaging hook ("The Smartest Security Tool You're Not Using"). Content renders with proper H2/H
+[Sat Mar 21 21:37:42 2026] DEBUG: QA raw response for 20260320_d321d756: STATUS: PASS
+REASON: Clean page — no AI leakage, no markdown artifacts, no broken formatting. The article title was refreshed to a stronger, more engaging hook ("The Smartest Security Tool You're Not Using"). Content renders with proper H2/H3 hierarchy, bullet lists intact, newsletter CTA visible, and footer is normal site chrome.
+[Sat Mar 21 21:37:42 2026] SUCCESS: QA webhook sent for 20260320_d321d756
+[Sat Mar 21 21:37:42 2026] SUCCESS: QA completed and removed queue item for 20260320_d321d756
+[Sat Mar 21 21:37:42 2026] QA Verifier run complete.
+[Sat Mar 21 22:15:12 2026] INFO: Waiting for live URL for 20260319_8b601803: https://opsecforge.com/blog/zero-trust-api-security-architecture-for-2026
+[Sat Mar 21 22:15:14 2026] INFO: Live URL not ready for https://opsecforge.com/blog/zero-trust-api-security-architecture-for-2026: HTTP 404
+[Sat Mar 21 22:15:29 2026] INFO: Live URL not ready for https://opsecforge.com/blog/zero-trust-api-security-architecture-for-2026: HTTP 404
+[Sat Mar 21 22:15:45 2026] INFO: Live URL ready for 20260319_8b601803; running QA agent
+[Sat Mar 21 22:16:01 2026] INFO: QA result for 20260319_8b601803: PASS - Clean page — no AI leakage, no markdown artifacts, no broken rendering. Content is well-structured with proper H2/H3 hierarchy and numbered implementation steps. The article date (2026-03-19) is older than recent posts b
+[Sat Mar 21 22:16:01 2026] DEBUG: QA raw response for 20260319_8b601803: STATUS: PASS
+REASON: Clean page — no AI leakage, no markdown artifacts, no broken rendering. Content is well-structured with proper H2/H3 hierarchy and numbered implementation steps. The article date (2026-03-19) is older than recent posts but this is not a quality issue. Footer and nav are normal site chrome.
+[Sat Mar 21 22:16:01 2026] SUCCESS: QA webhook sent for 20260319_8b601803
+[Sat Mar 21 22:16:01 2026] SUCCESS: QA completed and removed queue item for 20260319_8b601803
+[Sat Mar 21 22:16:01 2026] QA Verifier run complete.
+[Sat Mar 21 22:28:52 2026] INFO: Waiting for live URL for test_20260321_abc123: https://opsecforge.com/blog/ai-native-api-gateway-security-for-enterprise-2026
+[Sat Mar 21 22:28:53 2026] INFO: Live URL not ready for https://opsecforge.com/blog/ai-native-api-gateway-security-for-enterprise-2026: HTTP 404
+[Sat Mar 21 22:29:09 2026] INFO: Live URL not ready for https://opsecforge.com/blog/ai-native-api-gateway-security-for-enterprise-2026: HTTP 404
+[Sat Mar 21 22:29:24 2026] INFO: Live URL ready for test_20260321_abc123; running QA agent
+[Sat Mar 21 22:29:44 2026] INFO: QA result for test_20260321_abc123: PASS - Clean page. Excellent opening hook with a specific $1.2B breach scenario. Named vendors throughout (Cloudflare, Kong, Okta, Salt Security, Imperva, F5, AWS WAF, Azure) add credibility. Real-world Jenkins/OIDC case study 
+[Sat Mar 21 22:29:44 2026] DEBUG: QA raw response for test_20260321_abc123: STATUS: PASS
+REASON: Clean page. Excellent opening hook with a specific $1.2B breach scenario. Named vendors throughout (Cloudflare, Kong, Okta, Salt Security, Imperva, F5, AWS WAF, Azure) add credibility. Real-world Jenkins/OIDC case study is a standout. No AI leakage, no formatting issues.
+[Sat Mar 21 22:29:44 2026] SUCCESS: QA webhook sent for test_20260321_abc123
+[Sat Mar 21 22:29:44 2026] SUCCESS: QA completed and removed queue item for test_20260321_abc123
+[Sat Mar 21 22:29:44 2026] QA Verifier run complete.
+[Sat Mar 21 22:52:06 2026] INFO: Waiting for live URL for 20260321_938dbbbc: https://opsecforge.com/blog/20260321-938dbbbc
+[Sat Mar 21 22:52:07 2026] INFO: Live URL ready for 20260321_938dbbbc; running QA agent
+[Sat Mar 21 22:52:24 2026] INFO: QA result for 20260321_938dbbbc: WARN - Duplicate content detected — the introductory paragraph ("In the rapidly evolving digital landscape of 2026...") appears twice: once as a "THREAT BRIEFING" callout box and again as the opening of the "What Are Security T
+[Sat Mar 21 22:52:24 2026] DEBUG: QA raw response for 20260321_938dbbbc: STATUS: WARN
+REASON: Duplicate content detected — the introductory paragraph ("In the rapidly evolving digital landscape of 2026...") appears twice: once as a "THREAT BRIEFING" callout box and again as the opening of the "What Are Security Tools" section. This is a publish-quality issue that needs to be cleaned up.
+[Sat Mar 21 22:52:24 2026] SUCCESS: QA webhook sent for 20260321_938dbbbc
+[Sat Mar 21 22:52:24 2026] SUCCESS: QA completed and removed queue item for 20260321_938dbbbc
+[Sat Mar 21 22:52:24 2026] QA Verifier run complete.
+[Wed Mar 25 10:37:55 2026] INFO: Waiting for live URL for aade18fe-bfea-4d88-8399-62b4761c3cbc: https://opsecforge.com/blog/sql-injection-modern-apis-parameterized-queries-2026
+[Wed Mar 25 10:37:56 2026] INFO: Live URL ready for aade18fe-bfea-4d88-8399-62b4761c3cbc; running QA agent
+[Wed Mar 25 10:37:56 2026] ERROR: Exception for aade18fe-bfea-4d88-8399-62b4761c3cbc: [Errno 2] No such file or directory: '/home/dingw/.npm-global/bin/openclaw'
+[Wed Mar 25 10:37:56 2026] QA Verifier run complete.
+[Wed Mar 25 10:40:22 2026] INFO: Waiting for live URL for aade18fe-bfea-4d88-8399-62b4761c3cbc: https://opsecforge.com/blog/sql-injection-modern-apis-parameterized-queries-2026
+[Wed Mar 25 10:40:23 2026] INFO: Live URL ready for aade18fe-bfea-4d88-8399-62b4761c3cbc; running QA agent
+[Wed Mar 25 10:40:23 2026] ERROR: Exception for aade18fe-bfea-4d88-8399-62b4761c3cbc: [Errno 2] No such file or directory: '/home/dingw/.npm-global/bin/openclaw'
+[Wed Mar 25 10:40:23 2026] QA Verifier run complete.
+[Wed Mar 25 10:42:09 2026] INFO: Waiting for live URL for aade18fe-bfea-4d88-8399-62b4761c3cbc: https://opsecforge.com/blog/sql-injection-modern-apis-parameterized-queries-2026
+[Wed Mar 25 10:42:10 2026] INFO: Live URL ready for aade18fe-bfea-4d88-8399-62b4761c3cbc; running QA agent
+[Wed Mar 25 10:42:36 2026] INFO: QA result for aade18fe-bfea-4d88-8399-62b4761c3cbc: PASS - Clean page — no AI leakage, no markdown artifacts. Strong breach hook (Jan 2026 healthcare, $18M fine). Code examples render correctly with syntax highlighting. Contextual product CTA mid-article is acceptable for a tool
+[Wed Mar 25 10:42:36 2026] DEBUG: QA raw response for aade18fe-bfea-4d88-8399-62b4761c3cbc: STATUS: PASS
+REASON: Clean page — no AI leakage, no markdown artifacts. Strong breach hook (Jan 2026 healthcare, $18M fine). Code examples render correctly with syntax highlighting. Contextual product CTA mid-article is acceptable for a tool site's blog. Conclusion and checklist are solid.
+[Wed Mar 25 10:42:36 2026] SUCCESS: QA webhook sent for aade18fe-bfea-4d88-8399-62b4761c3cbc
+[Wed Mar 25 10:42:36 2026] SUCCESS: QA completed and removed queue item for aade18fe-bfea-4d88-8399-62b4761c3cbc
+[Wed Mar 25 10:42:36 2026] QA Verifier run complete.

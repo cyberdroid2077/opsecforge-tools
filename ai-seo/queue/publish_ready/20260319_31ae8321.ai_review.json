@@ -1,0 +1,16 @@
+{
+  "scores": {
+    "title_naturalness": 8,
+    "keyword_usage": 9,
+    "structure_quality": 10,
+    "factual_accuracy": 10,
+    "originality": 10,
+    "publish_readiness": 10
+  },
+  "total_score": 95,
+  "recommendation": "publish",
+  "short_reason": "The article is authoritative, well-structured, and technically precise. It aligns perfectly with 2026 industry standards and provides a highly polished, actionable resource.",
+  "red_flags": [],
+  "reviewed_at": "2026-03-19T01:39:31",
+  "model": "gemini-3.1-flash-lite-preview"
+}

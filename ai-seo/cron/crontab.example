@@ -1,0 +1,17 @@
+# AI SEO Pipeline - OpSecForge
+# 08:00 每日发车前预检
+00 8 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/preflight_check.py >> /home/dingw/opsecforge-tools/ai-seo/logs/preflight.log 2>&1
+
+# 生产流水线
+10 8 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/enqueue_daily_topic.py >> /home/dingw/opsecforge-tools/ai-seo/logs/enqueue.log 2>&1
+20 8 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/run_keyword_scout.py >> /home/dingw/opsecforge-tools/ai-seo/logs/keyword.log 2>&1
+35 8 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/run_outline_editor.py >> /home/dingw/opsecforge-tools/ai-seo/logs/outline.log 2>&1
+00 9 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/run_writer_qwen.py >> /home/dingw/opsecforge-tools/ai-seo/logs/writer.log 2>&1
+25 9 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/run_seo_polish.py >> /home/dingw/opsecforge-tools/ai-seo/logs/polish.log 2>&1
+40 9 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/run_publisher.py >> /home/dingw/opsecforge-tools/ai-seo/logs/publisher.log 2>&1
+
+# 自动自检与告警生成 (每日3次: 10:00, 14:00, 20:00)
+00 10,14,20 * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/run_watchdog.py >> /home/dingw/opsecforge-tools/ai-seo/logs/watchdog.log 2>&1
+
+# 独立健康探针示例 (每小时运行一次, 可接监控面板)
+30 * * * * /home/dingw/.openclaw/workspace-jarvis/env/bin/python /home/dingw/opsecforge-tools/ai-seo/scripts/check_pipeline_health.py >> /home/dingw/opsecforge-tools/ai-seo/logs/health.log 2>&1
