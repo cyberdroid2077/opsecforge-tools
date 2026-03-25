@@ -1,7 +1,7 @@
 'use client';
 
-import { Twitter, Linkedin, Reddit } from 'lucide-react';
-import { FaHackerNews } from 'react-icons/fa';
+import { Twitter, Linkedin } from 'lucide-react';
+import { FaReddit, FaHackerNews } from 'react-icons/fa';
 
 interface SocialShareProps {
   url: string;
@@ -31,7 +31,7 @@ export default function SocialShare({ url, title, tags = [] }: SocialShareProps)
         <Linkedin size={20} />
       </a>
       <a href={shareLinks.reddit} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors">
-        <Reddit size={20} />
+        <FaReddit size={20} />
       </a>
       <a href={shareLinks.hackerNews} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-white transition-colors">
         <FaHackerNews size={20} />
