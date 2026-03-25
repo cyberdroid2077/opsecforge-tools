@@ -2,20 +2,24 @@
 
 import { Twitter, Linkedin } from 'lucide-react';
 import { FaReddit, FaHackerNews } from 'react-icons/fa';
+import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
-interface SocialShareProps {
-  url: string;
-  title: string;
-  tags?: string[];
-}
+export default function SocialShare() {
+  const pathname = usePathname();
+  const [pageTitle, setPageTitle] = useState('');
+  
+  useEffect(() => {
+    // Set title after component mounts to ensure document.title is updated
+    setPageTitle(document.title);
+  }, []);
 
-export default function SocialShare({ url, title, tags = [] }: SocialShareProps) {
+  const url = `https://opsecforge.com${pathname}`;
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(title);
-  const twitterTags = tags.join(',');
+  const encodedTitle = encodeURIComponent(pageTitle);
 
   const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}&hashtags=${twitterTags}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
     linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`,
     reddit: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`,
     hackerNews: `https://news.ycombinator.com/submitlink?u=${encodedUrl}&t=${encodedTitle}`,
