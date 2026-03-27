@@ -4,6 +4,13 @@ date: "2026-03-27"
 description: ".env files contain API keys, database passwords, and cloud credentials. Learn why sharing them is catastrophic, what patterns to watch for, and how to automatically sanitize .env files before posting in bug reports or messages."
 category: "Security"
 tags: ["env", "security", "api-keys", "aws", "stripe", "secrets", "credentials", "git"]
+faqs:
+  - question: "Does the Env Sanitizer send my .env file to a server?"
+    answer: "No. The Env Sanitizer runs 100% in your browser. Your .env file never leaves your device — all pattern matching and redaction happens locally in JavaScript."
+  - question: "What credential patterns does the Env Sanitizer detect?"
+    answer: "It detects Stripe keys (sk_live_, sk_test_), AWS access keys (AKIA*), AWS secret keys, GitHub tokens (ghp_, gho_, ghu_, ghs_), database connection strings with embedded credentials, and generic _PASSWORD, _SECRET, _KEY variables."
+  - question: "Is find-and-replace enough to sanitize a .env file?"
+    answer: "Not reliably. Manually replacing values often misses edge cases or accidentally removes structure. A dedicated sanitizer uses regex patterns specifically designed for each credential format, reducing the risk of missing something."
 ---
 
 # How to Sanitize .env Files Before Sharing: A Developer's Guide

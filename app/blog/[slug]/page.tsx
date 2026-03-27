@@ -41,9 +41,29 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
+  const faqSchema = post.faqs && post.faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  } : null;
+
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-300 lg:px-24">
-      <article className="mx-auto max-w-3xl">
+    <>
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-300 lg:px-24">
+        <article className="mx-auto max-w-3xl">
         <Link
           href="/blog"
           className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-emerald-400"
@@ -75,5 +95,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </article>
     </main>
+    </>
   );
 }

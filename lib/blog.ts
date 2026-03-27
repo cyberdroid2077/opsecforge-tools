@@ -6,6 +6,11 @@ import html from 'remark-html';
 
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
+export type FaqItem = {
+  question: string;
+  answer: string;
+};
+
 export type BlogPostMetadata = {
   slug: string;
   title: string;
@@ -15,6 +20,7 @@ export type BlogPostMetadata = {
 
 type BlogPost = BlogPostMetadata & {
   contentHtml: string;
+  faqs?: FaqItem[];
 };
 
 export function getAllPosts(): BlogPostMetadata[] {
@@ -59,5 +65,6 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     date: String(data.date ?? ''),
     description: String(data.description ?? ''),
     contentHtml: processedContent.toString(),
+    faqs: (data.faqs as FaqItem[] | undefined) ?? [],
   };
 }

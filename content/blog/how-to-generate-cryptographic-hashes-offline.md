@@ -4,6 +4,13 @@ date: "2026-03-27"
 description: "SHA-256, SHA-512, MD5, and Bcrypt — learn when to use each hash algorithm, why offline generation is critical for sensitive data, and how to generate hashes directly in your browser."
 category: "Security"
 tags: ["hash", "sha256", "bcrypt", "cryptography", "security", "password", "md5", "checksum"]
+faqs:
+  - question: "Is it safe to hash passwords using online tools?"
+    answer: "It depends. If the tool runs client-side (in your browser), it is safe. If it sends data to a server, your passwords could be logged. Always verify the tool runs locally before hashing passwords."
+  - question: "Which hash algorithm should I use for password storage?"
+    answer: "Always use Bcrypt for passwords. It is specifically designed for password hashing with built-in salting and configurable work factor. Never use MD5 or SHA-256 for passwords."
+  - question: "Does hashing the same input always produce the same output?"
+    answer: "Yes, for the same algorithm. SHA-256 always produces the same 64-character hex digest for a given input. Bcrypt produces different outputs for the same input due to its random salt — but the output encodes the salt so verification still works."
 ---
 
 # How to Generate Cryptographic Hashes Offline Without Any Network Requests

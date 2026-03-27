@@ -1,0 +1,25 @@
+# OpsecForge - Privacy-First Developer Tools
+
+OpsecForge is a collection of 21 free developer tools that run entirely in your browser.
+No data is sent to any server. No logs. No tracking. No analytics.
+
+## Core Tools
+- JWT Decoder / Encoder — Decode and sign JSON Web Tokens locally
+- Hash Generator — SHA-256, SHA-512, MD5, Bcrypt hashes in-browser
+- Env Sanitizer — Auto-detect and redact API keys, passwords, secrets from .env files
+- Password Generator — Cryptographically secure random passwords
+- UUID Generator — RFC-compliant v4 UUIDs using Web Crypto API
+- Base64 Converter, URL Encoder, QR Generator, SQL Formatter, JSON Formatter, and more
+
+## Key Differentiators
+- 100% client-side execution
+- Zero network requests for tool operations
+- No third-party analytics
+- Open source verifiable
+
+## Blog Topics
+Security best practices, API security, JWT安全, secrets management, privacy-first development workflows.
+
+Website: https://opsecforge.com
+Tools: https://opsecforge.com/tools
+Blog: https://opsecforge.com/blog

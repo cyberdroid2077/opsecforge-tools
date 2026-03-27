@@ -4,6 +4,13 @@ date: "2026-03-27"
 description: "UUIDs (Universally Unique Identifiers) are the standard for database keys, session IDs, and correlation tokens. Learn the difference between UUID versions, when to use each type, and why client-side generation is a privacy win."
 category: "Developer Tools"
 tags: ["uuid", "guid", "identifier", "database", "security", "privacy", "api", "session"]
+faqs:
+  - question: "What is the difference between UUID v1 and UUID v4?"
+    answer: "UUID v1 is time-based and includes the generating machine's MAC address — it reveals when and where the UUID was created. UUID v4 is randomly generated — it contains no identifying information and is the standard choice for most applications."
+  - question: "Can two UUIDs be the same?"
+    answer: "Theoretically yes (the birthday paradox), but the probability is so vanishingly small (1 in 2^128) that it is considered effectively impossible for all practical purposes."
+  - question: "Are UUIDs secure enough for security-sensitive purposes?"
+    answer: "UUID v4 uses cryptographically secure random numbers and is suitable for session IDs and tokens. However, for cryptographic keys, use purpose-built key generation instead of UUIDs."
 ---
 
 # How to Generate UUIDs in Your Browser: A Developer's Guide

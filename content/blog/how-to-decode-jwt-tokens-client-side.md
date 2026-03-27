@@ -4,6 +4,13 @@ date: "2026-03-27"
 description: "JSON Web Tokens are everywhere in modern web development. Learn why online JWT decoders are a security risk and how to safely decode JWTs entirely in your browser with zero data transmission."
 category: "Security"
 tags: ["jwt", "decoder", "client-side", "privacy", "security", "authentication", "tokens"]
+faqs:
+  - question: "Is OpsecForge's JWT Decoder safe to use for production tokens?"
+    answer: "Yes. The JWT Decoder runs 100% in your browser — your token never leaves your device. No data is transmitted to any server."
+  - question: "Does decoding a JWT verify its signature?"
+    answer: "No. Decoding only parses the Base64URL segments. Signature verification requires your secret/public key and is not performed by this tool."
+  - question: "Can I use this to decode expired tokens?"
+    answer: "Yes. Decoding is purely computational. An expired token can still be decoded to inspect its contents, just not verified as valid."
 ---
 
 # How to Decode JWT Tokens Client-Side Without Sending Data to Any Server
