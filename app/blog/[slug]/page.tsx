@@ -71,10 +71,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         />
 
         <div className="mt-12 border-t border-slate-800 pt-8">
-          <SocialShare
-            url={`https://opsecforge.com/blog/${slug}`}
-            title={post.title}
-          />
+          <SocialShare />
         </div>
       </article>
     </main>

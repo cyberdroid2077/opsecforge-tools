@@ -51,12 +51,12 @@ export default function JwtEncoder() {
       if (typeof crypto !== 'undefined' && crypto.subtle) {
         crypto.subtle.importKey(
           'raw',
-          key,
+          key as unknown as BufferSource,
           { name: 'HMAC', hash: { name: alg === 'HS256' ? 'SHA-256' : 'SHA-512' } },
           false,
           ['sign']
         ).then(cryptoKey => {
-          crypto.subtle.sign('HMAC', cryptoKey, utf8Encode(data)).then(signature => {
+          crypto.subtle.sign('HMAC', cryptoKey, utf8Encode(data) as unknown as BufferSource).then(signature => {
             const sigArray = new Uint8Array(signature);
             const sigBase64 = btoa(String.fromCharCode(...sigArray));
             resolve(sigBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''));

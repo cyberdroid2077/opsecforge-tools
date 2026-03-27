@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-23T18:27:42.875Z",
+  "timestamp": "2026-03-27T04:36:24.359Z",
   "report": [
     {
       "name": "NODE_ENV is set",
@@ -34,7 +34,7 @@
     {
       "name": "TypeScript type-check (skipLibCheck)",
       "status": "PASS",
-      "detail": "OK — 2 known pre-existing type issues in jwt-encoder/TextDiffTool"
+      "detail": "OK"
     },
     {
       "name": "ESLint runs (report-only — pre-existing errors tracked for cleanup)",

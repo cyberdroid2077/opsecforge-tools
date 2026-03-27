@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { Diff } from 'diff';
+import { diffWords } from 'diff';
 import { GitCompareArrows, Lock } from 'lucide-react';
 
-const differ = new Diff();
+
 
 export default function TextDiffTool() {
   const [original, setOriginal] = useState('');
@@ -16,7 +16,7 @@ export default function TextDiffTool() {
     if (compareNonce === 0 || (!original && !modified)) {
       return [];
     }
-    return differ.diffWords(original, modified);
+    return diffWords(original, modified);
   }, [compareNonce, modified, original]);
 
   return (
