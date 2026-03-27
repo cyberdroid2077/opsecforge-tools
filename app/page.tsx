@@ -59,21 +59,37 @@ export default function Home() {
 
         <div className="w-full max-w-4xl mx-auto py-24 border-t border-slate-800/50">
           <h2 className="text-3xl font-bold text-slate-200 mb-12 text-center lg:text-left">Security Briefings & Dev Tips</h2>
-          <div className="grid grid-cols-1 gap-8">
-            <Link href="/blog/how-to-safely-share-env-files" className="group block">
-              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-amber-500/30 transition-all">
-                <div className="text-amber-500 text-xs font-bold uppercase tracking-widest mb-4">Security Best Practices</div>
-                <h3 className="text-2xl font-bold text-slate-200 group-hover:text-amber-400 transition-colors mb-4">How to Safely Share .env Files: A Guide to Local Secret Masking</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">AWS keys, database passwords, and API tokens are the keys to your kingdom. Learn why sharing plain-text environment files is a catastrophe waiting to happen.</p>
-                <div className="text-amber-500 font-bold text-sm flex items-center gap-2">Read Security Guide <ShieldCheck size={16} /></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Link href="/blog/how-to-decode-jwt-tokens-client-side" className="group block">
+              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-emerald-500/30 transition-all h-full flex flex-col">
+                <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4">JWT Security</div>
+                <h3 className="text-xl font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-4">How to Decode JWT Tokens Client-Side Without Sending Data to Any Server</h3>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">Online JWT decoders are a security risk. Learn why and how to safely decode tokens entirely in your browser.</p>
+                <div className="text-emerald-500 font-bold text-sm flex items-center gap-2 mt-4">Read Guide <ShieldCheck size={16} /></div>
               </div>
             </Link>
-            <Link href="/blog/stop-pasting-sensitive-json-online" className="group block">
-              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-emerald-500/30 transition-all">
-                <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4">Privacy & Security</div>
-                <h3 className="text-2xl font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-4">Stop Pasting Sensitive JSON Online: How to Format API Logs Locally Without Exposing Customer Data</h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">We&apos;ve all been there. You&apos;re debugging a production API issue at 2 AM. The logs are spewing malformed JSON across your terminal, and you just need to make sense of it—fast.</p>
-                <div className="text-emerald-500 font-bold text-sm flex items-center gap-2">Read Full Report <TerminalSquare size={16} /></div>
+            <Link href="/blog/how-to-generate-cryptographic-hashes-offline" className="group block">
+              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-purple-500/30 transition-all h-full flex flex-col">
+                <div className="text-purple-500 text-xs font-bold uppercase tracking-widest mb-4">Cryptography</div>
+                <h3 className="text-xl font-bold text-slate-200 group-hover:text-purple-400 transition-colors mb-4">How to Generate Cryptographic Hashes Offline Without Any Network Requests</h3>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">SHA-256, SHA-512, MD5, and Bcrypt — when to use each and why offline generation matters for sensitive data.</p>
+                <div className="text-purple-500 font-bold text-sm flex items-center gap-2 mt-4">Read Guide <TerminalSquare size={16} /></div>
+              </div>
+            </Link>
+            <Link href="/blog/how-to-sanitize-env-files-before-sharing" className="group block">
+              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-amber-500/30 transition-all h-full flex flex-col">
+                <div className="text-amber-500 text-xs font-bold uppercase tracking-widest mb-4">Security Best Practices</div>
+                <h3 className="text-xl font-bold text-slate-200 group-hover:text-amber-400 transition-colors mb-4">How to Sanitize .env Files Before Sharing</h3>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">AWS keys, database passwords, and API tokens are the keys to your kingdom. Learn why sharing plain-text .env files is a catastrophe waiting to happen.</p>
+                <div className="text-amber-500 font-bold text-sm flex items-center gap-2 mt-4">Read Security Guide <ShieldCheck size={16} /></div>
+              </div>
+            </Link>
+            <Link href="/blog/how-to-generate-secure-passwords-offline" className="group block">
+              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-rose-500/30 transition-all h-full flex flex-col">
+                <div className="text-rose-500 text-xs font-bold uppercase tracking-widest mb-4">Authentication</div>
+                <h3 className="text-xl font-bold text-slate-200 group-hover:text-rose-400 transition-colors mb-4">How to Generate Secure Passwords Offline: The Complete Guide</h3>
+                <p className="text-slate-400 text-sm leading-relaxed flex-1">Weak passwords are the leading cause of breaches. Learn how cryptographic randomness makes strong passwords and why client-side generation is safer.</p>
+                <div className="text-rose-500 font-bold text-sm flex items-center gap-2 mt-4">Read Guide <ShieldCheck size={16} /></div>
               </div>
             </Link>
           </div>
