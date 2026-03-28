@@ -1,7 +1,7 @@
 [
   {
     "name": "JWT Decoder",
-    "description": "Decode and inspect JSON Web Tokens with complete data sovereignty. No external transmission. Includes intelligent timestamp parsing and validation. 100% LOCAL.",
+    "description": "Decode and inspect JSON Web Tokens with complete data sovereignty. No external transmission. Intelligent timestamp parsing (exp/iat/nbf → human-readable), automatic security analysis (alg:none alerts, expiry checks), and signature display. 100% LOCAL.",
     "url": "/tools/jwt-decoder",
     "tool_spotlight_template": "\n<div class=\"my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl\">\n  <h3 class=\"mb-3 text-2xl font-bold text-slate-100\">Decode JWTs Without Exposing Secrets</h3>\n  <p class=\"mb-8 text-slate-400 text-lg\">Stop pasting your tokens into online decoders that log your payload. Use our fully client-side JWT decoder to inspect headers and payloads without sending data to any server.</p>\n  <a href=\"/tools/jwt-decoder\" class=\"inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]\">\n    Open JWT Decoder →\n  </a>\n</div>\n",
     "topics": ["JWT", "API Security", "Authentication", "Token Validation"]

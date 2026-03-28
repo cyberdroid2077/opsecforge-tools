@@ -9,7 +9,8 @@
       "category": "security",
       "status": "production",
       "path": "app/tools/jwt-decoder",
-      "description": "Decode and inspect JSON Web Tokens without sending data to any server. Client-side only.",
+      "blogPriority": "high",
+      "description": "Decode and inspect JSON Web Tokens without sending data to any server. Client-side only. Features: intelligent timestamp parsing (exp/iat/nbf), automatic security analysis (alg:none, expiry), signature display.",
       "description_zh": "\u5728\u4e0d\u89e3\u5bc6\u6570\u636e\u7684\u60c5\u51b5\u4e0b\u89e3\u7801\u548c\u68c0\u67e5 JSON Web Token\u3002\u4ec5\u5ba2\u6237\u7aef\u5904\u7406\u3002",
       "tags": [
         "jwt",
