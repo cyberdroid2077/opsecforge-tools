@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-27T04:36:24.359Z",
+  "timestamp": "2026-04-06T13:12:40.655Z",
   "report": [
     {
       "name": "NODE_ENV is set",
@@ -33,13 +33,13 @@
     },
     {
       "name": "TypeScript type-check (skipLibCheck)",
-      "status": "PASS",
-      "detail": "OK"
+      "status": "FAIL",
+      "detail": "\u001b[96mapp/tools/layout.tsx\u001b[0m:\u001b[93m34\u001b[0m:\u001b[93m3\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS1117: \u001b[0mAn object literal cannot have multiple properties with the same name.\n\n\u001b[7m34\u001b[0m   'hash-generator': ['SHA256 hash', 'SHA512 hash', 'MD5 hash', 'crypto hash'],\n\u001b[7m  \u001b[0m \u001b[91m  ~~~~~~~~~~~~~~~~\u001b[0m\n\n\nFound 1 error in app/tools/layout.tsx\u001b[90m:34\u001b[0m\n\nnpm notice\nnpm notice New major version of npm available! 10.9.4 -> 11.12.1\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v11.12.1\nnpm notice To"
     },
     {
       "name": "ESLint runs (report-only — pre-existing errors tracked for cleanup)",
       "status": "PASS",
-      "detail": "ESLint: 8 errors, 34 warnings — pre-existing (Phase 2 cleanup tracked)"
+      "detail": "ESLint: 17 errors, 37 warnings — pre-existing (Phase 2 cleanup tracked)"
     },
     {
       "name": "npm audit (allow legacy advisories)",
