@@ -1,8 +1,37 @@
 import { MetadataRoute } from 'next';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const baseUrl = 'https://www.opsecforge.com';
+
+function listBlogRoutes() {
+  const blogDirectory = path.join(process.cwd(), 'content/blog');
+
+  if (!fs.existsSync(blogDirectory)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(blogDirectory)
+    .filter((fileName) => fileName.endsWith('.md'))
+    .map((fileName) => `/blog/${fileName.replace(/\.md$/, '')}`);
+}
+
+function listToolRoutes() {
+  const toolsDirectory = path.join(process.cwd(), 'app/tools');
+
+  if (!fs.existsSync(toolsDirectory)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(toolsDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .filter((entry) => fs.existsSync(path.join(toolsDirectory, entry.name, 'page.tsx')))
+    .map((entry) => `/tools/${entry.name}`);
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://opsecforge.com';
-
   const staticRoutes = [
     '',
     '/about',
@@ -13,34 +42,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/privacy',
     '/terms-of-service',
     '/blog',
-    '/blog/ai-opsec-checklist-how-to-use-llms-safely',
-    '/blog/global-privacy-compliance-guide-2026',
-    '/blog/how-to-safely-share-env-files',
-    '/blog/stop-pasting-sensitive-json-online',
-    '/tools/jwt-decoder',
-    '/tools/json-formatter',
-    '/tools/json-beautifier',
-    '/tools/env-sanitizer',
-    '/tools/base64-converter',
-    '/tools/uuid-generator',
-    '/tools/unix-timestamp',
-    '/tools/password-generator',
-    '/tools/lorem-ipsum',
-    '/tools/url-encoder',
-    '/tools/text-case',
-    '/tools/word-counter',
-    '/tools/qr-generator',
-    '/tools/sha256-hash',
-    '/tools/hex-rgb-converter',
-    '/tools/markdown-to-html',
-    '/tools/text-diff',
-    '/tools/webhook-debugger',
   ];
 
-  return staticRoutes.map((route) => ({
+  const routes = Array.from(new Set([
+    ...staticRoutes,
+    ...listBlogRoutes(),
+    ...listToolRoutes(),
+  ])).sort((left, right) => {
+    if (left === '') {
+      return -1;
+    }
+
+    if (right === '') {
+      return 1;
+    }
+
+    return left.localeCompare(right);
+  });
+
+  return routes.map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
-    priority: route === '' ? 1 : 0.8,
+    priority: route === '' ? 1 : route.startsWith('/tools/') ? 0.9 : 0.8,
   }));
 }
