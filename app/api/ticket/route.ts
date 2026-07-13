@@ -14,6 +14,9 @@ export async function POST(request: Request) {
       host: 'smtp.zoho.com',
       port: 465,
       secure: true, // Use SSL
+      // This endpoint only sends plain text tickets; it never needs local files or URLs.
+      disableFileAccess: true,
+      disableUrlAccess: true,
       auth: {
         user: process.env.ZOHO_EMAIL, // e.g., admin@opsecforge.com
         pass: process.env.ZOHO_APP_PASSWORD, // The App Password we generated
