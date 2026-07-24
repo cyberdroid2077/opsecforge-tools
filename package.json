@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run content:verify",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -12,7 +13,8 @@
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc --noEmit --pretty",
     "audit": "npm audit --audit-level=high",
-    "health": "node scripts/monitor/health-check.js"
+    "health": "node scripts/monitor/health-check.js",
+    "content:verify": "node scripts/validate-content-sources.mjs"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

@@ -1,0 +1,63 @@
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
+const BLOG_PREFIX = "content/blog/";
+const CVE_PATTERN = /\bCVE-\d{4}-\d{4,}\b/gi;
+const CONFIRMED_EXPLOIT_PATTERN =
+  /\b(?:Exploitation:\s*Confirmed|confirmed exploitation|actively exploited|exploited in the wild)\b/i;
+
+function changedBlogFiles() {
+  try {
+    return execFileSync(
+      "git",
+      ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
+      { encoding: "utf8" },
+    )
+      .split(/\r?\n/)
+      .filter((file) => file.startsWith(BLOG_PREFIX) && file.endsWith(".md"));
+  } catch {
+    return [];
+  }
+}
+
+const explicitFiles = process.argv.slice(2);
+const files = explicitFiles.length > 0 ? explicitFiles : changedBlogFiles();
+const failures = [];
+
+for (const file of files) {
+  const content = readFileSync(file, "utf8");
+  const cves = [...new Set((content.match(CVE_PATTERN) ?? []).map((id) => id.toUpperCase()))];
+
+  if (cves.length === 0) continue;
+
+  if (!/^source_reviewed:\s*["']?\d{4}-\d{2}-\d{2}["']?\s*$/m.test(content)) {
+    failures.push(`${file}: CVE content requires source_reviewed: YYYY-MM-DD frontmatter`);
+  }
+
+  if (!/^primary_source:\s*["']?https:\/\/(?:github\.com\/[^/]+\/[^/]+\/security\/advisories\/GHSA-|nvd\.nist\.gov\/vuln\/detail\/CVE-)/m.test(content)) {
+    failures.push(`${file}: CVE content requires an official advisory or NVD primary_source`);
+  }
+
+  for (const cve of cves) {
+    const escaped = cve.replaceAll("-", "\\-");
+    const nvdLink = new RegExp(`https://nvd\\.nist\\.gov/vuln/detail/${escaped}`, "i");
+    if (!nvdLink.test(content)) {
+      failures.push(`${file}: missing direct NVD source for ${cve}`);
+    }
+  }
+
+  if (
+    CONFIRMED_EXPLOIT_PATTERN.test(content) &&
+    !/https:\/\/www\.cisa\.gov\/known-exploited-vulnerabilities-catalog/i.test(content)
+  ) {
+    failures.push(`${file}: confirmed-exploitation claims require a direct CISA KEV source`);
+  }
+}
+
+if (failures.length > 0) {
+  console.error("Content source verification failed:\n");
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log(`Content source verification passed (${files.length} changed blog file(s)).`);
