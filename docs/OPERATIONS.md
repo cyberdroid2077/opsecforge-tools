@@ -81,7 +81,7 @@ Active experiment: high-traffic article to contextual tool navigation.
 ## Deployment and SEO observations
 
 - Vercel deploys from `main`; production verification is required after push.
-- The sitemap is generated dynamically and currently exposes 101 canonical `www` URLs.
+- The sitemap is generated dynamically and currently exposes 102 canonical `www` URLs.
 - The apex domain redirects to `www`; public machine-readable URLs should use `https://www.opsecforge.com`.
 - Vercel Analytics is live, so public claims of “no analytics” are inaccurate even though tool input remains browser-local.
 - On 2026-07-24, `robots.txt` and `llms.txt` were corrected to use the `www` host; `llms.txt` also stopped linking to the nonexistent `/tools` index and now describes analytics truthfully.
@@ -95,10 +95,28 @@ Active experiment: high-traffic article to contextual tool navigation.
   - Added a visible Tools navigation entry and included `/tools` in the sitemap.
   - An independent read-only Claude review confirmed the chosen priorities: early contextual CTA, editorial internal links, duplicate-H1 removal, and visible provenance/structured data.
 - Before/after checks for this wave:
-  - `/tools`: HTTP 404 before; expected HTTP 200 and indexable after deployment.
+  - `/tools`: HTTP 404 before; HTTP 200 and indexable after deployment.
   - Base64 article: two visible H1 headings before; one H1 after the renderer change.
   - Contextual CTA: late or absent before; visible immediately after each article header/introduction after.
-  - Sitemap: 101 URLs before; expected 102 after adding `/tools`.
+  - Sitemap: 101 URLs before; 102 after adding `/tools`.
+- P0 sanitizer reliability wave deployed on 2026-07-24 in commit `73fb70e`:
+  - Replaced the overbroad 40-character AWS-secret regex and destructive split-based replacement with a pure, browser-local sanitizer that preserves surrounding structure where feasible.
+  - Added heuristic handling for sensitive named fields in `.env`, JSON, and YAML; authorization/API-key/cookie headers; credentials in URLs and cURL commands; sensitive query parameters; common provider-token shapes; JWT-like strings; and private-key blocks.
+  - Kept safe near misses such as checksums, public keys, key IDs, token endpoints, and already-redacted values unchanged in regression tests.
+  - Renamed the interface to “Safe-to-Share Sanitizer” and states prominently that detection is heuristic, can miss custom formats, can flag benign values, and requires human review.
+  - Confirmed by static inspection that the sanitizer input path contains no fetch, beacon, storage, console logging, or input analytics call.
+  - Updated the leading API-key article CTA to describe the same limitations.
+  - Narrowed webhook success wording to the supported fact: supplied payload, secret, and signature match; this alone does not establish source or prevent replay.
+- P0 verification evidence:
+  - `npm run typecheck`: passed.
+  - Vitest: 14/14 passed, including eight sanitizer tests covering `.env`, JSON, YAML, logs, headers, URLs, cURL, private-key blocks, provider tokens, and near misses.
+  - Content verification: passed.
+  - Production build: passed, 121 generated pages.
+  - Production synthetic check: redacted API-key, JSON password, bearer, and cURL header values while preserving a public-key field and JSON structure.
+  - Production bundle check: new scoped webhook success wording present; old universal-authenticity wording absent.
+- P0 measurement plan:
+  - Compare 14- and 28-day visits to `/tools/env-sanitizer` and entrances from the API-key and OpSec articles against the 2026-07-24 baseline.
+  - Use only aggregate Vercel page views and navigation paths where available; do not record pasted input, detected values, redaction counts, or copy actions.
 
 ## Decisions
 
@@ -117,7 +135,9 @@ Active experiment: high-traffic article to contextual tool navigation.
 4. Vercel custom events may require a paid plan; do not enable paid usage without approval.
 5. Machine-facing trust files can drift from the actual runtime and must be checked during SEO audits.
 6. The Base64 tool page is comparatively thin; a concise direct-answer/help section is queued for phase two rather than expanding the current wave.
+7. Secret detection remains heuristic, paste-only, and non-exhaustive. It is not a repository scanner, secrets manager, compliance control, or substitute for rotating an exposed credential.
+8. A production synthetic check exposed a pre-existing webhook false-negative defect: Web Crypto receives `SHA256` instead of the required `SHA-256` algorithm identifier. The P0 wording fix is deployed, but provider semantics and verifier reliability remain the next implementation wave.
 
 ## One next priority
 
-Verify the first-wave deployment, then review its 14-day page-view and bounce-rate movement against the 2026-07-24 baseline; obtain recurring read-only analytics access when available.
+Pause after P0. When authorized, improve webhook verifier correctness and provider-specific semantics, then consolidate the overlapping hash pages and add browser-local file checksum verification. Review 14- and 28-day sanitizer page-view movement against the 2026-07-24 baseline.
