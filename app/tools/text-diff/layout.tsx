@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Text Diff - Compare and Find Differences',
   description: 'Free text diff tool. Compare two texts and highlight differences instantly. Useful for code review and document comparison.',
+  alternates: { canonical: '/tools/text-diff' },
   keywords: ['text diff', 'compare text', 'find differences', 'diff checker', 'text comparison'],
   openGraph: {
     title: 'Text Diff - Compare and Find Differences | OpsecForge',

@@ -1,6 +1,13 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'OpsecForge privacy policy and browser-local tool-input processing statement.',
+  alternates: { canonical: '/privacy' },
+};
 
 export default function PrivacyPage() {
   return (
@@ -41,9 +48,9 @@ export default function PrivacyPage() {
             For questions about our privacy commitment, please contact us at <a href="mailto:admin@opsecforge.com" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">admin@opsecforge.com</a>.
           </p>
         </div>
-        <footer className="mt-24 pt-8 border-t border-slate-900 text-slate-600 text-sm">
+        <div className="mt-24 pt-8 border-t border-slate-900 text-slate-600 text-sm">
           Last Updated: March 11, 2026.
-        </footer>
+        </div>
       </div>
     </main>
   );

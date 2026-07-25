@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       description: post.description,
       url: `/blog/${post.slug}`,
       publishedTime: post.date,
+      modifiedTime: post.updated,
       authors: [post.author],
     },
   };
@@ -70,6 +71,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
+    ...(post.updated ? { dateModified: post.updated } : {}),
     mainEntityOfPage: `https://www.opsecforge.com/blog/${post.slug}`,
     author: {
       '@type': 'Organization',
@@ -143,6 +145,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {post.author}
             </span>
             <span>{post.category}</span>
+            {post.sourceReviewed && (
+              <span>Sources reviewed {post.sourceReviewed}</span>
+            )}
           </div>
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
             {post.title}
@@ -150,6 +155,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <p className="max-w-2xl text-lg leading-relaxed text-slate-400">
             {post.description}
           </p>
+          {post.primarySource && (
+            <p className="mt-4 text-sm text-slate-500">
+              Primary source:{' '}
+              <a
+                href={post.primarySource}
+                rel="noopener noreferrer"
+                className="text-emerald-400 underline underline-offset-4"
+              >
+                authoritative reference
+              </a>
+            </p>
+          )}
         </header>
 
         <div

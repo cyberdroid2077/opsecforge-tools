@@ -8,12 +8,18 @@ const CONFIRMED_EXPLOIT_PATTERN =
 
 function changedBlogFiles() {
   try {
-    return execFileSync(
+    const committed = execFileSync(
       "git",
       ["diff-tree", "--no-commit-id", "--name-only", "-r", "HEAD"],
       { encoding: "utf8" },
-    )
-      .split(/\r?\n/)
+    );
+    const working = execFileSync(
+      "git",
+      ["diff", "--name-only", "HEAD", "--", BLOG_PREFIX],
+      { encoding: "utf8" },
+    );
+
+    return [...new Set(`${committed}\n${working}`.split(/\r?\n/))]
       .filter((file) => file.startsWith(BLOG_PREFIX) && file.endsWith(".md"));
   } catch {
     return [];
@@ -23,10 +29,22 @@ function changedBlogFiles() {
 const explicitFiles = process.argv.slice(2);
 const files = explicitFiles.length > 0 ? explicitFiles : changedBlogFiles();
 const failures = [];
+const highRiskClaimPattern =
+  /(?:\$\s?\d[\d,.]*|\b\d+(?:\.\d+)?%\b|\b\d[\d,.]*\s+(?:million|billion)\b|\b(?:study|survey|research|report)\s+(?:found|shows?|reveals?|reports?)\b|\b(?:breach|incident)\b.{0,100}\b(?:cost|fine|records?|customers?|users?|sessions?)\b)/i;
 
 for (const file of files) {
   const content = readFileSync(file, "utf8");
   const cves = [...new Set((content.match(CVE_PATTERN) ?? []).map((id) => id.toUpperCase()))];
+
+  if (highRiskClaimPattern.test(content)) {
+    if (!/^source_reviewed:\s*["']?\d{4}-\d{2}-\d{2}["']?\s*$/m.test(content)) {
+      failures.push(`${file}: high-risk factual claims require source_reviewed: YYYY-MM-DD frontmatter`);
+    }
+
+    if (!/^primary_source:\s*["']?https:\/\/\S+["']?\s*$/m.test(content)) {
+      failures.push(`${file}: high-risk factual claims require a primary_source URL`);
+    }
+  }
 
   if (cves.length === 0) continue;
 

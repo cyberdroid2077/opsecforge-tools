@@ -1,8 +1,12 @@
 ---
 title: "SSRF Attacks in Modern APIs: How a Single Request Can Expose Your Entire Infrastructure"
 date: "2026-03-22"
-description: "A technical deep-dive into Server-Side Request Forgery (SSRF) vulnerabilities in REST and GraphQL APIs, including exploitation techniques, real-world case studies, and defensive coding patterns."
+updated: "2026-07-24"
+description: "A defensive guide to Server-Side Request Forgery (SSRF) risks in APIs, including URL validation, network controls, cloud metadata protection, and testing."
+author: "OpsecForge Security Team"
 category: "API Security"
+source_reviewed: "2026-07-24"
+primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html"
 ---
 
 # SSRF Attacks in Modern APIs: How a Single Request Can Expose Your Entire Infrastructure
@@ -12,11 +16,9 @@ category: "API Security"
   THREAT BRIEFING
 </div>
 
-In February 2024, a misconfigured webhook endpoint at a major fintech company allowed attackers to forge internal requests, pivoting from a public API to their AWS metadata service. Within hours, the attacker extracted IAM credentials, accessed S3 buckets containing 2TB of customer data, and established persistent access to the Kubernetes control plane. The total cost of the breach: $4.2 million in damages, regulatory fines, and remediation.
+Server-Side Request Forgery (SSRF) occurs when server-side functionality can be induced to request an unintended resource. Features such as webhooks, URL previews, importers, and document renderers need both application and network controls when user input influences outbound requests.
 
-The vulnerability? **Server-Side Request Forgery (SSRF)**—a deceptively simple flaw that continues to rank among OWASP's most dangerous API vulnerabilities.
-
-SSRF occurs when an API endpoint accepts a user-supplied URL and makes an HTTP request to it from the server side without proper validation. What starts as a "fetch metadata from this URL" feature becomes a tunnel directly into your internal infrastructure.
+The [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html) separates cases where destinations can be allowlisted from cases that must reach arbitrary external hosts. That distinction should drive the design.
 
 <div class="mt-12 flex items-center gap-3">
   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-emerald-400">
@@ -40,10 +42,7 @@ app.post('/fetch-metadata', async (req, res) => {
 
 An attacker sends `"url": "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin-role"`. On AWS EC2, `169.254.169.254` is the Instance Metadata Service (IMDS). The server dutifully fetches its own IAM credentials. Game over.
 
-<div class="my-6 border-l-4 border-rose-500 bg-slate-900/50 p-6 rounded-r-xl">
-  <h4 class="mb-2 text-lg font-bold text-rose-400">The Capital One Breach (2019)</h4>
-  <p class="m-0 text-slate-300 text-sm">A former AWS employee exploited an SSRF vulnerability in Capital One's web application firewall. By crafting requests to the AWS metadata service, the attacker obtained IAM role credentials with broad S3 access. Over 100 million customer records were exfiltrated. The vulnerability existed because the WAF could be coerced into forwarding requests to arbitrary internal endpoints—a misconfiguration that cost the company $190 million in settlement costs.</p>
-</div>
+The code snippets below are defensive examples for systems you own or are authorized to test.
 
 <div class="my-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
   <div class="rounded-xl border border-slate-800 bg-slate-900/30 p-5">
@@ -229,14 +228,6 @@ gcloud compute instances add-metadata instance-name \
 
 IMDSv2 requires a PUT request to obtain a session token before accessing metadata, making SSRF exploitation significantly harder since attackers can't easily forge the token retrieval request.
 
-<div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
-  <h3 class="mb-3 text-2xl font-bold text-slate-100">Catch Leaked Keys Before Committing</h3>
-  <p class="mb-8 text-slate-400 text-lg">Over 10 million secrets were leaked on GitHub last year. Run GitScan locally to identify hardcoded keys, .env files, and dangerous patterns before they reach your remote repository.</p>
-  <a href="https://opsecforge.tools/gitscan" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-    Install GitScan CLI →
-  </a>
-</div>
-
 <div class="mt-12 flex items-center gap-3">
   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-emerald-400">
     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
@@ -260,7 +251,7 @@ def test_webhook_endpoint_ssrf_protection():
         assert response.status_code == 400
 ```
 
-Use Burp Collaborator or interactsh to detect blind SSRF through DNS/HTTP callbacks.
+Run outbound-callback tests only in an authorized environment and with infrastructure you control. Production tests should be bounded, observable, and reviewed before execution.
 
 <div class="mt-12 flex items-center gap-3">
   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-emerald-400">

@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Word Counter - Count Words, Characters, Lines',
   description: 'Free word counter. Count words, characters, sentences, and paragraphs in any text. Real-time statistics as you type.',
+  alternates: { canonical: '/tools/word-counter' },
   keywords: ['word counter', 'character counter', 'count words', 'text statistics', 'line counter'],
   openGraph: {
     title: 'Word Counter - Count Words, Characters, Lines | OpsecForge',

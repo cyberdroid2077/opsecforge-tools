@@ -1,9 +1,10 @@
 import React from 'react';
-import { Scale, Shield, AlertCircle, FileText, Globe, Mail } from 'lucide-react';
+import { Scale, Shield, AlertCircle, FileText, Mail } from 'lucide-react';
 
 export const metadata = {
   title: 'Terms of Service - OpSecForge',
   description: 'Terms of Service for OpSecForge - Free online developer security tools',
+  alternates: { canonical: '/terms-of-service' },
 };
 
 export default function TermsOfService() {

@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const baseUrl = 'https://www.opsecforge.com';
+const nonCanonicalToolRoutes = new Set(['/tools/json-formatter']);
 
 function listBlogRoutes() {
   const blogDirectory = path.join(process.cwd(), 'content/blog');
@@ -28,7 +29,8 @@ function listToolRoutes() {
     .readdirSync(toolsDirectory, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .filter((entry) => fs.existsSync(path.join(toolsDirectory, entry.name, 'page.tsx')))
-    .map((entry) => `/tools/${entry.name}`);
+    .map((entry) => `/tools/${entry.name}`)
+    .filter((route) => !nonCanonicalToolRoutes.has(route));
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -63,7 +65,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return routes.map((route) => ({
     url: `${baseUrl}${route}`,
-    lastModified: new Date(),
     changeFrequency: 'weekly',
     priority: route === '' ? 1 : route === '/tools' ? 0.95 : route.startsWith('/tools/') ? 0.9 : 0.8,
   }));

@@ -1,6 +1,13 @@
 import React from 'react';
-import { Mail, Globe, MapPin, ArrowLeft } from 'lucide-react';
+import type { Metadata } from 'next';
+import { Mail, Globe, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Contact OpsecForge',
+  description: 'Contact OpsecForge for product feedback, support, or responsible security reports.',
+  alternates: { canonical: '/contact' },
+};
 
 export default function ContactPage() {
   return (

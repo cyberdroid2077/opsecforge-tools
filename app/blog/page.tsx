@@ -1,7 +1,14 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { getAllPosts } from '@/lib/blog';
+
+export const metadata: Metadata = {
+  title: 'Developer Security Articles',
+  description: 'Sourced guidance for browser-local tools, developer security, and privacy-first workflows.',
+  alternates: { canonical: '/blog' },
+};
 
 export default function BlogIndex() {
   const posts = getAllPosts();
@@ -48,9 +55,6 @@ export default function BlogIndex() {
           ))}
         </div>
 
-        <footer className="mt-32 pt-12 border-t border-slate-900 text-center text-slate-600 text-xs tracking-widest uppercase">
-          &copy; 2026 OpSecForge Engineering • Distributed Globally
-        </footer>
       </div>
     </main>
   );

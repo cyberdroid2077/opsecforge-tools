@@ -1,9 +1,13 @@
 ---
 title: "Secure Coding Practices: Building Security Into Your Development Workflow"
 date: "2026-04-06"
+updated: "2026-07-24"
 description: "Learn essential secure coding practices every developer should follow, from input validation to secrets management, and discover tools to help integrate security into your development workflow."
+author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["secure-coding", "devsecops", "input-validation", "secrets-management", "vulnerability-prevention"]
+source_reviewed: "2026-07-24"
+primary_source: "https://cheatsheetseries.owasp.org/IndexTopTen.html"
 ---
 
 # Secure Coding Practices: Building Security Into Your Development Workflow
@@ -17,10 +21,7 @@ Security vulnerabilities don't appear spontaneously—they're introduced through
 
 Secure coding practices transform security from an afterthought into a fundamental aspect of software quality. When developers understand common vulnerability patterns and build defensive habits, security becomes a natural byproduct of good engineering rather than a separate concern.
 
-<div class="my-6 border-l-4 border-rose-500 bg-slate-900/50 p-6 rounded-r-xl">
-  <h4 class="mb-2 text-lg font-bold text-rose-400">The Search Query That Cost $50,000</h4>
-  <p class="m-0 text-slate-300 text-sm">An e-commerce platform processed customer searches directly through string concatenation into SQL queries. A junior developer, unaware of SQL injection risks, wrote what seemed like a straightforward feature: "SELECT * FROM products WHERE name LIKE '%" + searchTerm + "%'". Six months later, automated scanning tools discovered the vulnerability. Before the patch could be deployed, attackers used the injection point to extract the entire customer database—2.3 million records including names, addresses, and partial credit card numbers. The incident response cost exceeded $50,000. The fix required three lines of code using parameterized queries. The vulnerability existed because one developer didn't know about SQL injection patterns.</p>
-</div>
+The examples in this guide illustrate common failure patterns; they are not incident reports. Use the linked OWASP guidance when selecting controls for a real system.
 
 <div class="mt-12 flex items-center gap-3">
   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-emerald-400">
@@ -122,7 +123,7 @@ For production environments, use dedicated secret management solutions. HashiCor
 
 **Vulnerable Components**
 
-Modern applications rely on hundreds of dependencies. Each is a potential attack vector. The Equifax breach, exposing 147 million records, traced to a known vulnerability in Apache Struts—a patch available for months that hadn't been applied.
+Modern applications rely on many dependencies. Maintain an inventory, monitor security advisories, remove unused packages, and test upgrades before known-vulnerable versions remain in production.
 
 **Automated Vulnerability Scanning**
 

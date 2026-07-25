@@ -10,7 +10,12 @@ import {
   Webhook,
 } from 'lucide-react';
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { primaryToolHrefs, primaryTools, toolGroups } from '@/lib/tool-catalog';
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 const primaryIcons = {
   '/tools/env-sanitizer': FileCode,

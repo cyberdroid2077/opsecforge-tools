@@ -90,6 +90,20 @@ describe('blog utilities', () => {
       expect(post!.author).toBe('OpsecForge Security Team');
     });
 
+    it('demotes embedded HTML H1 headings and exposes review provenance', async () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true as any);
+      vi.mocked(fs.readFileSync).mockImplementation((() =>
+        '---\ntitle: Reviewed Post\ndate: "2026-03-22"\nupdated: "2026-07-24"\ndescription: A test\nsource_reviewed: "2026-07-24"\nprimary_source: "https://www.nist.gov/example"\n---\n<h1 class="legacy">Legacy heading</h1>\nBody'
+      ) as any);
+
+      const post = await getPostBySlug('reviewed-post');
+      expect(post!.contentHtml).not.toContain('<h1');
+      expect(post!.contentHtml).toContain('<h2 class="legacy">Legacy heading</h2>');
+      expect(post!.updated).toBe('2026-07-24');
+      expect(post!.sourceReviewed).toBe('2026-07-24');
+      expect(post!.primarySource).toBe('https://www.nist.gov/example');
+    });
+
     it('falls back to slug for missing frontmatter title', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true as any);
       vi.mocked(fs.readFileSync).mockImplementation((() => '---\n---\nContent') as any);

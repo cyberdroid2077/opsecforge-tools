@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'JWT Encoder - Create and Sign JSON Web Tokens',
   description: 'Free JWT encoder to create and sign JSON Web Tokens with HS256/HS512 algorithms. Runs 100% in your browser — your secrets never leave your device.',
+  alternates: { canonical: '/tools/jwt-encoder' },
   keywords: ['JWT encoder', 'create JWT', 'sign JWT', 'JSON Web Token encoder', 'HS256', 'HS512', 'JWT generator', 'client-side JWT'],
   openGraph: {
     title: 'JWT Encoder - Create and Sign JSON Web Tokens | OpsecForge',

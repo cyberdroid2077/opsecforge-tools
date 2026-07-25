@@ -166,6 +166,57 @@ Active experiment: simplified task discovery and duplicate-chrome removal.
   - At a 375 × 812 viewport, Tools, Blog, and the theme control remained exposed in the primary navigation and the removed scroll controls were absent. Native links and visible focus styles preserve keyboard discovery.
   - A safe synthetic sanitizer check redacted `API_KEY=synthetic-example-secret-12345` while preserving the near-miss `PUBLIC_KEY_ID=pk_synthetic`, confirming the layout change did not break the representative local tool flow.
 
+## Credibility and index-hygiene P0 — 2026-07-24
+
+Scope completed:
+
+- Reviewed and corrected fifteen indexed, high-risk Markdown articles that contained unsupported incident narratives, precise statistics, vendor claims, or unavailable-product links:
+  - AI sycophancy and security advice
+  - SQL injection and parameterized queries
+  - AI agent credential governance
+  - API gateway security
+  - secrets sprawl
+  - committed `.env` file response
+  - secure coding practices
+  - password security
+  - JWT vulnerabilities
+  - a fabricated JWT token-leak incident
+  - API JSON property exposure
+  - shadow APIs
+  - SSRF prevention
+  - CI/CD security-tool supply chain
+  - webhook HMAC verification guidance and its unavailable vault link
+- Preserved every existing article URL. Unsupported anecdotes and numbers were removed rather than replaced with invented values. Revised claims link to NIST, OWASP, CISA, GitHub, Toyota, or the clearly labeled GitGuardian measurement where applicable.
+- Added optional `updated`, `source_reviewed`, and `primary_source` frontmatter support. Reviewed articles expose a visible source-review date and primary-source link; Article JSON-LD now emits `dateModified` only when supplied.
+- Fixed dynamic Markdown pages that embedded raw HTML H1 elements by demoting body H1s to H2s. The page header remains the sole H1.
+- Replaced the unsourced five-item Case Studies page with two directly sourced incident summaries from Toyota and CISA. Removed the unsupported “added daily” claim.
+- Corrected unsupported About and FAQ claims including “100% open source,” “no telemetry,” WebAssembly usage, universal offline operation, inherent GDPR compliance, ISO/SOC alignment, and absolute tool-safety claims. The pages now state the aggregate page-analytics/advertising boundary and tool limitations.
+- Removed a SQL Formatter claim that browser-local formatting itself establishes GDPR, SOC 2, or HIPAA compliance.
+- Added self-referencing canonicals to the homepage, static content pages, blog index, and every tool page.
+- Confirmed `/tools/json-formatter` is the same implementation as `/tools/json-beautifier`; kept both URLs live, assigned the alias a canonical to `/tools/json-beautifier`, and removed only the non-canonical alias from the sitemap.
+- Removed duplicate page-local footers from About, Blog, FAQ, Case Studies, Glossary, and Privacy while preserving the single global footer.
+- Removed synthetic sitemap `lastModified` values. File mtimes are not stable across Vercel builds and most pages lack a truthful update field, so the sitemap omits `lastmod` instead of fabricating a date.
+- Replaced the create-next-app README with an accurate project README covering mission, browser-local input boundaries, aggregate analytics, advertising, categories, validation commands, content standards, and contribution constraints. No license was added.
+- Strengthened `content:verify` so changed high-risk articles with percentages, large counts, currency, studies, reports, or incident-impact claims require review metadata and a primary-source URL. Working-tree changes are now validated as well as the latest commit.
+
+Pre-deployment evidence:
+
+- `npm run content:verify`: passed for all 15 changed blog files.
+- Targeted provenance/sitemap tests: 9/9 passed; full Vitest suite: 28/28 passed.
+- `npm run typecheck`: passed.
+- Targeted ESLint passed for the changed, non-ignored application and library files; the repository retains its previously documented legacy lint debt outside this scope.
+- Production build: passed, 121 pages generated.
+- Staged sitemap: 101 canonical URLs, zero fabricated `lastmod` values, and no non-canonical `/tools/json-formatter` entry.
+- Staged full-sitemap DOM audit: 101/101 pages had a title, canonical, exactly one H1, and exactly one global footer.
+- Staged provenance checks confirmed visible review dates and primary-source links on reviewed dynamic articles, `dateModified` in Article JSON-LD, and the JSON alias canonical.
+
+Measurement and guardrails:
+
+- 14-day: compare Search Console impressions, clicks, average position, and indexed-page coverage for the changed articles and static pages; check Vercel entrances, tool-page views, bounce rate, 404s, and the canonical JSON alias. Search snippets may lag the deployment.
+- 28-day: repeat the page/query comparison, inspect whether unsupported snippets have been replaced after recrawl, and assess whether source-backed pages gain or lose qualified entrances. Do not infer tool execution from page views.
+- Guardrails: no new telemetry, no input events, no paid plan, no external submission, no URL deletion, and no change to the Privacy Policy or Terms of Service body.
+- Production verification and final commit identifiers are recorded after deployment.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
@@ -179,7 +230,7 @@ Active experiment: simplified task discovery and duplicate-chrome removal.
 
 1. Growth cannot be measured end to end until Search Console and Vercel Analytics are readable.
 2. Tool activation is invisible because only page views are configured.
-3. Older AI-generated posts may still contain unsupported claims or weak internal linking.
+3. The first P0 wave corrected the highest-risk pages identified in the audit, but the remaining historical article inventory still needs traffic-prioritized source review before promotion.
 4. Vercel custom events may require a paid plan; do not enable paid usage without approval.
 5. Machine-facing trust files can drift from the actual runtime and must be checked during SEO audits.
 6. The Base64 tool page is comparatively thin; a concise direct-answer/help section is queued for phase two rather than expanding the current wave.
@@ -188,4 +239,4 @@ Active experiment: simplified task discovery and duplicate-chrome removal.
 
 ## One next priority
 
-Pause after the production-verified UI simplification wave. Collect the 14- and 28-day aggregate measurements before proposing another UI change; do not begin hash, JWT, CSP/SRI, pricing, or feature work automatically.
+Pause after the production-verified credibility and index-hygiene P0 wave. Collect 14- and 28-day Search Console and Vercel signals before beginning P1 content refresh, hash consolidation, JWT, CSP/SRI, pricing, or external distribution work.

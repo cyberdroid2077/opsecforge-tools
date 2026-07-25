@@ -1,89 +1,93 @@
-import React from 'react';
-import { HelpCircle, ShieldCheck, Lock, Globe, Zap, ArrowLeft, ChevronRight } from 'lucide-react';
+import type { Metadata } from 'next';
+import { ArrowLeft, ChevronRight, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 
-export default function FAQPage() {
-  const faqs = [
-    {
-      section: "Data Privacy & Local Processing",
-      items: [
-        {
-          q: "How does OpSecForge handle my sensitive data?",
-          a: "OpSecForge operates on a Zero-Data-Retention (ZDR) architecture. Unlike traditional SaaS platforms that process data on remote servers, OpSecForge executes all logic locally within your browser. Your data never leaves your machine."
-        },
-        {
-          q: "What is the role of WebAssembly (WASM) in your security model?",
-          a: "We utilize WebAssembly (WASM) to run high-performance, sandboxed binaries directly in your browser. This allows us to provide complex cryptographic tools with near-native speed while ensuring the execution environment is strictly isolated from our servers."
-        },
-        {
-          q: "Can I use OpSecForge offline?",
-          a: "Yes. OpSecForge is designed with 100% offline capability. Once the initial application shell is loaded, you can disconnect from the internet entirely. All processing occurs locally using client-side resources."
-        }
-      ]
-    },
-    {
-      section: "GDPR & Compliance",
-      items: [
-        {
-          q: "Is OpSecForge GDPR compliant?",
-          a: "OpSecForge is inherently compliant with GDPR by design. Since we do not collect, store, or process personal data (PII) on our infrastructure, the risks associated with data controllership are eliminated. This makes us the ideal choice for DPOs and compliance officers."
-        },
-        {
-          q: "Does the platform meet Enterprise Security Standards?",
-          a: "Yes. Our tools are built to align with ISO/IEC 27001 and SOC 2 Type II control frameworks regarding data minimization. By removing the 'Cloud' from the processing equation, we significantly reduce your organization's attack surface."
-        }
-      ]
-    },
-    {
-      section: "Tool Usage & Security",
-      items: [
-        {
-          q: "How safe is it to paste JWTs into your debugger?",
-          a: "It is completely safe. Our JWT Debugger performs all decoding and signature verification locally. Your tokens, which often contain sensitive claims, are never transmitted over the wire."
-        },
-        {
-          q: "Can I safely format .env files using OpSecForge?",
-          a: "Yes. Our .env and secret management utilities are built to handle sensitive key-value pairs without risk. We recommend using our tools in an 'Air-Gapped' browser tab for maximum assurance."
-        }
-      ]
-    }
-  ];
+export const metadata: Metadata = {
+  title: 'OpsecForge FAQ',
+  description: 'Answers about browser-local tool inputs, analytics boundaries, offline behavior, and tool limitations.',
+  alternates: { canonical: '/faq' },
+};
 
+const faqs = [
+  {
+    section: 'Data privacy and local processing',
+    items: [
+      {
+        q: 'Does OpsecForge receive the text I paste into a tool?',
+        a: 'Core tool inputs are processed in the loaded page and are not sent to OpsecForge analytics or a tool-processing backend. The site does use aggregate page-view analytics and may load advertising resources.',
+      },
+      {
+        q: 'Can I inspect the implementation?',
+        a: 'Yes. The public repository and browser developer tools let you inspect the implementation and network activity. Review the exact tool you plan to use; public source is evidence, not a substitute for your own security assessment.',
+      },
+      {
+        q: 'Can I use a loaded tool while disconnected?',
+        a: 'Core transformations are designed to run in the browser after the required page assets have loaded. Advertising, analytics, navigation, fonts, or a fresh page load may still require network access, so OpsecForge does not claim complete offline availability for the whole site.',
+      },
+    ],
+  },
+  {
+    section: 'Assurance and compliance',
+    items: [
+      {
+        q: 'Does browser-local processing make a workflow compliant?',
+        a: 'No. It reduces one data-transfer path, but compliance depends on your organization, data, jurisdiction, controls, retention, vendors, and documented procedures. OpsecForge does not claim GDPR, ISO 27001, or SOC 2 certification.',
+      },
+      {
+        q: 'What should I review before using a tool for sensitive work?',
+        a: 'Check the tool limitations, inspect network activity, use synthetic data first, and follow your organization’s approved software and data-handling policies. Do not paste a production secret merely to test whether a redactor detects it.',
+      },
+    ],
+  },
+  {
+    section: 'Tool limitations',
+    items: [
+      {
+        q: 'Does decoding a JWT prove that it is valid?',
+        a: 'No. Decoding only reveals the token structure. Validity depends on cryptographic verification, the expected issuer and audience, relevant time claims, key selection, and application policy.',
+      },
+      {
+        q: 'Does Env Sanitizer make a file safe to share?',
+        a: 'No automated redactor can prove that. Env Sanitizer heuristically masks common patterns and may miss unusual secrets or flag benign text. Review every line of the result and prefer synthetic placeholders.',
+      },
+    ],
+  },
+];
+
+export default function FAQPage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 text-slate-300">
+    <main className="flex min-h-screen flex-col items-center justify-start bg-slate-950 p-6 text-slate-300 lg:p-24">
       <div className="w-full max-w-4xl">
-        <Link href="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-400 mb-12 transition-colors">
+        <Link href="/" className="mb-12 inline-flex items-center gap-2 text-slate-500 transition-colors hover:text-emerald-400">
           <ArrowLeft size={16} /> Back to Hub
         </Link>
-        
+
         <header className="mb-16">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500">
+          <div className="mb-4 flex items-center gap-4">
+            <div className="rounded-2xl bg-emerald-500/10 p-3 text-emerald-500">
               <HelpCircle size={32} />
             </div>
-            <h1 className="text-4xl font-bold text-slate-100 tracking-tight">Security & Compliance FAQ</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-slate-100">OpsecForge FAQ</h1>
           </div>
-          <p className="text-xl text-slate-400 leading-relaxed max-w-2xl">
-            Everything you need to know about our local-first security model, privacy commitments, and enterprise compliance.
+          <p className="max-w-2xl text-xl leading-relaxed text-slate-400">
+            Verifiable boundaries for local processing, analytics, assurance, and tool output.
           </p>
         </header>
 
         <div className="space-y-16">
-          {faqs.map((section, sIdx) => (
-            <section key={sIdx}>
-              <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-500 mb-8 flex items-center gap-2">
-                <span className="w-8 h-px bg-emerald-500/30"></span> {section.section}
+          {faqs.map((section) => (
+            <section key={section.section}>
+              <h2 className="mb-8 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.2em] text-emerald-500">
+                <span className="h-px w-8 bg-emerald-500/30" /> {section.section}
               </h2>
               <div className="grid gap-6">
-                {section.items.map((item, iIdx) => (
-                  <div key={iIdx} className="p-8 bg-slate-900/40 border border-slate-800 rounded-3xl hover:border-slate-700 transition-all">
-                    <h3 className="text-lg font-bold text-slate-100 mb-4 flex gap-3">
-                      <ChevronRight className="text-emerald-500 shrink-0 mt-1" size={18} />
+                {section.items.map((item) => (
+                  <div key={item.q} className="rounded-3xl border border-slate-800 bg-slate-900/40 p-8">
+                    <h3 className="mb-4 flex gap-3 text-lg font-bold text-slate-100">
+                      <ChevronRight className="mt-1 shrink-0 text-emerald-500" size={18} />
                       {item.q}
                     </h3>
-                    <p className="text-slate-400 leading-relaxed pl-7">
-                      {item.a}
-                    </p>
+                    <p className="pl-7 leading-relaxed text-slate-400">{item.a}</p>
                   </div>
                 ))}
               </div>
@@ -91,17 +95,13 @@ export default function FAQPage() {
           ))}
         </div>
 
-        <div className="mt-24 p-12 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl text-center">
-          <h3 className="text-xl font-bold text-slate-100 mb-4">Still have questions?</h3>
-          <p className="text-slate-400 mb-8">Our engineering team is ready to provide deep-dives into our technical safeguards.</p>
-          <Link href="/contact" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-full font-bold transition-all">
+        <div className="mt-24 rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-12 text-center">
+          <h2 className="mb-4 text-xl font-bold text-slate-100">Still have questions?</h2>
+          <p className="mb-8 text-slate-400">Send the exact tool and boundary you want clarified.</p>
+          <Link href="/contact" className="inline-flex rounded-full bg-emerald-600 px-8 py-3 font-bold text-white transition-colors hover:bg-emerald-500">
             Contact Support
           </Link>
         </div>
-
-        <footer className="mt-24 pt-8 border-t border-slate-900 text-slate-600 text-sm text-center">
-          &copy; 2026 OpSecForge. Security you can verify locally.
-        </footer>
       </div>
     </main>
   );

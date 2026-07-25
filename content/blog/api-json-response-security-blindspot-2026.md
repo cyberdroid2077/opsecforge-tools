@@ -1,9 +1,13 @@
 ---
 title: "Why Your API JSON Responses Are a Security Blind Spot: A 2026 Guide"
 date: "2026-03-24"
+updated: "2026-07-24"
 description: "Discover how API JSON response payloads expose sensitive data, common leakage patterns, and defensive strategies to protect your API responses from data exfiltration attacks."
+author: "OpsecForge Security Team"
 category: "API Security"
 tags: ["JSON", "API Security", "Data Leakage", "Response Filtering", "DevSecOps"]
+source_reviewed: "2026-07-24"
+primary_source: "https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/"
 ---
 
 # Why Your API JSON Responses Are a Security Blind Spot: A 2026 Guide
@@ -13,11 +17,9 @@ tags: ["JSON", "API Security", "Data Leakage", "Response Filtering", "DevSecOps"
   THREAT BRIEFING
 </div>
 
-In February 2026, a Fortune 500 fintech company discovered that their customer API was leaking over 50 sensitive fields per response—including internal database IDs, employee notes, and partial SSNs. The vulnerability wasn't in their authentication or authorization layers. It was in their JSON response payloads.
+APIs can expose fields the client does not need when database objects are serialized without an explicit response contract. Authorization must cover both the object and the properties returned.
 
-The attackers didn't need to breach the database. They simply called the public API and harvested the over-exposed data directly from the responses.
-
-This is the JSON response security blind spot: APIs often return far more data than the client actually needs, creating a massive attack surface for data exfiltration.
+[OWASP API3:2023 Broken Object Property Level Authorization](https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/) describes risks from excessive data exposure and unauthorized property access.
 
 <div class="mt-12 flex items-center gap-3">
   <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-emerald-400">
@@ -36,10 +38,7 @@ Modern ORMs and database-to-JSON serializers make it dangerously easy to return 
 - Employee notes and admin comments
 - Relational data from joined tables
 
-<div class="my-6 border-l-4 border-rose-500 bg-slate-900/50 p-6 rounded-r-xl">
-  <h4 class="mb-2 text-lg font-bold text-rose-400">The 2025 E-Commerce Breach</h4>
-  <p class="m-0 text-slate-300 text-sm">A major e-commerce platform's "Get Order" API was returning the complete customer record—including saved credit card last-four digits, billing history, and internal fraud scores. Attackers discovered that simply iterating through order IDs allowed them to harvest thousands of customer profiles. The company faced $2.3M in GDPR fines and a 40% stock price drop.</p>
-</div>
+The examples below are defensive patterns, not descriptions of a specific incident.
 
 <div class="my-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
   <div class="rounded-xl border border-slate-800 bg-slate-900/30 p-5">

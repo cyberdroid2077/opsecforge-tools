@@ -1,6 +1,13 @@
 import React from 'react';
-import { Book, Shield, ArrowLeft, ChevronRight } from 'lucide-react';
+import type { Metadata } from 'next';
+import { Book, Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Developer Security Glossary',
+  description: 'Plain-language definitions of common application and API security terms.',
+  alternates: { canonical: '/glossary' },
+};
 
 const glossary = [
   {
@@ -453,9 +460,6 @@ export default function GlossaryPage() {
           ))}
         </div>
 
-        <footer className="mt-32 pt-12 border-t border-slate-900 text-center text-slate-600 text-xs tracking-widest uppercase pb-12">
-          &copy; 2026 OpSecForge Engineering • Knowledge is the ultimate firewall.
-        </footer>
       </div>
     </main>
   );

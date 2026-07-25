@@ -497,7 +497,7 @@ export default function SQLFormatterPage() {
                         <ShieldCheck className="text-emerald-500" size={24} /> The Local Solution
                     </h3>
                     <p className="text-slate-300">
-                        OpSecForge processes your SQL entirely in your browser. <strong>No network requests are made.</strong> Your data never leaves your machine, ensuring compliance with GDPR, SOC 2, and HIPAA data processing standards.
+                        OpsecForge formats the SQL in the loaded browser page and does not send the query to a formatting backend. This reduces one data-transfer path but does not by itself establish GDPR, SOC 2, HIPAA, or other compliance.
                     </p>
                 </div>
             </article>

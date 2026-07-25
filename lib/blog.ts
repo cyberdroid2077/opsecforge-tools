@@ -15,9 +15,12 @@ export type BlogPostMetadata = {
   slug: string;
   title: string;
   date: string;
+  updated?: string;
   description: string;
   author: string;
   category: string;
+  sourceReviewed?: string;
+  primarySource?: string;
 };
 
 type BlogPost = BlogPostMetadata & {
@@ -44,9 +47,12 @@ export function getAllPosts(): BlogPostMetadata[] {
         slug,
         title: String(data.title ?? slug),
         date: String(data.date ?? ''),
+        updated: data.updated ? String(data.updated) : undefined,
         description: String(data.description ?? ''),
         author: String(data.author ?? 'OpsecForge Security Team'),
         category: String(data.category ?? 'Developer Security'),
+        sourceReviewed: data.source_reviewed ? String(data.source_reviewed) : undefined,
+        primarySource: data.primary_source ? String(data.primary_source) : undefined,
       };
     })
     .sort((left, right) => right.date.localeCompare(left.date));
@@ -65,15 +71,22 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const processedContent = await remark()
     .use(html, { sanitize: false })
     .process(contentWithoutDuplicateTitle);
+  const contentHtml = processedContent
+    .toString()
+    .replace(/<h1(\s[^>]*)?>/gi, '<h2$1>')
+    .replace(/<\/h1>/gi, '</h2>');
 
   return {
     slug,
     title: String(data.title ?? slug),
     date: String(data.date ?? ''),
+    updated: data.updated ? String(data.updated) : undefined,
     description: String(data.description ?? ''),
     author: String(data.author ?? 'OpsecForge Security Team'),
     category: String(data.category ?? 'Developer Security'),
-    contentHtml: processedContent.toString(),
+    sourceReviewed: data.source_reviewed ? String(data.source_reviewed) : undefined,
+    primarySource: data.primary_source ? String(data.primary_source) : undefined,
+    contentHtml,
     faqs: (data.faqs as FaqItem[] | undefined) ?? [],
   };
 }
