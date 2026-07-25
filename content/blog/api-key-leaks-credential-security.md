@@ -19,7 +19,8 @@ API keys are the skeleton keys of the modern software ecosystem. They grant acce
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Sanitize before sharing</p>
   <h2 class="mt-0 text-2xl font-bold text-slate-100">Redact secrets from an .env file locally</h2>
   <p class="text-slate-300">Mask likely credentials in your browser before pasting configuration into tickets, chats, or documentation.</p>
-  <a href="/tools/env-sanitizer" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Env Sanitizer →</a>
+  <p class="mb-0 text-sm text-slate-400">Detection is heuristic. Review the redacted draft before sharing and rotate any credential that was already exposed.</p>
+  <a href="/tools/env-sanitizer" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Safe-to-Share Sanitizer →</a>
 </div>
 
 The result is predictable and expensive. API key leaks have become one of the most common and damaging security incidents in software development, with costs ranging from unexpected cloud bills to complete data breaches.
@@ -156,7 +157,7 @@ API keys are powerful credentials that deserve security consideration equivalent
 
 ## Related local tools and guides
 
-- Redact configuration safely with the [Env Sanitizer](/tools/env-sanitizer).
+- Make a local heuristic redaction pass with the [Safe-to-Share Sanitizer](/tools/env-sanitizer), then review the result before sharing.
 - Generate replacement credentials with the [Password Generator](/tools/password-generator).
 - Follow the [developer operational-security checklist](/blog/the-ultimate-checklist-for-developer-operational-security-opsec).
 

@@ -1,12 +1,12 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Env Sanitizer - Redact Secrets from .env Files',
-  description: 'Free env sanitizer that automatically detects and redacts API keys, passwords, and secrets from .env files before sharing. 100% client-side processing.',
-  keywords: ['env sanitizer', 'redact secrets', '.env cleaner', 'hide API keys', 'env file security', 'Stripe key redaction', 'AWS credential masking', 'client-side'],
+  title: 'Safe-to-Share Sanitizer - Redact Common Secrets Locally',
+  description: 'Heuristically redact common secrets from .env, JSON, YAML, logs, headers, URLs, and cURL commands in your browser. Review output before sharing.',
+  keywords: ['env sanitizer', 'redact secrets', 'log sanitizer', 'hide API keys', 'env file security', 'credential redaction', 'client-side'],
   openGraph: {
-    title: 'Env Sanitizer - Redact Secrets from .env Files | OpsecForge',
-    description: 'Free tool to redact secrets from .env files. Detect Stripe, AWS, GitHub keys and more. 100% private.',
+    title: 'Safe-to-Share Sanitizer | OpsecForge',
+    description: 'Make a browser-local, heuristic redaction pass over configuration, logs, headers, and cURL commands. Human review is still required.',
   },
 };
 

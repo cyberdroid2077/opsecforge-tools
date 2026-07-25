@@ -149,7 +149,7 @@ export default function WebhookDebugger() {
                 </div>
                 <p className="text-sm opacity-80 leading-relaxed">
                   {verified 
-                    ? 'The signature matches the payload and secret provided. This webhook is authentic.' 
+                    ? 'The supplied signature matches the payload and secret provided. This check alone does not establish the event source or prevent replay.'
                     : 'The signature does not match. Please check your payload (including whitespace) and signing secret.'}
                 </p>
               </div>
