@@ -1,12 +1,12 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Webhook Debugger - Inspect Webhook Payloads',
-  description: 'Free webhook debugger. Receive and inspect webhook payloads locally without ngrok. Test your integrations easily.',
-  keywords: ['webhook debugger', 'webhook inspector', 'test webhooks', 'webhook receiver', 'webhook testing'],
+  title: 'Webhook Signature Verifier - GitHub, Stripe & HMAC',
+  description: 'Paste an exact raw body, signature, and secret to verify GitHub, Stripe, or generic HMAC values locally in your browser. No input upload or storage.',
+  keywords: ['webhook signature verifier', 'GitHub webhook signature', 'Stripe webhook signature', 'HMAC verification', 'webhook debugging'],
   openGraph: {
-    title: 'Webhook Debugger - Inspect Webhook Payloads | OpsecForge',
-    description: 'Free webhook debugger. 100% browser-side.',
+    title: 'Webhook Signature Verifier | OpsecForge',
+    description: 'Verify supplied GitHub, Stripe, and generic HMAC values in your browser with explicit replay and authenticity boundaries.',
   },
 };
 
