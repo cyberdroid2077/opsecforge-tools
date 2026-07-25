@@ -69,12 +69,10 @@ export default function Home() {
             <span className="text-xs font-bold uppercase tracking-wider">Browser-local developer tools</span>
           </div>
           <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-6xl">
-            Handle sensitive developer data without uploading it
+            Your sensitive inputs stay in your browser.
           </h1>
           <p className="text-lg leading-8 text-slate-400">
-            OpSecForge provides practical security and developer utilities whose core input
-            processing runs in your browser. Tool inputs are not sent to OpSecForge analytics.
-            Check each tool&apos;s stated limitations before using its output.
+            Format, inspect, and verify without sending tool inputs to a processing backend.
           </p>
         </header>
 
