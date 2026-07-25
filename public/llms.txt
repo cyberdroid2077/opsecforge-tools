@@ -1,7 +1,12 @@
 # OpsecForge - Privacy-First Developer Tools
 
 OpsecForge is a collection of 21 free developer tools that run entirely in your browser.
-No data is sent to any server. No logs. No tracking. No analytics.
+Core tool transformations are performed locally in the browser; tool input is not submitted
+to OpsecForge for processing unless a page explicitly states otherwise.
+
+The website uses privacy-respecting, aggregate Vercel Web Analytics for page views and may
+load advertising. Analytics must never include the JWTs, secrets, source text, or other
+content entered into tools.
 
 ## Core Tools
 - JWT Decoder / Encoder — Decode and sign JSON Web Tokens locally
@@ -13,13 +18,13 @@ No data is sent to any server. No logs. No tracking. No analytics.
 
 ## Key Differentiators
 - 100% client-side execution
-- Zero network requests for tool operations
-- No third-party analytics
+- Browser-local processing for sensitive tool input
+- No account required
+- Aggregate, cookie-free page-view analytics
 - Open source verifiable
 
 ## Blog Topics
 Security best practices, API security, JWT安全, secrets management, privacy-first development workflows.
 
-Website: https://opsecforge.com
-Tools: https://opsecforge.com/tools
-Blog: https://opsecforge.com/blog
+Website and tools: https://www.opsecforge.com/
+Blog: https://www.opsecforge.com/blog
