@@ -75,7 +75,7 @@ describe('blog utilities', () => {
       expect(post).toBeNull();
     });
 
-    it('returns parsed post with contentHtml when post exists', async () => {
+    it('returns parsed post content without duplicating the page H1', async () => {
       vi.mocked(fs.existsSync).mockReturnValue(true as any);
       vi.mocked(fs.readFileSync).mockImplementation((() =>
         '---\ntitle: Test Post\ndate: "2026-03-22"\ndescription: A test\n---\n# Hello\nWorld'
@@ -85,7 +85,9 @@ describe('blog utilities', () => {
       expect(post).not.toBeNull();
       expect(post!.title).toBe('Test Post');
       expect(post!.slug).toBe('test-post');
-      expect(post!.contentHtml).toContain('<h1>');
+      expect(post!.contentHtml).not.toContain('<h1>');
+      expect(post!.contentHtml).toContain('<p>World</p>');
+      expect(post!.author).toBe('OpsecForge Security Team');
     });
 
     it('falls back to slug for missing frontmatter title', async () => {

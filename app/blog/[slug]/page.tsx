@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, CalendarDays } from 'lucide-react';
+import { ArrowLeft, CalendarDays, UserRound } from 'lucide-react';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import SocialShare from '@/components/ui/SocialShare';
 
@@ -28,8 +28,19 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   }
 
   return {
-    title: `${post.title} | OpSecForge Blog`,
+    title: post.title,
     description: post.description,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
+    openGraph: {
+      type: 'article',
+      title: post.title,
+      description: post.description,
+      url: `/blog/${post.slug}`,
+      publishedTime: post.date,
+      authors: [post.author],
+    },
   };
 }
 
@@ -53,9 +64,58 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       },
     })),
   } : null;
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    mainEntityOfPage: `https://www.opsecforge.com/blog/${post.slug}`,
+    author: {
+      '@type': 'Organization',
+      name: post.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'OpsecForge',
+      url: 'https://www.opsecforge.com',
+    },
+  };
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://www.opsecforge.com/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Blog',
+        item: 'https://www.opsecforge.com/blog',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: `https://www.opsecforge.com/blog/${post.slug}`,
+      },
+    ],
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       {faqSchema && (
         <script
           type="application/ld+json"
@@ -73,9 +133,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </Link>
 
         <header className="mb-10 border-b border-slate-800 pb-8">
-          <div className="mb-4 flex items-center gap-2 text-sm text-slate-500">
-            <CalendarDays size={16} />
-            <span>{post.date}</span>
+          <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-500">
+            <span className="flex items-center gap-2">
+              <CalendarDays size={16} />
+              <time dateTime={post.date}>{post.date}</time>
+            </span>
+            <span className="flex items-center gap-2">
+              <UserRound size={16} />
+              {post.author}
+            </span>
+            <span>{post.category}</span>
           </div>
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
             {post.title}

@@ -18,6 +18,13 @@ tags: ["base64", "base64url", "jwt", "encoding", "url-encoding", "security", "we
 
 If you've ever debugged a JWT that works in one context but fails in another, or wondered why your URL parameters get corrupted after Base64 encoding, you've likely encountered the subtle but critical differences between **Base64** and **Base64URL** encoding. These two encoding schemes are nearly identical—until they're not, and that difference breaks production systems.
 
+<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Try it locally</p>
+  <h2 class="mt-0 text-2xl font-bold text-slate-100">Convert Base64 or Base64URL in your browser</h2>
+  <p class="text-slate-300">Encode or decode a sample without sending its contents to OpsecForge.</p>
+  <a href="/tools/base64-converter" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Base64 Converter →</a>
+</div>
+
 <div class="my-8 flex items-center gap-3 border-b border-slate-700 pb-3">
   <svg class="h-6 w-6 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -323,4 +330,9 @@ Understanding the difference between Base64 and Base64URL is essential for build
 - Use your language's built-in Base64URL functions when available.
 
 > **📬 Stay Ahead of Threats**
-> Want more actionable security guides like this? Join 10,000+ developers in the [OpSecForge Newsletter](https://opsecforge.com/newsletter) for weekly deep-dives into API security and DevSecOps.
+> Continue with the [JWT Decoder](/tools/jwt-decoder) for JWT segments, the [URL Encoder](/tools/url-encoder) for query components, or browse the [complete tools center](/tools).
+
+## Primary references
+
+- [RFC 4648: Base-N Encodings](https://www.rfc-editor.org/rfc/rfc4648)
+- [RFC 7515: JSON Web Signature](https://www.rfc-editor.org/rfc/rfc7515)

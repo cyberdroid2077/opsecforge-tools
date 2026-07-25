@@ -35,13 +35,17 @@ Recorded on 2026-07-24:
 - Link health: every sitemap URL returned HTTP 200; the four featured homepage article links also returned HTTP 200.
 - Validation: explicit TypeScript checking is required because the Next.js build configuration can skip type errors.
 - Email/support: tickets route to the OpsecForge Zoho inbox; 0 unread and 3 total messages at the latest check.
+- Search Console snapshot since 2026-03-12: 510 impressions and 4 clicks; July impressions are rising.
+- Vercel Web Analytics snapshot for the latest 30 days: 269 visitors, 417 page views, and 88% bounce rate.
+- Leading article pages by visitors: Base64 vs Base64URL (14), offline cryptographic hashes (12), developer OpSec checklist (11), AI-enhanced XSS (10), API-key leaks (10), and webhook signature validation (10).
+- Leading tool pages: SHA-256 Hash and SQL Formatter, each with 4 visitors and 6 page views.
 
 ## Analytics access and status
 
 | Source | Configured | Reachable by operations | Current status |
 | --- | --- | --- | --- |
-| Vercel Web Analytics | Yes; `@vercel/analytics` is loaded globally | No | Page-view collection is present, but no usable CLI token, project metadata, or dashboard/API access is available to this operator. |
-| Google Search Console | Ownership appears configured | No | DNS contains a Google site-verification record, but no Search Console API/client access is available. |
+| Vercel Web Analytics | Yes; `@vercel/analytics` is loaded globally | Snapshot only | A verified 30-day snapshot is available, but no recurring CLI/API access is available to this operator. |
+| Google Search Console | Ownership appears configured | Snapshot only | A verified performance snapshot is available, but no recurring Search Console API/client access is available. |
 | Google Analytics | No evidence found | No | No GA4 measurement ID, gtag, Tag Manager, environment key, or production marker was found. |
 | Other product analytics | No evidence found | No | No PostHog, Plausible, Umami, Matomo, Fathom, Mixpanel, Segment, or Amplitude integration was found. |
 | First-party tool events | No | No | Tool use and blog-to-tool conversion are not currently measurable. |
@@ -56,17 +60,19 @@ No secrets should be pasted into this document or chat. Grant access through the
 
 ## Active experiments and hypotheses
 
-No traffic experiment is active because acquisition and conversion data are not yet readable.
-
-Queued hypothesis:
+Active experiment: high-traffic article to contextual tool navigation.
 
 - If high-intent security articles link prominently to the single most relevant local tool, organic landing visits should convert into tool use more often than generic site navigation.
-- Required measurement: landing page, relevant tool page view, and a privacy-safe tool-use event that contains no user input.
+- First wave pages: Base64 vs Base64URL, offline cryptographic hashes, developer OpSec checklist, AI-enhanced XSS, API-key leaks, and webhook signature validation.
+- Intervention: add a visible above-the-fold tool CTA, relevant ending links, and a categorized `/tools` hub without adding tracking.
+- Measurement window: compare 14- and 28-day article entrances, tool page views, navigation paths where available, and bounce rate against the 2026-07-24 baseline.
+- Limitation: Vercel Hobby has no custom events, so tool page views are the current activation proxy.
 
 ## Content inventory and pipeline
 
 - 71 Markdown articles under `content/blog`.
 - 21 live tools under `app/tools`.
+- `/tools` is the canonical indexable tools center, organized into Encoding & Formatting, Credentials & Security, and Debugging & Validation.
 - OpenClaw Producer morning brief, daily blog, and daily QA jobs are disabled and must remain disabled.
 - New content is authored and reviewed by Codex only when it serves a verified search/user need.
 - CVE content is guarded by `scripts/validate-content-sources.mjs`, which runs before production build and requires primary sources and explicit review metadata.
@@ -80,6 +86,19 @@ Queued hypothesis:
 - Vercel Analytics is live, so public claims of “no analytics” are inaccurate even though tool input remains browser-local.
 - On 2026-07-24, `robots.txt` and `llms.txt` were corrected to use the `www` host; `llms.txt` also stopped linking to the nonexistent `/tools` index and now describes analytics truthfully.
 - No current sitemap or featured-link HTTP failures were found.
+- First growth wave changes on 2026-07-24:
+  - Added above-the-fold contextual tool CTAs and ending links to the six leading article pages.
+  - Replaced the unsupported API-key cost anecdote with evidence-safe incident-response guidance.
+  - Removed duplicate Markdown H1 output from dynamic blog pages and added a visible organizational byline.
+  - Added accurate Article and BreadcrumbList JSON-LD to dynamic articles and the two updated static articles.
+  - Added Organization JSON-LD globally and BreadcrumbList/ItemList JSON-LD to the tools hub.
+  - Added a visible Tools navigation entry and included `/tools` in the sitemap.
+  - An independent read-only Claude review confirmed the chosen priorities: early contextual CTA, editorial internal links, duplicate-H1 removal, and visible provenance/structured data.
+- Before/after checks for this wave:
+  - `/tools`: HTTP 404 before; expected HTTP 200 and indexable after deployment.
+  - Base64 article: two visible H1 headings before; one H1 after the renderer change.
+  - Contextual CTA: late or absent before; visible immediately after each article header/introduction after.
+  - Sitemap: 101 URLs before; expected 102 after adding `/tools`.
 
 ## Decisions
 
@@ -87,6 +106,7 @@ Queued hypothesis:
 - OpenClaw Producer remains disabled.
 - Existing Vercel page-view analytics stays in place; no new analytics integration is added without an access/plan decision.
 - Tool input, secrets, tokens, and source text must never be included in analytics events.
+- Vercel Hobby custom events remain disabled; no paid analytics features are enabled.
 - `www` is the canonical public host.
 
 ## Risks
@@ -96,7 +116,8 @@ Queued hypothesis:
 3. Older AI-generated posts may still contain unsupported claims or weak internal linking.
 4. Vercel custom events may require a paid plan; do not enable paid usage without approval.
 5. Machine-facing trust files can drift from the actual runtime and must be checked during SEO audits.
+6. The Base64 tool page is comparatively thin; a concise direct-answer/help section is queued for phase two rather than expanding the current wave.
 
 ## One next priority
 
-Obtain read-only access to the existing Vercel Web Analytics project and the verified Search Console property, then record a 28-day baseline for impressions, clicks, visitors, top landing pages, referrers, and blog-to-tool navigation.
+Verify the first-wave deployment, then review its 14-day page-view and bounce-rate movement against the 2026-07-24 baseline; obtain recurring read-only analytics access when available.

@@ -1,36 +1,223 @@
-
-import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, UserRound } from 'lucide-react';
+
+const title = 'What Is a Webhook Signature and Why Must You Validate It?';
+const description =
+  'A practical guide to webhook signature verification, raw request bodies, constant-time comparison, replay protection, and secret rotation.';
+const slug = 'what-is-a-webhook-signature-and-why-must-you-validate-it';
+const published = '2026-03-14';
+const author = 'OpsecForge Security Team';
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: { canonical: `/blog/${slug}` },
+  openGraph: {
+    type: 'article',
+    title,
+    description,
+    url: `/blog/${slug}`,
+    publishedTime: published,
+    authors: [author],
+  },
+};
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  datePublished: published,
+  mainEntityOfPage: `https://www.opsecforge.com/blog/${slug}`,
+  author: { '@type': 'Organization', name: author },
+  publisher: {
+    '@type': 'Organization',
+    name: 'OpsecForge',
+    url: 'https://www.opsecforge.com',
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.opsecforge.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.opsecforge.com/blog' },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: title,
+      item: `https://www.opsecforge.com/blog/${slug}`,
+    },
+  ],
+};
 
 export default function BlogPost() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 font-sans">
-      <div className="z-10 w-full max-w-3xl">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-400 transition-colors mb-12 text-sm font-bold uppercase tracking-widest">
-          <ArrowLeft size={16} /> Back to Blog
-        </Link>
-        
-        <article>
-          <header className="mb-12 pb-8 border-b border-slate-800">
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-100 mb-6 tracking-tight">What is a Webhook Signature and Why Must You Validate It?</h1>
-            <div className="flex items-center gap-6 text-slate-500 text-sm">
-              <span className="flex items-center gap-2"><Calendar size={16} /> March 14, 2026</span>
-              <span className="flex items-center gap-2"><Clock size={16} /> 5 min read</span>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-300 lg:px-24">
+        <article className="mx-auto max-w-3xl">
+          <Link
+            href="/blog"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-emerald-400"
+          >
+            <ArrowLeft size={16} /> Back to Blog
+          </Link>
+
+          <header className="mb-8 border-b border-slate-800 pb-8">
+            <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
+              {title}
+            </h1>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+              <span className="flex items-center gap-2">
+                <Calendar size={16} />
+                <time dateTime={published}>March 14, 2026</time>
+              </span>
+              <span className="flex items-center gap-2">
+                <UserRound size={16} /> {author}
+              </span>
             </div>
           </header>
-          
-          <div className="prose prose-invert prose-emerald max-w-none" dangerouslySetInnerHTML={{ __html: `<p class="mb-6 text-slate-400 leading-relaxed">Webhooks are the connective tissue of the modern internet. They allow applications to communicate in real-time, pushing data from one system to another as events happen. However, because webhooks are essentially open HTTP POST endpoints, they are inherently vulnerable to spoofing and replay attacks if left unsecured.</p><p class="mb-6 text-slate-400 leading-relaxed">This is where webhook signatures come in.</p><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">The Anatomy of a Webhook Attack</h2><p class="mb-6 text-slate-400 leading-relaxed">Imagine you have an e-commerce platform that relies on a payment gateway like Stripe. When a user successfully pays, Stripe sends a webhook to your server to fulfill the order. </p><p class="mb-6 text-slate-400 leading-relaxed">If your endpoint doesn&#039;t verify the origin of that request, an attacker could discover your webhook URL and send a fake payload saying &quot;Order #12345 paid in full.&quot; Your system, blindly trusting the payload, ships the goods. You&#039;ve just been robbed via API.</p><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">What is a Webhook Signature?</h2><p class="mb-6 text-slate-400 leading-relaxed">A webhook signature is a cryptographic hash generated by the sender (e.g., Stripe, GitHub, Twilio) using the payload body and a shared secret key. This signature is typically sent in an HTTP header (like &#96;Stripe-Signature&#96; or &#96;X-Hub-Signature-256&#96;).</p><p class="mb-6 text-slate-400 leading-relaxed">When your server receives the webhook, it must:
-1. Take the incoming raw payload body.
-2. Hash it using the exact same algorithm and the shared secret key (which only you and the sender know).
-3. Compare the resulting hash with the signature provided in the header.</p><p class="mb-6 text-slate-400 leading-relaxed">If they match, the payload is authentic and hasn&#039;t been tampered with. If they don&#039;t, the request is either forged or corrupted, and you should reject it with an HTTP 401 or 403 status.</p><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">Why Validation is Non-Negotiable</h2><p class="mb-6 text-slate-400 leading-relaxed">1. <strong>Prevent Forgery:</strong> As demonstrated, without validation, anyone can hit your endpoint with arbitrary data.
-2. <strong>Ensure Data Integrity:</strong> Even if a request comes from the right source, the payload could be intercepted and altered in transit (Man-in-the-Middle). The signature ensures the payload exactly matches what the sender transmitted.
-3. <strong>Mitigate Replay Attacks:</strong> Many modern webhook signatures include a timestamp. By validating the signature and checking that the timestamp is within a few minutes of the current time, you prevent attackers from capturing a valid request and sending it repeatedly.</p><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">Best Practices for Signature Validation</h2><p class="mb-6 text-slate-400 leading-relaxed">*   <strong>Always use raw payloads:</strong> Middleware (like Express &#96;body-parser&#96; in Node.js) often parses and modifies the incoming JSON. Cryptographic hashing requires the exact, byte-for-byte raw string. Always compute the hash against the raw body.
-*   <strong>Use constant-time string comparison:</strong> When comparing the computed hash with the header hash, use a secure, constant-time comparison function (like &#96;crypto.timingSafeEqual&#96; in Node.js). Regular string comparison (&#96;===&#96;) fails fast on the first mismatched character, allowing attackers to guess the signature via timing attacks.
-*   <strong>Rotate secrets securely:</strong> If you suspect your webhook secret has been compromised, roll it immediately.</p><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">Conclusion</h2><p class="mb-6 text-slate-400 leading-relaxed">At OpSecForge, we believe security should never be an afterthought. Validating webhook signatures is a foundational operational security practice. It transforms a public, vulnerable endpoint into a secure, verifiable channel for system communication.
-</p>` }} />
+
+          <aside className="mb-10 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">
+              Test a signature locally
+            </p>
+            <h2 className="mb-3 text-2xl font-bold text-slate-100">
+              Compare webhook signatures in your browser
+            </h2>
+            <p className="mb-5 leading-7 text-slate-300">
+              The Webhook Debugger supports local HMAC verification for common providers. Use
+              test payloads and secrets; production verification belongs in your server endpoint.
+            </p>
+            <Link
+              href="/tools/webhook-debugger"
+              className="inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold text-slate-950 hover:bg-emerald-400"
+            >
+              Open the Webhook Debugger →
+            </Link>
+          </aside>
+
+          <div className="space-y-8 leading-8">
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">
+                What is a webhook signature?
+              </h2>
+              <p>
+                A webhook signature is a cryptographic value created from the request payload and
+                a secret shared by the sender and receiver. Your endpoint recomputes the expected
+                value and rejects the request when the values do not match.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">
+                Why signature validation is required
+              </h2>
+              <ul className="space-y-2 pl-6">
+                <li className="list-disc">Reject forged requests from unknown senders.</li>
+                <li className="list-disc">Detect payload changes before processing an event.</li>
+                <li className="list-disc">
+                  Combine timestamps or delivery identifiers with signature checks to reduce
+                  replay risk.
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">
+                A safe verification sequence
+              </h2>
+              <ol className="space-y-2 pl-6">
+                <li className="list-decimal">Read the exact raw request body.</li>
+                <li className="list-decimal">
+                  Parse the provider signature header according to that provider&apos;s format.
+                </li>
+                <li className="list-decimal">
+                  Compute the expected HMAC with the configured webhook secret.
+                </li>
+                <li className="list-decimal">
+                  Compare signatures with a constant-time comparison function.
+                </li>
+                <li className="list-decimal">
+                  Validate the timestamp or delivery identifier when the provider supplies one.
+                </li>
+                <li className="list-decimal">
+                  Reject invalid requests before parsing or acting on the event.
+                </li>
+              </ol>
+            </section>
+
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">Implementation pitfalls</h2>
+              <ul className="space-y-2 pl-6">
+                <li className="list-disc">
+                  JSON middleware can change whitespace or byte representation before verification.
+                </li>
+                <li className="list-disc">
+                  Header names, algorithms, encodings, and timestamp rules differ by provider.
+                </li>
+                <li className="list-disc">
+                  A leaked webhook secret must be rotated; signature verification cannot protect a
+                  secret that an attacker already has.
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">Primary references</h2>
+              <ul className="space-y-3">
+                <li>
+                  <a
+                    className="text-emerald-400 underline"
+                    href="https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries"
+                  >
+                    GitHub: Validating webhook deliveries
+                  </a>
+                </li>
+                <li>
+                  <a className="text-emerald-400 underline" href="https://docs.stripe.com/webhooks">
+                    Stripe: Receive events in your webhook endpoint
+                  </a>
+                </li>
+              </ul>
+            </section>
+
+            <section className="border-t border-slate-800 pt-8">
+              <h2 className="mb-4 text-2xl font-bold text-slate-100">Related tools and guides</h2>
+              <ul className="space-y-3">
+                <li>
+                  <Link className="text-emerald-400 underline" href="/tools/sha256-hash">
+                    Generate SHA digests locally
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-emerald-400 underline"
+                    href="/blog/how-to-generate-cryptographic-hashes-offline"
+                  >
+                    Understand cryptographic hash use cases
+                  </Link>
+                </li>
+                <li>
+                  <Link className="text-emerald-400 underline" href="/tools#debugging-validation">
+                    Browse Debugging &amp; Validation tools
+                  </Link>
+                </li>
+              </ul>
+            </section>
+          </div>
         </article>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

@@ -39,9 +39,20 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "OpSecForge Hub | Zero-Trust Local Developer Suite",
+  metadataBase: new URL("https://www.opsecforge.com"),
+  title: {
+    default: "OpSecForge Hub | Privacy-First Developer Tools",
+    template: "%s | OpsecForge",
+  },
   description: "A suite of zero-trust, 100% client-side security tools for developers. Handle sensitive JWTs, .env files, and JSON logs safely in your browser.",
   manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    siteName: "OpsecForge",
+    url: "https://www.opsecforge.com",
+    title: "OpSecForge Hub | Privacy-First Developer Tools",
+    description: "Browser-local tools for JWTs, environment files, hashes, JSON, SQL, and other sensitive developer data.",
+  },
 };
 
 export default function RootLayout({
@@ -63,6 +74,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-300 pt-28 md:pt-16`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "OpsecForge",
+              url: "https://www.opsecforge.com",
+            }),
+          }}
+        />
         <Navbar />
         {children}
         <AdBanner />

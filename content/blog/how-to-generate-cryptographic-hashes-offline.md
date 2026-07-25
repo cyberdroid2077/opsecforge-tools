@@ -17,6 +17,13 @@ faqs:
 
 Cryptographic hashes are foundational to modern software development. They're used for password storage, file integrity verification, digital signatures, and blockchain technologies. But when you need to generate a hash — whether for checking a file download, storing a password, or testing a cryptographic workflow — where do you turn? Most online hash generators send your data to their servers. That might not seem dangerous for a simple string hash, but it sets a dangerous precedent, and your input might be logged, sold, or breached.
 
+<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Generate a digest now</p>
+  <h2 class="mt-0 text-2xl font-bold text-slate-100">Hash text locally in your browser</h2>
+  <p class="text-slate-300">Use SHA or Bcrypt tools without submitting the input to OpsecForge for processing.</p>
+  <a href="/tools/hash-generator" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Hash Generator →</a>
+</div>
+
 ## What Is a Cryptographic Hash Function?
 
 A hash function takes any input (a password, a file, a message) and produces a fixed-length string of characters called a digest or hash. The same input will always produce the same output. Hash functions are designed to be one-way: you can't derive the original input from the hash alone.
@@ -57,3 +64,14 @@ The OpsecForge Hash Generator runs entirely in your browser. Your strings and fi
     Open Hash Generator →
   </a>
 </div>
+
+## Related local tools and guides
+
+- Use the focused [SHA Hash Generator](/tools/sha256-hash) for SHA-1, SHA-256, and SHA-512 digests.
+- Learn [why webhook signatures must be validated](/blog/what-is-a-webhook-signature-and-why-must-you-validate-it).
+- Browse all [Credentials & Security tools](/tools#credentials-security).
+
+## Primary guidance
+
+- [NIST Secure Hash Standard (FIPS 180-4)](https://csrc.nist.gov/pubs/fips/180-4/upd1/final)
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)

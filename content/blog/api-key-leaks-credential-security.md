@@ -15,11 +15,18 @@ tags: ["api-keys", "secrets-management", "credential-leaks", "devsecops", "secur
 
 API keys are the skeleton keys of the modern software ecosystem. They grant access to payment processors, cloud infrastructure, AI services, and sensitive data stores. Yet they're often treated with less care than a disposable password, hardcoded into repositories, shared in Slack channels, and committed to version control without a second thought.
 
+<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Sanitize before sharing</p>
+  <h2 class="mt-0 text-2xl font-bold text-slate-100">Redact secrets from an .env file locally</h2>
+  <p class="text-slate-300">Mask likely credentials in your browser before pasting configuration into tickets, chats, or documentation.</p>
+  <a href="/tools/env-sanitizer" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Env Sanitizer →</a>
+</div>
+
 The result is predictable and expensive. API key leaks have become one of the most common and damaging security incidents in software development, with costs ranging from unexpected cloud bills to complete data breaches.
 
 <div class="my-6 border-l-4 border-rose-500 bg-slate-900/50 p-6 rounded-r-xl">
-  <h4 class="mb-2 text-lg font-bold text-rose-400">The $50,000 Weekend</h4>
-  <p class="m-0 text-slate-300 text-sm">A developer at a mid-sized SaaS company pushed a configuration file containing AWS credentials to a public GitHub repository on Friday evening. By Monday morning, cryptocurrency miners had spun up 200 EC2 instances across multiple regions, racking up $50,000 in compute charges. The credentials were discovered through automated scanning within four hours of the commit. The company's incident response team spent three days rotating every credential in their infrastructure and auditing access logs. The developer hadn't considered that GitHub's search indexing makes private-looking commits instantly discoverable.</p>
+  <h4 class="mb-2 text-lg font-bold text-rose-400">Treat committed secrets as compromised</h4>
+  <p class="m-0 text-slate-300 text-sm">Deleting a key from the latest revision does not remove it from repository history or from copies that may already exist. Revoke the exposed credential, review access logs, and replace it with a scoped secret delivered through an approved secret-management workflow.</p>
 </div>
 
 <div class="mt-12 flex items-center gap-3">
@@ -146,3 +153,14 @@ Before every deployment:
 - [ ] **Regular audits** of active API keys and their permissions
 
 API keys are powerful credentials that deserve security consideration equivalent to passwords or encryption keys. The convenience of hardcoding or casual sharing creates risks that automated attackers exploit at scale. Treat every API key as a potential point of compromise and implement layered defenses to protect your infrastructure, your data, and your users.
+
+## Related local tools and guides
+
+- Redact configuration safely with the [Env Sanitizer](/tools/env-sanitizer).
+- Generate replacement credentials with the [Password Generator](/tools/password-generator).
+- Follow the [developer operational-security checklist](/blog/the-ultimate-checklist-for-developer-operational-security-opsec).
+
+## Primary guidance
+
+- [GitHub secret scanning documentation](https://docs.github.com/en/code-security/secret-scanning/introduction/about-secret-scanning)
+- [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)

@@ -41,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/case-studies',
     '/privacy',
     '/terms-of-service',
+    '/tools',
     '/blog',
   ];
 
@@ -64,6 +65,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: 'weekly',
-    priority: route === '' ? 1 : route.startsWith('/tools/') ? 0.9 : 0.8,
+    priority: route === '' ? 1 : route === '/tools' ? 0.95 : route.startsWith('/tools/') ? 0.9 : 0.8,
   }));
 }

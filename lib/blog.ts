@@ -16,6 +16,8 @@ export type BlogPostMetadata = {
   title: string;
   date: string;
   description: string;
+  author: string;
+  category: string;
 };
 
 type BlogPost = BlogPostMetadata & {
@@ -43,6 +45,8 @@ export function getAllPosts(): BlogPostMetadata[] {
         title: String(data.title ?? slug),
         date: String(data.date ?? ''),
         description: String(data.description ?? ''),
+        author: String(data.author ?? 'OpsecForge Security Team'),
+        category: String(data.category ?? 'Developer Security'),
       };
     })
     .sort((left, right) => right.date.localeCompare(left.date));
@@ -57,13 +61,18 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
-  const processedContent = await remark().use(html, { sanitize: false }).process(content);
+  const contentWithoutDuplicateTitle = content.replace(/^\s*#\s+.+\r?\n/, '');
+  const processedContent = await remark()
+    .use(html, { sanitize: false })
+    .process(contentWithoutDuplicateTitle);
 
   return {
     slug,
     title: String(data.title ?? slug),
     date: String(data.date ?? ''),
     description: String(data.description ?? ''),
+    author: String(data.author ?? 'OpsecForge Security Team'),
+    category: String(data.category ?? 'Developer Security'),
     contentHtml: processedContent.toString(),
     faqs: (data.faqs as FaqItem[] | undefined) ?? [],
   };

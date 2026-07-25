@@ -1,46 +1,222 @@
-
-import React from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, UserRound } from 'lucide-react';
+
+const title = 'The Ultimate Checklist for Developer Operational Security (OpSec)';
+const description =
+  'A practical developer OpSec checklist covering secrets, local devices, repositories, authentication, and application security.';
+const slug = 'the-ultimate-checklist-for-developer-operational-security-opsec';
+const published = '2026-03-14';
+const author = 'OpsecForge Security Team';
+
+export const metadata: Metadata = {
+  title,
+  description,
+  alternates: { canonical: `/blog/${slug}` },
+  openGraph: {
+    type: 'article',
+    title,
+    description,
+    url: `/blog/${slug}`,
+    publishedTime: published,
+    authors: [author],
+  },
+};
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  datePublished: published,
+  mainEntityOfPage: `https://www.opsecforge.com/blog/${slug}`,
+  author: { '@type': 'Organization', name: author },
+  publisher: {
+    '@type': 'Organization',
+    name: 'OpsecForge',
+    url: 'https://www.opsecforge.com',
+  },
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.opsecforge.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.opsecforge.com/blog' },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: title,
+      item: `https://www.opsecforge.com/blog/${slug}`,
+    },
+  ],
+};
+
+const sections = [
+  {
+    heading: '1. Secrets management',
+    items: [
+      'Never commit secrets. Keep .env and private-key files out of version control.',
+      'Use an approved secret manager instead of sharing credentials through chat or email.',
+      'Revoke and replace compromised keys immediately.',
+      'Use separate credentials and permissions for development, staging, and production.',
+    ],
+  },
+  {
+    heading: '2. Local environment security',
+    items: [
+      'Enable full-disk encryption and automatic screen locking.',
+      'Use browser-local tools for sensitive JWTs, JSON, SQL, and environment files.',
+      'Audit globally installed packages and remove software you no longer trust or need.',
+      'Install operating-system and browser security updates promptly.',
+    ],
+  },
+  {
+    heading: '3. Code and repository security',
+    items: [
+      'Sign commits when your organization uses verified commit policies.',
+      'Run secret scanning before code is committed or pushed.',
+      'Commit lockfiles and review unexpected dependency changes.',
+      'Enable supported dependency and vulnerability alerts.',
+    ],
+  },
+  {
+    heading: '4. Authentication and access',
+    items: [
+      'Use phishing-resistant MFA where available.',
+      'Grant the minimum permissions required for the current task.',
+      'Protect SSH private keys with passphrases and rotate keys that may be exposed.',
+      'Remove stale accounts, tokens, and deployment credentials.',
+    ],
+  },
+  {
+    heading: '5. API and application security',
+    items: [
+      'Validate webhook signatures before processing payloads.',
+      'Apply context-appropriate validation and output encoding to untrusted input.',
+      'Add rate limits and abuse controls to exposed endpoints.',
+      'Keep secrets out of URLs, analytics events, logs, and error messages.',
+    ],
+  },
+];
 
 export default function BlogPost() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 font-sans">
-      <div className="z-10 w-full max-w-3xl">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-400 transition-colors mb-12 text-sm font-bold uppercase tracking-widest">
-          <ArrowLeft size={16} /> Back to Blog
-        </Link>
-        
-        <article>
-          <header className="mb-12 pb-8 border-b border-slate-800">
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-slate-100 mb-6 tracking-tight">The Ultimate Checklist for Developer Operational Security (OpSec)</h1>
-            <div className="flex items-center gap-6 text-slate-500 text-sm">
-              <span className="flex items-center gap-2"><Calendar size={16} /> March 14, 2026</span>
-              <span className="flex items-center gap-2"><Clock size={16} /> 5 min read</span>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-300 lg:px-24">
+        <article className="mx-auto max-w-3xl">
+          <Link
+            href="/blog"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition-colors hover:text-emerald-400"
+          >
+            <ArrowLeft size={16} /> Back to Blog
+          </Link>
+
+          <header className="mb-8 border-b border-slate-800 pb-8">
+            <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
+              {title}
+            </h1>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+              <span className="flex items-center gap-2">
+                <Calendar size={16} />
+                <time dateTime={published}>March 14, 2026</time>
+              </span>
+              <span className="flex items-center gap-2">
+                <UserRound size={16} /> {author}
+              </span>
             </div>
           </header>
-          
-          <div className="prose prose-invert prose-emerald max-w-none" dangerouslySetInnerHTML={{ __html: `<p class="mb-6 text-slate-400 leading-relaxed">Operational Security (OpSec) is often viewed as the domain of system administrators and security engineers. However, the modern developer is on the front lines of defense. A single leaked key, a poorly secured endpoint, or a careless habit can compromise an entire organization.</p><p class="mb-6 text-slate-400 leading-relaxed">At OpSecForge, we believe security starts at the developer&#039;s keyboard. Here is the ultimate OpSec checklist every developer should follow.</p><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">1. Secrets Management
-*   [ ] **Never commit secrets:** Ensure &#96;.env&#96; and &#96;*.pem&#96; files are in your global and project-level &#96;.gitignore&#96;.
-*   [ ] **Use a Secret Manager:** Rely on tools like HashiCorp Vault, AWS Secrets Manager, or Doppler instead of sharing secrets via Slack or email.
-*   [ ] **Rotate compromised keys immediately:** If you suspect a key was exposed, treat it as compromised and roll it immediately.
-*   [ ] **Use separate environments:** Never use production database credentials or API keys in your local or staging environments.</h2><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">2. Local Environment Security
-*   [ ] **Full Disk Encryption (FDE):** Ensure your work laptop has FileVault (Mac), BitLocker (Windows), or LUKS (Linux) enabled. If your laptop is stolen, the data must be unreadable.
-*   [ ] **Use Local-First Tools:** Stop pasting production JSON, JWTs, or base64 strings into random cloud formatters. Use local, offline tools (like OpSecForge) to prevent data leakage.
-*   [ ] **Lock your screen:** Set your machine to lock automatically after a short period of inactivity.
-*   [ ] **Audit global dependencies:** Regularly review globally installed NPM, Pip, or Ruby packages. Malicious typosquatting packages can easily infiltrate your local machine.</h2><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">3. Code &amp; Repository Security
-*   [ ] **Sign your commits:** Use GPG or SSH keys to sign your Git commits, proving you are the author.
-*   [ ] **Implement Pre-commit Hooks:** Use tools like &#96;trufflehog&#96; or &#96;git-secrets&#96; to scan for accidental secret inclusions before the commit is created.
-*   [ ] **Pin dependencies:** Use lockfiles (&#96;package-lock.json&#96;, &#96;yarn.lock&#96;) to ensure consistent, reproducible builds and prevent malicious upstream updates from breaking your app.
-*   [ ] **Enable Dependabot/Renovate:** Automate the tracking and updating of vulnerable third-party dependencies.</h2><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">4. Authentication &amp; Access
-*   [ ] **Mandatory MFA:** Enable Multi-Factor Authentication (preferably hardware keys like YubiKey or authenticator apps, not SMS) on all developer accounts (GitHub, AWS, Vercel, Slack).
-*   [ ] **Principle of Least Privilege:** Only request access to the systems and databases necessary for your current tasks.
-*   [ ] **Use SSH Keys with Passphrases:** Never use password authentication for SSH, and ensure your private SSH keys are protected by a strong passphrase.</h2><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">5. API &amp; Application Security
-*   [ ] **Validate Webhook Signatures:** Never trust incoming webhooks blindly; always cryptographically verify the sender&#039;s signature.
-*   [ ] **Sanitize Inputs:** Never trust user input. Always sanitize and validate data to prevent SQL Injection and XSS attacks.
-*   [ ] **Implement Rate Limiting:** Protect your endpoints against brute-force attacks and abuse by implementing sensible rate limits.</h2><h2 class="text-2xl font-bold mt-8 mb-4 text-slate-100">Conclusion</h2><p class="mb-6 text-slate-400 leading-relaxed">Developer OpSec is not a one-time setup; it is a continuous mindset. By integrating these practices into your daily workflow and relying on secure, local-first tooling, you drastically reduce the attack surface of your applications and protect your organization from catastrophic breaches.</p>` }} />
+
+          <aside className="mb-10 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+            <p className="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">
+              Protect configuration before sharing
+            </p>
+            <h2 className="mb-3 text-2xl font-bold text-slate-100">
+              Redact likely secrets from an .env file locally
+            </h2>
+            <p className="mb-5 leading-7 text-slate-300">
+              The Env Sanitizer runs in your browser and helps mask credentials before a
+              configuration sample reaches a ticket, chat, or document.
+            </p>
+            <Link
+              href="/tools/env-sanitizer"
+              className="inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold text-slate-950 hover:bg-emerald-400"
+            >
+              Open the Env Sanitizer →
+            </Link>
+          </aside>
+
+          <div className="space-y-8 leading-8">
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">What is developer OpSec?</h2>
+              <p>
+                Developer operational security is the set of daily practices that prevents
+                credentials, code, devices, and deployment access from becoming an attack path.
+                It is continuous work: reduce exposure, restrict access, and respond quickly when
+                a secret or account may be compromised.
+              </p>
+            </section>
+
+            {sections.map((section) => (
+              <section key={section.heading}>
+                <h2 className="mb-3 text-2xl font-bold text-slate-100">{section.heading}</h2>
+                <ul className="space-y-2 pl-6">
+                  {section.items.map((item) => (
+                    <li key={item} className="list-disc">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+
+            <section>
+              <h2 className="mb-3 text-2xl font-bold text-slate-100">Keep the checklist active</h2>
+              <p>
+                Review these controls during onboarding, before major releases, and after any
+                credential exposure. A checklist only reduces risk when the team can verify each
+                control in the real environment.
+              </p>
+            </section>
+
+            <section className="border-t border-slate-800 pt-8">
+              <h2 className="mb-4 text-2xl font-bold text-slate-100">Related tools and guides</h2>
+              <ul className="space-y-3">
+                <li>
+                  <Link className="text-emerald-400 underline" href="/tools/password-generator">
+                    Generate a strong password locally
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-emerald-400 underline"
+                    href="/blog/api-key-leaks-credential-security"
+                  >
+                    Prevent and respond to API-key leaks
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="text-emerald-400 underline"
+                    href="/blog/what-is-a-webhook-signature-and-why-must-you-validate-it"
+                  >
+                    Validate webhook signatures
+                  </Link>
+                </li>
+              </ul>
+            </section>
+          </div>
         </article>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
