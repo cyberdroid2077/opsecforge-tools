@@ -10,4 +10,4 @@ export const metadata: Metadata = {
   },
 };
 
-export { default } from '../../layout';
+export { default } from '../tool-layout';

@@ -68,6 +68,15 @@ Active experiment: high-traffic article to contextual tool navigation.
 - Measurement window: compare 14- and 28-day article entrances, tool page views, navigation paths where available, and bounce rate against the 2026-07-24 baseline.
 - Limitation: Vercel Hobby has no custom events, so tool page views are the current activation proxy.
 
+Active experiment: simplified task discovery and duplicate-chrome removal.
+
+- Hypothesis: a compact global navigation, four explicit homepage task pathways, and grouped secondary tools will reduce choice overload and increase visits to relevant tool pages without hiding the long tail.
+- Intervention: replace the 18-link horizontal tool strip with Tools and Blog entries; make sanitizer, webhook verification, SHA hashes, and Base64 the four primary homepage pathways; group all other tools by purpose; keep every tool linked from `/tools` and the sitemap.
+- Baseline: latest available 30-day Vercel snapshot is 269 visitors, 417 page views, and 88% bounce. SHA-256 Hash and SQL Formatter each had 4 visitors and 6 page views; tool activation beyond page views is not observable.
+- 14-day check: compare homepage and `/tools` page views, exits to the four primary tool routes where aggregate navigation paths are available, bounce rate, mobile share, and 404s against the 2026-07-24 baseline.
+- 28-day check: repeat the same comparison, check whether discovery spreads beyond the four primary routes, and review Search Console page/query changes. Do not infer tool use from a page view.
+- Guardrail: no custom events, input telemetry, paid analytics, popularity labels, or claims based on unmeasured usage.
+
 ## Content inventory and pipeline
 
 - 71 Markdown articles under `content/blog`.
@@ -134,6 +143,21 @@ Active experiment: high-traffic article to contextual tool navigation.
 - Webhook measurement plan:
   - Compare 14- and 28-day visits to `/tools/webhook-debugger` and navigation from the webhook-signature article against the 2026-07-24 baseline.
   - Continue using aggregate page views only. Never record payloads, secrets, signatures, provider selection, verification results, or copy actions.
+- UI simplification and conversion wave prepared on 2026-07-24:
+  - Replaced the dense 18-tool, horizontally scrolling global strip and its two scroll controls with a compact, keyboard-focusable Tools/Blog navigation. The tools center remains the grouped discovery surface.
+  - Reorganized the homepage around four explicitly selected task pathways: Safe-to-Share Sanitizer, Webhook Signature Verifier, SHA Hash Generator, and Base64 Converter. These are operating priorities, not a claim that they are the most used.
+  - Grouped the remaining 17 tools by Encoding & Formatting, Credentials & Security, and Debugging & Validation. A shared 21-tool catalog now drives the homepage and `/tools`, with tests for route uniqueness and primary-path integrity.
+  - Removed the homepage's second footer, repetitive Live badges, repetitive “100% local” card rows, and stale decorative version/zero-log lines. Useful About, Case Studies, Glossary, FAQ, Privacy, Terms, and Contact links now appear once in the global footer.
+  - Replaced the 21 tool-level re-exports of the root layout with a transparent metadata-preserving child layout. This removes the confirmed duplicate navbar, footer, analytics, ad banner, language selector, and ticket button from tool pages.
+  - Corrected confirmed heading defects: Hash Generator, Text Case, and URL Encoder now have page H1 headings; Markdown to HTML's default sample no longer injects a second H1 into the preview. Input/output labels were added to the three legacy tool UIs where touched.
+  - Deliberately left all tool and article URLs, algorithms, tool input behavior, pricing, JSON aliases, overlapping hash tools, article inventory, social-share controls, ads, language selector, and ticket flow unchanged. JSON/hash consolidation remains out of scope.
+- UI wave pre-deployment evidence:
+  - New catalog tests: 3/3 passed; full Vitest suite: 25/25 passed.
+  - `npm run typecheck`, content verification, and production build passed; 121 pages generated.
+  - Staged DOM checks on the homepage, tools hub, sanitizer, webhook verifier, hash generator, text case, URL encoder, and Markdown tool found one primary navigation, one footer, and one H1 per page.
+  - `/tools` exposed all 21 tool links; the homepage exposed the four primary pathways plus 17 grouped remaining tools.
+  - Responsive DOM was checked at 375 × 812; the compact navigation remained available without the old horizontal tool scroller. Tools is a native link with visible keyboard focus styling.
+  - Staged HTTP checks returned 200 for the homepage, tools hub, six representative tool pages, and the two sampled guide routes.
 
 ## Decisions
 
@@ -157,4 +181,4 @@ Active experiment: high-traffic article to contextual tool navigation.
 
 ## One next priority
 
-Pause after the webhook verifier wave. When explicitly authorized, the next proposed implementation is to consolidate the overlapping hash pages and add browser-local file checksum verification. Do not begin that work automatically.
+Deploy and production-verify the approved UI simplification wave, then pause. Collect the 14- and 28-day aggregate measurements before proposing another UI change; do not begin hash, JWT, CSP/SRI, pricing, or feature work automatically.

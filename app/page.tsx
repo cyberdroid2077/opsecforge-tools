@@ -1,115 +1,201 @@
-"use client";
-
-import React from 'react';
-import { ShieldCheck, TerminalSquare, Code, Hash, Lock, FileCode, Webhook, ArrowRight, Zap, UploadCloud, Database, KeyRound, Pilcrow, Link2, CaseSensitive, Sigma, QrCode, Fingerprint, Palette, FileText, GitCompareArrows } from 'lucide-react';
+import {
+  ArrowRight,
+  Blocks,
+  Bug,
+  FileCode,
+  Fingerprint,
+  KeyRound,
+  ShieldCheck,
+  UploadCloud,
+  Webhook,
+} from 'lucide-react';
 import Link from 'next/link';
+import { primaryToolHrefs, primaryTools, toolGroups } from '@/lib/tool-catalog';
+
+const primaryIcons = {
+  '/tools/env-sanitizer': FileCode,
+  '/tools/webhook-debugger': Webhook,
+  '/tools/sha256-hash': Fingerprint,
+  '/tools/base64-converter': UploadCloud,
+};
+
+const groupIcons = {
+  'encoding-formatting': Blocks,
+  'credentials-security': KeyRound,
+  'debugging-validation': Bug,
+};
+
+const primaryHrefSet = new Set<string>(primaryToolHrefs);
+
+const featuredArticles = [
+  {
+    label: 'Credential hygiene',
+    title: 'How to Sanitize .env Files Before Sharing',
+    description: 'Learn where heuristic redaction helps, where it can miss, and why human review still matters.',
+    href: '/blog/how-to-sanitize-env-files-before-sharing',
+  },
+  {
+    label: 'Webhook security',
+    title: 'What Is a Webhook Signature and Why Must You Validate It?',
+    description: 'Understand signature matching, timestamp checks, and replay defenses for production receivers.',
+    href: '/blog/what-is-a-webhook-signature-and-why-must-you-validate-it',
+  },
+  {
+    label: 'Cryptography',
+    title: 'How to Generate Cryptographic Hashes Offline',
+    description: 'Choose an appropriate digest and keep sensitive source text out of remote utilities.',
+    href: '/blog/how-to-generate-cryptographic-hashes-offline',
+  },
+  {
+    label: 'Encoding',
+    title: 'Base64 vs Base64URL',
+    description: 'See how the alphabets, padding, and URL-safe variants differ before converting data.',
+    href: '/blog/base64-vs-base64url',
+  },
+];
 
 export default function Home() {
-  const tools = [
-    { id: 'jwt-decoder', name: 'JWT Decoder', description: 'Decode and inspect JSON Web Tokens with complete data sovereignty. No external transmission. Includes intelligent timestamp parsing and validation.', icon: <TerminalSquare className="text-emerald-500" size={32} />, status: 'Live' },
-    { id: 'json-beautifier', name: 'JSON Formatter & Validator', description: 'Securely format, validate, and minify sensitive JSON payloads entirely in your browser.', icon: <Code className="text-blue-500" size={32} />, status: 'Live' },
-    { id: 'env-sanitizer', name: '.env Sanitizer', description: 'Automatically detect and mask secrets in your environment variables before sharing.', icon: <FileCode className="text-amber-500" size={32} />, status: 'Live' },
-    { id: 'uuid-generator', name: 'UUID / GUID Generator', description: 'Generate one or many RFC-style v4 UUIDs locally with uppercase and hyphenless output options.', icon: <Hash className="text-emerald-500" size={32} />, status: 'Live' },
-    { id: 'base64-converter', name: 'Base64 Encoder & Decoder', description: 'Encode plain text to Base64 or decode Base64 back to text entirely in your browser.', icon: <UploadCloud className="text-blue-500" size={32} />, status: 'Live' },
-    { id: 'password-generator', name: 'Secure Password Generator', description: 'Generate cryptographically secure passwords locally with strength scoring and charset controls.', icon: <KeyRound className="text-rose-500" size={32} />, status: 'Live' },
-    { id: 'lorem-ipsum', name: 'Lorem Ipsum Generator', description: 'Generate words, sentences, or paragraphs of placeholder copy directly in the browser.', icon: <Pilcrow className="text-cyan-500" size={32} />, status: 'Live' },
-    { id: 'url-encoder', name: 'URL Encoder & Decoder', description: 'Safely encode URI components, decode escaped strings, and normalize URLs client-side.', icon: <Link2 className="text-amber-500" size={32} />, status: 'Live' },
-    { id: 'text-case', name: 'Text Case Converter', description: 'Convert text to uppercase, lowercase, title case, camelCase, snake_case, and kebab-case.', icon: <CaseSensitive className="text-violet-500" size={32} />, status: 'Live' },
-    { id: 'word-counter', name: 'Word & Character Counter', description: 'Measure words, characters, paragraphs, sentences, and reading time in real time.', icon: <Sigma className="text-emerald-500" size={32} />, status: 'Live' },
-    { id: 'qr-generator', name: 'QR Code Generator', description: 'Generate styled QR codes for links or payloads and download them as PNG files locally.', icon: <QrCode className="text-cyan-500" size={32} />, status: 'Live' },
-    { id: 'sha256-hash', name: 'SHA Hash Generator', description: 'Generate SHA-1, SHA-256, and SHA-512 hashes in real time using the browser crypto API.', icon: <Fingerprint className="text-emerald-500" size={32} />, status: 'Live' },
-    { id: 'hex-rgb-converter', name: 'Hex RGB Converter', description: 'Convert between hex, rgb(), and hsl() values with a live color preview and copy actions.', icon: <Palette className="text-pink-500" size={32} />, status: 'Live' },
-    { id: 'markdown-to-html', name: 'Markdown To HTML', description: 'Preview Markdown live and inspect the generated raw HTML side by side.', icon: <FileText className="text-blue-500" size={32} />, status: 'Live' },
-    { id: 'text-diff', name: 'Text Diff Checker', description: 'Compare two text snippets and visualize additions and deletions instantly in the browser.', icon: <GitCompareArrows className="text-amber-500" size={32} />, status: 'Live' },
-    { id: 'sql-formatter', name: 'SQL Formatter & Minifier', description: 'Beautify and optimize SQL queries locally. Supports MySQL and PostgreSQL dialects with zero data leakage.', icon: <Database className="text-amber-500" size={32} />, status: 'Live' },
-    { id: 'unix-timestamp', name: 'Unix Timestamp Converter', description: 'Convert Unix epochs to local or UTC dates and turn date selections back into seconds or milliseconds.', icon: <Zap className="text-cyan-500" size={32} />, status: 'Live' },
-    { id: 'webhook-debugger', name: 'Webhook Debugger', description: 'Debug and verify Stripe, GitHub, and Shopify webhook signatures client-side.', icon: <Webhook className="text-rose-500" size={32} />, status: 'Live' },
-    { id: 'hash-generator', name: 'Secure Hash Generator', description: 'Generate Bcrypt, SHA-256, and MD5 hashes locally without logging your plaintext passwords.', icon: <Zap className="text-purple-500" size={32} />, status: 'Live' }
-  ];
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 font-sans selection:bg-emerald-500/30">
-      <div className="z-10 w-full max-w-6xl items-center justify-between font-mono text-sm">
-        <div className="mb-16 text-center lg:text-left flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 mb-6 shadow-sm">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span className="text-xs font-bold tracking-wider">THE OFFLINE-FIRST DEVELOPER SUITE</span>
+    <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-300 selection:bg-emerald-500/30 lg:px-24 lg:py-20">
+      <div className="mx-auto max-w-6xl">
+        <header className="mb-14 max-w-3xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-slate-300">
+            <ShieldCheck aria-hidden="true" size={14} className="text-emerald-400" />
+            <span className="text-xs font-bold uppercase tracking-wider">Browser-local developer tools</span>
+          </div>
+          <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-6xl">
+            Handle sensitive developer data without uploading it
+          </h1>
+          <p className="text-lg leading-8 text-slate-400">
+            OpSecForge provides practical security and developer utilities whose core input
+            processing runs in your browser. Tool inputs are not sent to OpSecForge analytics.
+            Check each tool&apos;s stated limitations before using its output.
+          </p>
+        </header>
+
+        <section aria-labelledby="primary-tasks" className="mb-16">
+          <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">
+                Start with a task
+              </p>
+              <h2 id="primary-tasks" className="text-3xl font-bold text-slate-100">
+                Security workflows
+              </h2>
             </div>
-            <h1 className="text-4xl lg:text-6xl font-extrabold tracking-tight text-slate-100 mb-4 flex items-center gap-3 justify-center lg:justify-start">OpSecForge <span className="text-emerald-500">Hub</span></h1>
-            <p className="text-lg text-slate-400 max-w-2xl font-sans">A zero-trust, client-side developer toolkit engineered for secure data operations. All processing occurs locally within your browser—no data transmission, no server exposure, no exceptions.</p>
+            <Link
+              href="/tools"
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm font-bold text-emerald-300 transition-colors hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            >
+              Browse all 21 tools <ArrowRight aria-hidden="true" size={16} />
+            </Link>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full pb-24">
-          {tools.map((tool) => (
-            <Link href={tool.status === 'Live' ? `/tools/${tool.id}` : '#'} key={tool.id} className={`block group ${tool.status !== 'Live' && 'cursor-not-allowed opacity-60'}`}>
-              <div className="h-full flex flex-col p-6 bg-slate-900/80 border border-slate-800 rounded-2xl hover:bg-slate-800/80 hover:border-slate-600 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 shadow-inner group-hover:scale-110 transition-transform">{tool.icon}</div>
-                  <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${tool.status === 'Live' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400 border border-slate-700'}`}>{tool.status}</span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-200 mb-2 font-sans group-hover:text-white transition-colors">{tool.name}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed font-sans flex-1">{tool.description}</p>
-                <div className="mt-6 pt-4 border-t border-slate-800/50 flex items-center gap-2 text-xs text-slate-500 font-bold tracking-wider"><Lock size={12} /> 100% LOCAL</div>
-              </div>
-            </Link>
-          ))}
-        </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {primaryTools.map((tool) => {
+              const Icon = primaryIcons[tool.href as keyof typeof primaryIcons];
 
-        <div className="w-full max-w-4xl mx-auto py-24 border-t border-slate-800/50">
-          <h2 className="text-3xl font-bold text-slate-200 mb-12 text-center lg:text-left">Security Briefings & Dev Tips</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Link href="/blog/how-to-decode-jwt-tokens-client-side" className="group block">
-              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-emerald-500/30 transition-all h-full flex flex-col">
-                <div className="text-emerald-500 text-xs font-bold uppercase tracking-widest mb-4">JWT Security</div>
-                <h3 className="text-xl font-bold text-slate-200 group-hover:text-emerald-400 transition-colors mb-4">How to Decode JWT Tokens Client-Side Without Sending Data to Any Server</h3>
-                <p className="text-slate-400 text-sm leading-relaxed flex-1">Online JWT decoders are a security risk. Learn why and how to safely decode tokens entirely in your browser.</p>
-                <div className="text-emerald-500 font-bold text-sm flex items-center gap-2 mt-4">Read Guide <ShieldCheck size={16} /></div>
-              </div>
-            </Link>
-            <Link href="/blog/how-to-generate-cryptographic-hashes-offline" className="group block">
-              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-purple-500/30 transition-all h-full flex flex-col">
-                <div className="text-purple-500 text-xs font-bold uppercase tracking-widest mb-4">Cryptography</div>
-                <h3 className="text-xl font-bold text-slate-200 group-hover:text-purple-400 transition-colors mb-4">How to Generate Cryptographic Hashes Offline Without Any Network Requests</h3>
-                <p className="text-slate-400 text-sm leading-relaxed flex-1">SHA-256, SHA-512, MD5, and Bcrypt — when to use each and why offline generation matters for sensitive data.</p>
-                <div className="text-purple-500 font-bold text-sm flex items-center gap-2 mt-4">Read Guide <TerminalSquare size={16} /></div>
-              </div>
-            </Link>
-            <Link href="/blog/how-to-sanitize-env-files-before-sharing" className="group block">
-              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-amber-500/30 transition-all h-full flex flex-col">
-                <div className="text-amber-500 text-xs font-bold uppercase tracking-widest mb-4">Security Best Practices</div>
-                <h3 className="text-xl font-bold text-slate-200 group-hover:text-amber-400 transition-colors mb-4">How to Sanitize .env Files Before Sharing</h3>
-                <p className="text-slate-400 text-sm leading-relaxed flex-1">AWS keys, database passwords, and API tokens are the keys to your kingdom. Learn why sharing plain-text .env files is a catastrophe waiting to happen.</p>
-                <div className="text-amber-500 font-bold text-sm flex items-center gap-2 mt-4">Read Security Guide <ShieldCheck size={16} /></div>
-              </div>
-            </Link>
-            <Link href="/blog/how-to-generate-secure-passwords-offline" className="group block">
-              <div className="p-8 bg-slate-900/30 border border-slate-800 rounded-2xl hover:border-rose-500/30 transition-all h-full flex flex-col">
-                <div className="text-rose-500 text-xs font-bold uppercase tracking-widest mb-4">Authentication</div>
-                <h3 className="text-xl font-bold text-slate-200 group-hover:text-rose-400 transition-colors mb-4">How to Generate Secure Passwords Offline: The Complete Guide</h3>
-                <p className="text-slate-400 text-sm leading-relaxed flex-1">Weak passwords are the leading cause of breaches. Learn how cryptographic randomness makes strong passwords and why client-side generation is safer.</p>
-                <div className="text-rose-500 font-bold text-sm flex items-center gap-2 mt-4">Read Guide <ShieldCheck size={16} /></div>
-              </div>
-            </Link>
+              return (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 transition-colors hover:border-emerald-500/40 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                >
+                  <div className="mb-4 flex items-center gap-3">
+                    <span className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5">
+                      <Icon aria-hidden="true" className="text-emerald-400" size={22} />
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-100 group-hover:text-emerald-300">
+                      {tool.name}
+                    </h3>
+                  </div>
+                  <p className="leading-7 text-slate-400">{tool.description}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-emerald-400">
+                    Open tool <ArrowRight aria-hidden="true" size={15} />
+                  </span>
+                </Link>
+              );
+            })}
           </div>
-          <div className="text-center mt-12">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">View All Articles <ArrowRight size={14} /></Link>
-          </div>
-        </div>
+        </section>
 
-        <footer className="mt-24 pt-12 border-t border-slate-900 pb-24 text-center">
-          <div className="flex justify-center flex-wrap gap-8 md:gap-12 mb-12">
-            <Link href="/about" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">About</Link>
-            <Link href="/case-studies" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Case Studies</Link>
-            <Link href="/glossary" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Glossary</Link>
-            <Link href="/faq" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">FAQ</Link>
-            <Link href="/privacy" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Privacy Policy</Link>
-            <Link href="/contact" className="text-slate-500 hover:text-emerald-400 font-bold uppercase text-xs tracking-widest transition-colors">Contact</Link>
+        <section aria-labelledby="more-tools" className="border-t border-slate-800 pt-14">
+          <div className="mb-9 max-w-3xl">
+            <h2 id="more-tools" className="text-3xl font-bold text-slate-100">
+              More tools by purpose
+            </h2>
+            <p className="mt-3 leading-7 text-slate-400">
+              Choose a category for the rest of the toolkit, or use the complete tools center for
+              descriptions and related guides.
+            </p>
           </div>
-          <div className="text-slate-700 text-[10px] font-mono uppercase tracking-[0.2em] mb-4">OpSecForge v1.8.1 • Built for the Global Dev Community • 2026</div>
-          <div className="flex justify-center gap-4 text-slate-800 text-[8px] font-mono tracking-widest"><span>EST. 2026.03.10</span><span>•</span><span>100% CLIENT-SIDE</span><span>•</span><span>ZERO-LOG POLICY</span></div>
-        </footer>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {toolGroups.map((group) => {
+              const Icon = groupIcons[group.id];
+              const remainingTools = group.tools.filter((tool) => !primaryHrefSet.has(tool.href));
+
+              return (
+                <section
+                  key={group.id}
+                  className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6"
+                  aria-labelledby={`home-${group.id}`}
+                >
+                  <div className="mb-5 flex items-center gap-3">
+                    <Icon aria-hidden="true" className="text-emerald-400" size={21} />
+                    <h3 id={`home-${group.id}`} className="text-xl font-bold text-slate-100">
+                      {group.name}
+                    </h3>
+                  </div>
+                  <ul className="space-y-2">
+                    {remainingTools.map((tool) => (
+                      <li key={tool.href}>
+                        <Link
+                          href={tool.href}
+                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                        >
+                          {tool.name}
+                          <ArrowRight aria-hidden="true" className="shrink-0" size={14} />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              );
+            })}
+          </div>
+        </section>
+
+        <section aria-labelledby="guides" className="mt-20 border-t border-slate-800 pt-14">
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <h2 id="guides" className="text-3xl font-bold text-slate-100">
+              Practical security guides
+            </h2>
+            <Link
+              href="/blog"
+              className="hidden items-center gap-2 text-sm font-bold text-emerald-400 sm:inline-flex"
+            >
+              View all articles <ArrowRight aria-hidden="true" size={15} />
+            </Link>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            {featuredArticles.map((article) => (
+              <Link
+                key={article.href}
+                href={article.href}
+                className="group rounded-2xl border border-slate-800 bg-slate-900/40 p-6 transition-colors hover:border-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              >
+                <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-400">
+                  {article.label}
+                </p>
+                <h3 className="text-xl font-bold text-slate-100 group-hover:text-emerald-300">
+                  {article.title}
+                </h3>
+                <p className="mt-3 leading-7 text-slate-400">{article.description}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );

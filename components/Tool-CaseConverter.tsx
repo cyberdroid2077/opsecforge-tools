@@ -45,8 +45,12 @@ const CaseConverter = () => {
 
   return (
     <div className="p-4 max-w-2xl mx-auto bg-slate-800 text-slate-200 rounded-xl shadow-md space-y-4">
-      <h2 className="text-2xl font-bold text-white">Case Converter</h2>
+      <h1 className="text-2xl font-bold text-white">Text Case Converter</h1>
+      <label htmlFor="case-input" className="block text-sm font-medium text-slate-300">
+        Input text
+      </label>
       <textarea
+        id="case-input"
         className="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
         rows={4}
         value={input}
@@ -60,7 +64,11 @@ const CaseConverter = () => {
         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors" onClick={() => handleConvert('kebab')}>kebab-case</button>
         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors" onClick={() => handleConvert('constant')}>CONSTANT_CASE</button>
       </div>
+      <label htmlFor="case-output" className="block text-sm font-medium text-slate-300">
+        Converted text
+      </label>
       <textarea
+        id="case-output"
         className="w-full p-2 border border-slate-600 bg-slate-900 rounded focus:outline-none"
         rows={4}
         value={output}

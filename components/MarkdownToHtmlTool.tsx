@@ -43,7 +43,7 @@ function markdownToHtml(markdown: string) {
 }
 
 export default function MarkdownToHtmlTool() {
-  const [markdown, setMarkdown] = useState('# OpSecForge\n\n- Local preview\n- Copy-ready HTML\n\n**Bold** text, *italic* text, and [links](https://opsecforge.com).');
+  const [markdown, setMarkdown] = useState('## Sample heading\n\n- Local preview\n- Copy-ready HTML\n\n**Bold** text, *italic* text, and [links](https://opsecforge.com).');
   const [tab, setTab] = useState<'preview' | 'html'>('preview');
   const [copied, setCopied] = useState(false);
 

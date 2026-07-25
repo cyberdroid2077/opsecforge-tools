@@ -111,7 +111,7 @@ export default function SecureHashGenerator() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Secure Hash Generator</h2>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Secure Hash Generator</h1>
         <p className="text-gray-600 dark:text-gray-400 text-sm">
           Generate cryptographic hashes 100% locally in your browser. Your data never leaves your device.
         </p>
@@ -120,10 +120,11 @@ export default function SecureHashGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Input Section */}
         <div className="flex flex-col">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="hash-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Input Text
           </label>
           <textarea
+            id="hash-input"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             className="w-full h-40 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none font-mono"

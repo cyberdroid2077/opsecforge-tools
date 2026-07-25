@@ -72,7 +72,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-300 pt-28 md:pt-16`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-300 pt-16`}
       >
         <script
           type="application/ld+json"
@@ -88,14 +88,25 @@ export default function RootLayout({
         <Navbar />
         {children}
         <AdBanner />
-        <footer className="border-t border-slate-800 bg-slate-950 px-4 py-6 transition-colors">
-          <div className="mx-auto flex max-w-[1400px] items-center justify-center">
-            <Link
-              href="/terms-of-service"
-              className="text-sm font-medium text-slate-400 transition-colors hover:text-emerald-400"
-            >
-              Terms of Service
-            </Link>
+        <footer className="border-t border-slate-800 bg-slate-950 px-4 py-8 transition-colors">
+          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            {[
+              ['About', '/about'],
+              ['Case Studies', '/case-studies'],
+              ['Glossary', '/glossary'],
+              ['FAQ', '/faq'],
+              ['Privacy', '/privacy'],
+              ['Terms', '/terms-of-service'],
+              ['Contact', '/contact'],
+            ].map(([label, href]) => (
+              <Link
+                key={href}
+                href={href}
+                className="rounded text-sm font-medium text-slate-400 transition-colors hover:text-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </footer>
         <LanguageSelector />
