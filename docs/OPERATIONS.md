@@ -154,10 +154,17 @@ Active experiment: simplified task discovery and duplicate-chrome removal.
 - UI wave pre-deployment evidence:
   - New catalog tests: 3/3 passed; full Vitest suite: 25/25 passed.
   - `npm run typecheck`, content verification, and production build passed; 121 pages generated.
+  - Targeted ESLint passed for the new navigation, homepage, tools hub, transparent tool layout, and catalog files. Repository-wide ESLint still fails on 41 pre-existing errors in older JWT, SQL, hash, language, social-share, test, and related components; this wave did not expand into those modules.
   - Staged DOM checks on the homepage, tools hub, sanitizer, webhook verifier, hash generator, text case, URL encoder, and Markdown tool found one primary navigation, one footer, and one H1 per page.
   - `/tools` exposed all 21 tool links; the homepage exposed the four primary pathways plus 17 grouped remaining tools.
   - Responsive DOM was checked at 375 × 812; the compact navigation remained available without the old horizontal tool scroller. Tools is a native link with visible keyboard focus styling.
   - Staged HTTP checks returned 200 for the homepage, tools hub, six representative tool pages, and the two sampled guide routes.
+- UI wave production verification:
+  - Commit `9b303bf` was pushed to `main` and served by `https://www.opsecforge.com` on 2026-07-24.
+  - Production DOM checks repeated the homepage, tools hub, sanitizer, webhook verifier, hash generator, text case, URL encoder, and Markdown checks: one primary navigation, one footer, and one H1 per page.
+  - The production tools hub exposed 21 direct tool links; the sitemap listed all 21 tool URLs; all 21 returned HTTP 200.
+  - At a 375 × 812 viewport, Tools, Blog, and the theme control remained exposed in the primary navigation and the removed scroll controls were absent. Native links and visible focus styles preserve keyboard discovery.
+  - A safe synthetic sanitizer check redacted `API_KEY=synthetic-example-secret-12345` while preserving the near-miss `PUBLIC_KEY_ID=pk_synthetic`, confirming the layout change did not break the representative local tool flow.
 
 ## Decisions
 
@@ -181,4 +188,4 @@ Active experiment: simplified task discovery and duplicate-chrome removal.
 
 ## One next priority
 
-Deploy and production-verify the approved UI simplification wave, then pause. Collect the 14- and 28-day aggregate measurements before proposing another UI change; do not begin hash, JWT, CSP/SRI, pricing, or feature work automatically.
+Pause after the production-verified UI simplification wave. Collect the 14- and 28-day aggregate measurements before proposing another UI change; do not begin hash, JWT, CSP/SRI, pricing, or feature work automatically.
