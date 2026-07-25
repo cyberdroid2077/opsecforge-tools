@@ -69,7 +69,7 @@ export default function Home() {
             <span className="text-xs font-bold uppercase tracking-wider">Browser-local developer tools</span>
           </div>
           <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-6xl">
-            Sensitive developer data. Local only.
+            Handle sensitive developer data without uploading it
           </h1>
           <p className="text-lg leading-8 text-slate-400">
             OpSecForge provides practical security and developer utilities whose core input
