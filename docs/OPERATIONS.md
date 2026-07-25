@@ -217,6 +217,14 @@ Measurement and guardrails:
 - Guardrails: no new telemetry, no input events, no paid plan, no external submission, no URL deletion, and no change to the Privacy Policy or Terms of Service body.
 - Production verification and final commit identifiers are recorded after deployment.
 
+Production verification:
+
+- Commit `cee264d` was pushed to `main` and served by `https://www.opsecforge.com` on 2026-07-24.
+- Production full-sitemap audit repeated the staged result: 101/101 URLs returned a title, canonical, exactly one H1, and exactly one footer; sitemap `lastmod` count was zero.
+- Production article checks confirmed the corrected titles/copy, visible source-review dates, visible primary-source links, and truthful Article `dateModified`.
+- `/tools/json-formatter` remains HTTP 200 and now canonicals to `/tools/json-beautifier`; only the canonical URL appears in the sitemap.
+- Public search results still showed cached pre-change titles and fabricated snippets immediately after deployment. This is expected recrawl lag, not a production rollback; recheck at the 14-day measurement point rather than claiming immediate search-snippet correction.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
