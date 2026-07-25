@@ -117,6 +117,23 @@ Active experiment: high-traffic article to contextual tool navigation.
 - P0 measurement plan:
   - Compare 14- and 28-day visits to `/tools/env-sanitizer` and entrances from the API-key and OpSec articles against the 2026-07-24 baseline.
   - Use only aggregate Vercel page views and navigation paths where available; do not record pasted input, detected values, redaction counts, or copy actions.
+- Webhook verifier reliability wave deployed on 2026-07-24 in commit `11ab28f`:
+  - Fixed the Web Crypto identifier defect by mapping `sha1`, `sha256`, and `sha512` to `SHA-1`, `SHA-256`, and `SHA-512`.
+  - Split the paste-only interface into bounded Generic HMAC, GitHub, and Stripe modes instead of implying one generic digest covers every provider.
+  - GitHub mode requires the complete `sha256=` `X-Hub-Signature-256` value and verifies it over the exact UTF-8 request body.
+  - Stripe mode parses `t=` and every `v1=` value, verifies HMAC-SHA256 over `timestamp.rawBody`, and reports whether the signed timestamp falls within a non-zero, user-visible tolerance based on the device clock.
+  - Result copy distinguishes matching supplied values from observed request provenance, secret custody, event processing, and replay prevention.
+  - Added direct links to current GitHub and Stripe webhook verification documentation and recommends official provider libraries for production receivers.
+  - Confirmed by static inspection that the verifier input path contains no fetch, beacon, storage, console logging, or input analytics call.
+- Webhook verifier evidence:
+  - `npm run typecheck`: passed.
+  - Vitest: 22/22 passed, including eight webhook tests for Web Crypto algorithm mapping, GitHub’s official HMAC test vector, modified payloads, malformed headers, Generic HMAC, Stripe multiple-signature rotation, timestamp tolerance, and disabled-tolerance rejection.
+  - Content verification: passed.
+  - Production build: passed, 121 generated pages.
+  - Production browser checks: GitHub’s official public test vector matched; a current-time synthetic Stripe fixture matched inside the 300-second tolerance; the same synthetic construction at 301 seconds old produced the explicit outside-tolerance warning.
+- Webhook measurement plan:
+  - Compare 14- and 28-day visits to `/tools/webhook-debugger` and navigation from the webhook-signature article against the 2026-07-24 baseline.
+  - Continue using aggregate page views only. Never record payloads, secrets, signatures, provider selection, verification results, or copy actions.
 
 ## Decisions
 
@@ -136,8 +153,8 @@ Active experiment: high-traffic article to contextual tool navigation.
 5. Machine-facing trust files can drift from the actual runtime and must be checked during SEO audits.
 6. The Base64 tool page is comparatively thin; a concise direct-answer/help section is queued for phase two rather than expanding the current wave.
 7. Secret detection remains heuristic, paste-only, and non-exhaustive. It is not a repository scanner, secrets manager, compliance control, or substitute for rotating an exposed credential.
-8. A production synthetic check exposed a pre-existing webhook false-negative defect: Web Crypto receives `SHA256` instead of the required `SHA-256` algorithm identifier. The P0 wording fix is deployed, but provider semantics and verifier reliability remain the next implementation wave.
+8. The webhook page is a local debugging aid, not production receiver middleware. Stripe freshness depends on the user’s device clock; GitHub replay handling still requires server-side delivery-ID deduplication; neither mode observes the real request source or secret custody.
 
 ## One next priority
 
-Pause after P0. When authorized, improve webhook verifier correctness and provider-specific semantics, then consolidate the overlapping hash pages and add browser-local file checksum verification. Review 14- and 28-day sanitizer page-view movement against the 2026-07-24 baseline.
+Pause after the webhook verifier wave. When explicitly authorized, the next proposed implementation is to consolidate the overlapping hash pages and add browser-local file checksum verification. Do not begin that work automatically.
