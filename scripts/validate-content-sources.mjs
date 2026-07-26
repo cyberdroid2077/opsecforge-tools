@@ -31,10 +31,30 @@ const files = explicitFiles.length > 0 ? explicitFiles : changedBlogFiles();
 const failures = [];
 const highRiskClaimPattern =
   /(?:\$\s?\d[\d,.]*|\b\d+(?:\.\d+)?%\b|\b\d[\d,.]*\s+(?:million|billion)\b|\b(?:study|survey|research|report)\s+(?:found|shows?|reveals?|reports?)\b|\b(?:breach|incident)\b.{0,100}\b(?:cost|fine|records?|customers?|users?|sessions?)\b)/i;
+const unsupportedProductClaims = [
+  {
+    pattern:
+      /(?:our\s+)?JWT Decoder[\s\S]{0,220}\b(?<!not )(?:validates?|verif(?:y|ies)|checks?)\b[\s\S]{0,80}\bsignatures?\b/i,
+    message:
+      "OpsecForge JWT Decoder parses tokens but does not verify signatures",
+  },
+  {
+    pattern:
+      /(?:Environment Variable|Env|Safe-to-Share) Sanitizer[\s\S]{0,220}\b(?:guarantees?|detects?\s+all|removes?\s+all)\b/i,
+    message:
+      "OpsecForge sanitizer is heuristic and cannot guarantee exhaustive detection",
+  },
+];
 
 for (const file of files) {
   const content = readFileSync(file, "utf8");
   const cves = [...new Set((content.match(CVE_PATTERN) ?? []).map((id) => id.toUpperCase()))];
+
+  for (const claim of unsupportedProductClaims) {
+    if (claim.pattern.test(content)) {
+      failures.push(`${file}: ${claim.message}`);
+    }
+  }
 
   if (highRiskClaimPattern.test(content)) {
     if (!/^source_reviewed:\s*["']?\d{4}-\d{2}-\d{2}["']?\s*$/m.test(content)) {
