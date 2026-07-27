@@ -22,6 +22,8 @@ The right question is not simply “Are environment variables secure?” It is: 
 
 This guide follows the [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html), [Docker build-secret guidance](https://docs.docker.com/build/building/secrets/), and [GitHub secret security documentation](https://docs.github.com/en/code-security/concepts/secret-security).
 
+If you are responding to a suspected exposure, use the companion guide: [Environment Variable Leaks: How Secrets Escape and What to Do](/blog/environment-variable-leaks-security-risks).
+
 ## What environment variables do—and do not—protect
 
 Moving a credential from code into an environment variable solves one important problem: the secret no longer needs to live in the application source. That reduces the chance of committing it with the code and lets operators provide different values to development, staging, and production.
