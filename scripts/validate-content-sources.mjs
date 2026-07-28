@@ -40,6 +40,12 @@ const unsupportedProductClaims = [
   },
   {
     pattern:
+      /(?:our\s+)?JWT Decoder[\s\S]{0,220}\b(?:verif(?:y|ies)\s+claims|checks?\s+for\s+(?:common\s+)?security\s+issues|algorithm\s+confusion)\b/i,
+    message:
+      "OpsecForge JWT Decoder must not be presented as validating claims or detecting vulnerabilities",
+  },
+  {
+    pattern:
       /(?:Environment Variable|Env|Safe-to-Share) Sanitizer[\s\S]{0,220}\b(?:guarantees?|detects?\s+all|removes?\s+all)\b/i,
     message:
       "OpsecForge sanitizer is heuristic and cannot guarantee exhaustive detection",
