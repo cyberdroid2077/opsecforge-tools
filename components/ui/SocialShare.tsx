@@ -14,7 +14,7 @@ export default function SocialShare() {
     setPageTitle(document.title);
   }, []);
 
-  const url = `https://opsecforge.com${pathname}`;
+  const url = `https://www.opsecforge.com${pathname}`;
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(pageTitle);
 

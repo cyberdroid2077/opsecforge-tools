@@ -1,6 +1,6 @@
 # OpsecForge Operations
 
-Last updated: 2026-07-24
+Last updated: 2026-07-27
 
 This file is the durable source of truth for website operations. Update it after any meaningful change to measurement, publishing, deployment, SEO, experiments, or operating risk.
 
@@ -45,15 +45,15 @@ Recorded on 2026-07-24:
 | Source | Configured | Reachable by operations | Current status |
 | --- | --- | --- | --- |
 | Vercel Web Analytics | Yes; `@vercel/analytics` is loaded globally | Snapshot only | A verified 30-day snapshot is available, but no recurring CLI/API access is available to this operator. |
-| Google Search Console | Ownership appears configured | Snapshot only | A verified performance snapshot is available, but no recurring Search Console API/client access is available. |
+| Google Search Console | Yes; domain property verified | Yes; restricted-user read-only API | Performance and URL Inspection data are available. Page-indexing issue examples and first-seen dates are not exposed by the API; the web UI currently requires Google account re-verification. |
 | Google Analytics | No evidence found | No | No GA4 measurement ID, gtag, Tag Manager, environment key, or production marker was found. |
 | Other product analytics | No evidence found | No | No PostHog, Plausible, Umami, Matomo, Fathom, Mixpanel, Segment, or Amplitude integration was found. |
-| First-party tool events | No | No | Tool use and blog-to-tool conversion are not currently measurable. |
+| First-party tool events | Yes; privacy-safe `tool_used` and `tool_result_copied` events use Vercel Analytics | Code and deployment verified; aggregate reports unavailable | Events contain only the tool slug and interaction type, never tool input. The first seven-day reporting baseline is still pending. |
 
 Minimum access needed for a measurable growth loop:
 
 1. Read-only access to the existing Vercel project Web Analytics, either through team/project membership or a scoped token that can query aggregated visits.
-2. Search Console read access to the verified OpsecForge property.
+2. No additional Search Console access is needed for performance or URL Inspection. A signed-in UI session is needed only for coverage-example lists, first-seen dates, or manual validation controls.
 3. A user decision before enabling paid-plan Vercel custom events or another product-analytics integration. Vercel custom events are not available on the Hobby plan.
 
 No secrets should be pasted into this document or chat. Grant access through the relevant provider's membership or scoped-token controls.
@@ -90,7 +90,7 @@ Active experiment: simplified task discovery and duplicate-chrome removal.
 ## Deployment and SEO observations
 
 - Vercel deploys from `main`; production verification is required after push.
-- The sitemap is generated dynamically and currently exposes 102 canonical `www` URLs.
+- The sitemap is generated dynamically and currently exposes 101 canonical `www` URLs.
 - The apex domain redirects to `www`; public machine-readable URLs should use `https://www.opsecforge.com`.
 - Vercel Analytics is live, so public claims of “no analytics” are inaccurate even though tool input remains browser-local.
 - On 2026-07-24, `robots.txt` and `llms.txt` were corrected to use the `www` host; `llms.txt` also stopped linking to the nonexistent `/tools` index and now describes analytics truthfully.
@@ -225,6 +225,17 @@ Production verification:
 - `/tools/json-formatter` remains HTTP 200 and now canonicals to `/tools/json-beautifier`; only the canonical URL appears in the sitemap.
 - Public search results still showed cached pre-change titles and fabricated snippets immediately after deployment. This is expected recrawl lag, not a production rollback; recheck at the 14-day measurement point rather than claiming immediate search-snippet correction.
 
+## Search Console duplicate-canonical audit — 2026-07-27
+
+- Search Console URL Inspection reported `Duplicate without user-selected canonical` for `https://www.opsecforge.com/` and `https://www.opsecforge.com/tools/lorem-ipsum`. Google had selected the equivalent non-`www` URLs as canonical.
+- Those results were based on crawls from 2026-07-17 and 2026-07-16 respectively, before self-referencing `www` canonicals were deployed on 2026-07-24. The API does not expose the issue's first-seen date or complete example list; the Search Console web UI requires account re-verification.
+- Current production sends apex HTTPS requests to the matching `www` URL, HTTP variants redirect to HTTPS, and trailing-slash variants redirect to the slashless URL.
+- A production sitemap audit found 101 unique URLs: all use HTTPS and `www`, none has a trailing slash, and `/tools/json-formatter` is absent. Every sitemap URL returned HTTP 200, allowed indexing, exposed exactly one H1, and had a canonical exactly matching its sitemap URL.
+- `/tools/json-formatter` remains an intentional duplicate alias with a user-declared canonical to `/tools/json-beautifier`; this is expected consolidation, not the reported no-canonical condition.
+- The audit found one live conflicting host signal: `SocialShare` generated encoded apex-domain URLs on every tool and dynamic article page. It was corrected to generate the canonical `https://www.opsecforge.com` host. No page URL, visible content, sitemap entry, or redirect target changed.
+- Expected outcome: Google should replace the stale non-`www` canonical selection after recrawling the updated pages. No traffic loss is established; Search Console performance data still contains historical impressions for both hosts, while all current site-owned canonical signals point to `www`.
+- Measurement: re-inspect the two examples after Google recrawls them and check whether `userCanonical` and `googleCanonical` converge on `www`. A manual validation request is optional, not required for the redirects and canonical tags to be processed.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
@@ -236,7 +247,7 @@ Production verification:
 
 ## Risks
 
-1. Growth cannot be measured end to end until Search Console and Vercel Analytics are readable.
+1. Search Console is readable, but end-to-end growth measurement remains incomplete until aggregate Vercel page and tool-event reports are available to operations.
 2. Tool activation is invisible because only page views are configured.
 3. The first P0 wave corrected the highest-risk pages identified in the audit, but the remaining historical article inventory still needs traffic-prioritized source review before promotion.
 4. Vercel custom events may require a paid plan; do not enable paid usage without approval.
