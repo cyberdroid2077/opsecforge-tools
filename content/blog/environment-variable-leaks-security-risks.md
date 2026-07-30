@@ -1,12 +1,12 @@
 ---
 title: "Environment Variable Leaks: How Secrets Escape and What to Do"
 date: "2026-04-03"
-updated: "2026-07-27"
-description: "Learn how environment variables leak through repositories, logs, CI jobs, containers, and support workflows—and how to contain an exposed credential."
+updated: "2026-07-29"
+description: "Exposed a .env file or environment variable? Revoke real credentials first, investigate where they escaped, remove reachable copies, and fix the leak path."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["environment-variables", "secrets-management", "credential-leaks", "devsecops", "incident-response"]
-source_reviewed: "2026-07-27"
+source_reviewed: "2026-07-29"
 primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
 ---
 
@@ -19,6 +19,18 @@ primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Manageme
 Environment variables often carry database passwords, API keys, signing secrets, and service credentials. Moving a secret out of source code is useful, but the environment is still only a delivery mechanism. The value can escape through a committed file, a build layer, a log, a diagnostic bundle, or a compromised workload.
 
 This guide focuses on leak paths, detection, and incident response. For the broader design question, start with [Are Environment Variables Secure?](/blog/environment-variable-security-secrets-management).
+
+## Exposed a `.env` file? Do these five things
+
+If an exposed `.env` file contained real credentials, treat each one as compromised:
+
+1. **Revoke or rotate the credentials first.** Removing the file or making a repository private does not make copied values unusable.
+2. **Record the scope without copying the secrets again.** Note each credential's owner, permissions, accepted environments, and exposure window.
+3. **Review provider and application audit logs.** Look for unexpected use before and after the known exposure.
+4. **Remove reachable copies after containment.** Check the current repository, history, CI logs, artifacts, tickets, screenshots, backups, and deployment configuration.
+5. **Fix the original leak path.** Add the appropriate ignore rule, scanner, log filter, build-secret mount, access restriction, or identity-based replacement.
+
+The Safe-to-Share Sanitizer can help review text before it is shared, but it is heuristic and cannot prove that a file contains no secrets. If a value has already escaped, use the issuing provider's revocation control.
 
 ## How environment variables leak
 
@@ -155,3 +167,5 @@ Confirm that the old credential no longer works, the replacement has only the pe
 - [ ] Maintain an owner and response path for every production credential.
 
 Environment variables can be reasonable configuration transport inside a controlled runtime. They are not encrypted storage, a secret manager, or a complete security boundary. Limit how far each value can travel, make it short-lived and narrowly scoped, and plan for revocation before a leak occurs.
+
+For the design decision before an incident, read [Are Environment Variables Secure?](/blog/environment-variable-security-secrets-management). For a provider-neutral credential response, use [API Key Leaks: Detection, Response, and Prevention](/blog/api-key-leaks-credential-security).

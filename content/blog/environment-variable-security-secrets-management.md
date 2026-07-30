@@ -1,12 +1,12 @@
 ---
 title: "Are Environment Variables Secure? A Practical Secrets Management Guide"
 date: "2026-04-07"
-updated: "2026-07-26"
+updated: "2026-07-29"
 description: "Environment variables keep secrets out of source code, but they are not a secret manager. Learn where they leak and how to protect .env files, CI/CD, containers, and production credentials."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["environment-variables", "secrets-management", "dotenv-security", "credential-leaks", "devops-security"]
-source_reviewed: "2026-07-26"
+source_reviewed: "2026-07-29"
 primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
 ---
 
@@ -23,6 +23,16 @@ The right question is not simply “Are environment variables secure?” It is: 
 This guide follows the [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html), [Docker build-secret guidance](https://docs.docker.com/build/building/secrets/), and [GitHub secret security documentation](https://docs.github.com/en/code-security/concepts/secret-security).
 
 If you are responding to a suspected exposure, use the companion guide: [Environment Variable Leaks: How Secrets Escape and What to Do](/blog/environment-variable-leaks-security-risks).
+
+## Environment variable security: quick answers
+
+| Question | Practical answer |
+| --- | --- |
+| Are environment variables secure? | They can be reasonable configuration transport in a controlled runtime, but they are not encrypted storage or a security boundary. |
+| Is a `.env` file secure? | A `.env` file is plaintext. Keep local variants out of version control, use non-production values for development, and restrict filesystem and backup access. |
+| Can another process read environment variables? | Not automatically. Operating-system identity and isolation matter, but privileged users, debuggers, same-user processes, platform administrators, and a compromised workload may be able to read them. |
+| Should production secrets use environment variables? | Prefer workload identity where available, otherwise a managed secret store and the safest delivery method supported by the platform. If environment injection is required, keep each credential narrow, short-lived, and out of logs. |
+| What if an environment variable leaked? | Revoke or rotate the credential first, then investigate and remove reachable copies. Follow the dedicated [environment-variable leak response guide](/blog/environment-variable-leaks-security-risks). |
 
 ## What environment variables do—and do not—protect
 
@@ -148,14 +158,13 @@ Redact at the point where data is collected, not only at the final display layer
 
 ### Suspected exposure
 
-1. Revoke or rotate the credential.
-2. Determine its permissions, lifetime, and where it was copied.
-3. Review provider and application logs for misuse.
-4. Remove the exposed value from reachable artifacts.
-5. Fix the path that leaked it and document the response.
+- [ ] Stop using the exposed value and follow the [environment-variable leak response workflow](/blog/environment-variable-leaks-security-risks).
+- [ ] Do not delay revocation while attempting to clean Git history, logs, or tickets.
 
 ## The practical rule
 
 Environment variables are configuration transport, not a complete secrets-management strategy. They can be reasonable for a small, controlled runtime when permissions, logging, rotation, and incident response are all addressed. For production systems, use the strongest mechanism your platform supports: workload identity where possible, otherwise a dedicated secret manager with short-lived, least-privilege credentials.
 
 Whatever mechanism you choose, assume a credential can eventually be exposed. Design so one leaked value expires quickly, reaches little, and can be revoked without rebuilding the entire system.
+
+For a provider-neutral response to a leaked key, use [API Key Leaks: Detection, Response, and Prevention](/blog/api-key-leaks-credential-security).
