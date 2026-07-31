@@ -1,6 +1,6 @@
 # OpsecForge Operations
 
-Last updated: 2026-07-27
+Last updated: 2026-07-31
 
 This file is the durable source of truth for website operations. Update it after any meaningful change to measurement, publishing, deployment, SEO, experiments, or operating risk.
 
@@ -218,6 +218,15 @@ Measurement and guardrails:
 - Production verification and final commit identifiers are recorded after deployment.
 
 Production verification:
+
+## Daily operating checkpoint — 2026-07-31
+
+- Search Console final data through 2026-07-29: the latest seven days produced 135 impressions, zero clicks, and average position 50.72, versus 150 impressions, zero clicks, and position 51.13 in the previous seven days. The latest 28 days produced 323 impressions, zero clicks, and position 52.84, versus 74 impressions, one click, and position 70.74 in the previous 28 days.
+- The three recently revised environment-variable and JWT guides were left unchanged to allow recrawl and ranking measurement. Their latest seven-day positions were 26.35, 35.59, and 36.86 respectively.
+- Corrected the indexed CVE-2026-35616 article after primary-source review. It now distinguishes affected FortiClient EMS server releases from endpoint agents, gives the supported 7.4.7-or-later and hotfix paths, explains the 9.1 temporal/9.8 base-score presentation, cites CISA KEV, and removes unsupported root-cause, JWT/OAuth, code, and survey claims.
+- Validation passed: content-source checks, TypeScript typecheck, all 28 Vitest tests, and the 121-page production build. Article commit `b645cf5` was pushed and verified live with one H1; the homepage and tools hub returned HTTP 200 and the sitemap remained at 101 URLs.
+- Zoho inbox status remained zero unread and three total messages. Vercel custom-event aggregates remained unavailable, so no tool-use baseline or activation claim was inferred.
+- Next measurement decision: compare the corrected search cluster after sufficient recrawl time and attempt aggregate tool-event reporting only if a supported Vercel access path becomes available.
 
 - Commit `cee264d` was pushed to `main` and served by `https://www.opsecforge.com` on 2026-07-24.
 - Production full-sitemap audit repeated the staged result: 101/101 URLs returned a title, canonical, exactly one H1, and exactly one footer; sitemap `lastmod` count was zero.
