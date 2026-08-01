@@ -228,6 +228,16 @@ Production verification:
 - Zoho inbox status remained zero unread and three total messages. Vercel custom-event aggregates remained unavailable, so no tool-use baseline or activation claim was inferred.
 - Next measurement decision: compare the corrected search cluster after sufficient recrawl time and attempt aggregate tool-event reporting only if a supported Vercel access path becomes available.
 
+## Daily operating checkpoint — 2026-08-01
+
+- Search Console final data through 2026-07-30: the latest seven days produced 99 impressions, zero clicks, and average position 50.22, versus 185 impressions, zero clicks, and position 51.14 in the previous seven days. The latest 28 days produced 320 impressions, zero clicks, and position 52.60, versus 75 impressions, one click, and position 70.99 in the previous 28 days. No click or activation lift was claimed.
+- The SQL Formatter was the leading indexed tool page in the latest seven-day data, with 14 impressions at average position 83. Search queries included `postgresql beautifier` (six impressions), `mysql beautifier` (three), and `sql beautify` (three).
+- Fixed the formatter tokenizer so `--` and `/* ... */` comment delimiters survive formatting and comments are still removed in minify mode without treating quoted markers as comments. Replaced synchronous effect-driven output state with a derived value and added three regression tests.
+- Aligned the title, H1, and description with the tool's actual Standard SQL, MySQL, and PostgreSQL formatting/minifying capability. Removed the unsupported validation claim and softened absolute third-party logging and attack assertions without weakening the local-processing boundary.
+- Validation passed: `git diff --check`, targeted ESLint, TypeScript typecheck, all 31 Vitest tests, content-source verification, and the 121-page production build. Commit `deb5943` was pushed and verified live with the new title and H1.
+- Zoho inbox status remained zero unread and three total messages. A supported aggregate Vercel reporting path is still unavailable, so the first seven-day `tool_used` / `tool_result_copied` baseline and any activation claim remain unavailable.
+- Next measurement decision: allow the SQL page to recrawl, then compare its PostgreSQL/MySQL query impressions and position at seven and fourteen days; do not make another metadata change before that evidence window.
+
 - Commit `cee264d` was pushed to `main` and served by `https://www.opsecforge.com` on 2026-07-24.
 - Production full-sitemap audit repeated the staged result: 101/101 URLs returned a title, canonical, exactly one H1, and exactly one footer; sitemap `lastmod` count was zero.
 - Production article checks confirmed the corrected titles/copy, visible source-review dates, visible primary-source links, and truthful Article `dateModified`.
