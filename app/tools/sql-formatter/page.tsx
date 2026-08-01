@@ -1,20 +1,14 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   Database, 
-  Code2, 
   Copy, 
-  Trash2, 
   Shield, 
   Check, 
   AlertTriangle,
-  FileCode,
-  Minimize2,
   Settings,
-  ChevronDown,
-  Info,
-  ArrowLeft
+  ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -22,9 +16,9 @@ import Link from 'next/link';
 // SQL PARSER & FORMATTER - CLIENT-SIDE ONLY
 // ============================================
 
-type SQLDialect = 'standard' | 'mysql' | 'postgresql';
+export type SQLDialect = 'standard' | 'mysql' | 'postgresql';
 
-interface FormatOptions {
+export interface FormatOptions {
   indentSize: number;
   uppercaseKeywords: boolean;
   commaPosition: 'after' | 'before';
@@ -57,7 +51,7 @@ const PG_KEYWORDS = new Set([
   'CURRENT', 'ROW'
 ]);
 
-class SQLFormatter {
+export class SQLFormatter {
   private options: FormatOptions;
   private dialect: SQLDialect;
 
@@ -91,7 +85,7 @@ class SQLFormatter {
       if (!inString && !inComment) {
         if (char === '-' && nextChar === '-') {
           if (current) tokens.push(current);
-          current = '';
+          current = '--';
           inComment = true;
           commentType = 'line';
           i++;
@@ -99,7 +93,7 @@ class SQLFormatter {
         }
         if (char === '/' && nextChar === '*') {
           if (current) tokens.push(current);
-          current = '';
+          current = '/*';
           inComment = true;
           commentType = 'block';
           i++;
@@ -109,11 +103,11 @@ class SQLFormatter {
 
       if (inComment) {
         if (commentType === 'line' && char === '\n') {
-          tokens.push(current.trim());
+          tokens.push(current.trimEnd());
           current = '';
           inComment = false;
         } else if (commentType === 'block' && char === '*' && nextChar === '/') {
-          current += char;
+          current += '*/';
           tokens.push(current.trim());
           current = '';
           inComment = false;
@@ -328,12 +322,10 @@ LIMIT 100;`;
 
 export default function SQLFormatterPage() {
   const [input, setInput] = useState(DEFAULT_SQL);
-  const [output, setOutput] = useState('');
   const [mode, setMode] = useState<'format' | 'minify'>('format');
   const [dialect, setDialect] = useState<SQLDialect>('standard');
   const [showOptions, setShowOptions] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [charCount, setCharCount] = useState({ input: 0, output: 0 });
   
   const [options, setOptions] = useState<FormatOptions>({
     indentSize: 2,
@@ -342,27 +334,14 @@ export default function SQLFormatterPage() {
     maxLineLength: 120
   });
 
-  const formatter = new SQLFormatter(options, dialect);
-
-  const processSQL = useCallback(() => {
+  const formatter = useMemo(() => new SQLFormatter(options, dialect), [options, dialect]);
+  const output = useMemo(() => {
     try {
-      if (mode === 'format') {
-        setOutput(formatter.format(input));
-      } else {
-        setOutput(formatter.minify(input));
-      }
-      setCharCount({
-        input: input.length,
-        output: mode === 'minify' ? formatter.minify(input).length : formatter.format(input).length
-      });
+      return mode === 'format' ? formatter.format(input) : formatter.minify(input);
     } catch (error) {
-      setOutput(`-- Error processing SQL: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return `-- Error processing SQL: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
-  }, [input, mode, options, dialect]);
-
-  useEffect(() => {
-    processSQL();
-  }, [processSQL]);
+  }, [formatter, input, mode]);
 
   const handleCopy = async () => {
     try {
@@ -392,11 +371,11 @@ export default function SQLFormatterPage() {
             <span className="text-xs font-bold tracking-wider uppercase">Secure Execution • 100% Local</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-100 mb-6 leading-tight">
-            SQL Formatter & Minifier <br/>
+            PostgreSQL & MySQL Formatter <br/>
             <span className="text-slate-400 font-medium text-3xl">Beautify Queries Without Data Exposure</span>
           </h1>
           <p className="text-slate-400 max-w-2xl text-lg mb-8 leading-relaxed">
-            Format, minify, and validate your SQL queries entirely in your browser. Supports Standard, MySQL, and PostgreSQL dialects with customizable indentation.
+            Format or minify Standard SQL, MySQL, and PostgreSQL queries entirely in your browser, with customizable indentation and keyword casing.
           </p>
         </div>
 
@@ -468,9 +447,9 @@ export default function SQLFormatterPage() {
         {/* SEO Section */}
         <section className="max-w-4xl mx-auto border-t border-slate-900 pt-24 pb-48">
             <article className="prose prose-invert prose-slate lg:prose-lg max-w-none">
-                <h2 className="text-3xl font-bold text-slate-100">SQL OpSec: Why You Should Never Format Production Queries Online</h2>
+                <h2 className="text-3xl font-bold text-slate-100">Why Local SQL Formatting Reduces Data Exposure</h2>
                 <p className="text-slate-400">
-                    Production SQL queries are rarely just abstract logic—they frequently contain sensitive data. When you paste a query into an online formatter, you&apos;re exposing internal schema, customer emails, IP addresses, and business logic to unknown third parties.
+                    Production SQL can contain internal schema names, identifiers, customer data, and business logic. A server-backed formatter may receive that query under its own retention and logging practices, so review those practices before sharing sensitive SQL.
                 </p>
 
                 <div className="grid gap-12 md:grid-cols-2 mt-12">
@@ -479,7 +458,7 @@ export default function SQLFormatterPage() {
                             <AlertTriangle className="text-rose-500" size={18} /> The PII Leakage Risk
                         </h4>
                         <p className="text-sm text-slate-400 leading-relaxed">
-                            Queries like <code>SELECT * FROM users WHERE email = &apos;...&apos;</code> expose customer PII. Online services log these inputs, creating permanent records of your sensitive data on unvetted servers.
+                            Queries like <code>SELECT * FROM users WHERE email = &apos;...&apos;</code> can contain personal data. Sending them to a third-party formatter creates an additional data-transfer and handling path.
                         </p>
                     </div>
                     <div>
@@ -487,7 +466,7 @@ export default function SQLFormatterPage() {
                             <Database className="text-amber-500" size={18} /> Reconnaissance Risk
                         </h4>
                         <p className="text-sm text-slate-400 leading-relaxed">
-                            A formatted statement reveals your table structures and relationships, providing attackers with the exact intelligence needed to plan precision SQL injection or data exfiltration attacks.
+                            Table names, joins, and filters can reveal application structure. Treat production queries as sensitive operational context even when they contain no row data.
                         </p>
                     </div>
                 </div>

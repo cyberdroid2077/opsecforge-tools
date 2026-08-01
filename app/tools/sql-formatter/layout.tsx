@@ -1,13 +1,13 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'SQL Formatter - Beautify SQL Queries',
-  description: 'Free SQL formatter that beautifies and indents SQL queries. Support for multiple SQL dialects. Runs 100% in your browser.',
+  title: 'PostgreSQL & MySQL Query Formatter',
+  description: 'Format and minify PostgreSQL, MySQL, and Standard SQL locally in your browser. Adjust indentation, keyword case, and comma placement.',
   alternates: { canonical: '/tools/sql-formatter' },
   keywords: ['SQL formatter', 'SQL beautifier', 'format SQL', 'SQL indenter', 'SQL query formatter'],
   openGraph: {
-    title: 'SQL Formatter - Beautify SQL Queries | OpsecForge',
-    description: 'Free SQL formatter. 100% browser-side.',
+    title: 'PostgreSQL & MySQL Query Formatter | OpsecForge',
+    description: 'Format and minify PostgreSQL, MySQL, and Standard SQL locally in your browser.',
   },
 };
 
