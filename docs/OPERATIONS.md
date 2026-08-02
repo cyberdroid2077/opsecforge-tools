@@ -1,6 +1,6 @@
 # OpsecForge Operations
 
-Last updated: 2026-07-31
+Last updated: 2026-08-02
 
 This file is the durable source of truth for website operations. Update it after any meaningful change to measurement, publishing, deployment, SEO, experiments, or operating risk.
 
@@ -237,6 +237,16 @@ Production verification:
 - Validation passed: `git diff --check`, targeted ESLint, TypeScript typecheck, all 31 Vitest tests, content-source verification, and the 121-page production build. Commit `deb5943` was pushed and verified live with the new title and H1.
 - Zoho inbox status remained zero unread and three total messages. A supported aggregate Vercel reporting path is still unavailable, so the first seven-day `tool_used` / `tool_result_copied` baseline and any activation claim remain unavailable.
 - Next measurement decision: allow the SQL page to recrawl, then compare its PostgreSQL/MySQL query impressions and position at seven and fourteen days; do not make another metadata change before that evidence window.
+
+## Daily operating checkpoint — 2026-08-02
+
+- Search Console final data through 2026-07-31: the latest seven days produced 73 impressions, zero clicks, and average position 52.79, versus 215 impressions, zero clicks, and position 51.76 in the previous seven days. The latest 28 days produced 331 impressions, zero clicks, and position 53.29, versus 75 impressions, one click, and position 72.11 in the previous 28 days. No click or activation lift was claimed.
+- The recently revised SQL Formatter rose to 19 impressions at position 80.42; it was left unchanged to allow recrawl. The environment-variable leak and security guides recorded 14 impressions at position 28.43 and 12 at position 32.75 respectively, so they were also left unchanged.
+- Audited the Unix Timestamp Converter after it appeared for `convert to unix timestamp`. Found a correctness defect: it guessed seconds versus milliseconds from input length, which misconverted 11-digit seconds and some negative pre-1970 values.
+- Replaced the ambiguous guess with an explicit seconds/milliseconds selector, added strict decimal and supported-date-range validation, covered ordinary, 11-digit future, negative, invalid, and out-of-range values with four regression tests, and aligned metadata with the existing bidirectional epoch/date behavior.
+- Validation passed: `git diff --check`, targeted ESLint, TypeScript typecheck, all 35 Vitest tests, content-source verification, and the 121-page production build. Commit `74882b3` was pushed and verified live with the new title, unit selector, and explanatory copy. Homepage, tools hub, and timestamp page returned HTTP 200; the sitemap remained at 101 URLs.
+- Zoho inbox status remained zero unread and three total messages. Aggregate Vercel custom-event reporting remains unavailable, so no `tool_used`, `tool_result_copied`, or activation baseline was inferred. No X action was taken because the only known credential is not a verified OpsecForge brand identity.
+- Next measurement decision: allow the SQL and timestamp pages to recrawl. At seven and fourteen days, compare their measured query impressions and positions; continue monitoring the environment-variable cluster without changing it before new evidence.
 
 - Commit `cee264d` was pushed to `main` and served by `https://www.opsecforge.com` on 2026-07-24.
 - Production full-sitemap audit repeated the staged result: 101/101 URLs returned a title, canonical, exactly one H1, and exactly one footer; sitemap `lastmod` count was zero.
