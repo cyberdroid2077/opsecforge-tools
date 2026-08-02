@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Check, Clock3, Copy, Lock, TimerReset } from 'lucide-react';
+import {
+  unixTimestampToDate,
+  type UnixTimestampUnit,
+} from '@/lib/unix-timestamp';
 
 function formatDateTimeLocal(date: Date) {
   const year = date.getFullYear();
@@ -16,6 +20,7 @@ function formatDateTimeLocal(date: Date) {
 export default function UnixTimestampTool() {
   const [now, setNow] = useState(() => Date.now());
   const [epochInput, setEpochInput] = useState('');
+  const [epochUnit, setEpochUnit] = useState<UnixTimestampUnit>('seconds');
   const [dateInput, setDateInput] = useState(() => formatDateTimeLocal(new Date()));
   const [secondsInput, setSecondsInput] = useState('0');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -32,25 +37,18 @@ export default function UnixTimestampTool() {
       return { local: '', utc: '', error: '' };
     }
 
-    const numeric = Number(epochInput.trim());
+    const result = unixTimestampToDate(epochInput, epochUnit);
 
-    if (!Number.isFinite(numeric)) {
-      return { local: '', utc: '', error: 'Enter a valid Unix timestamp in seconds or milliseconds.' };
-    }
-
-    const milliseconds = epochInput.trim().length > 10 ? numeric : numeric * 1000;
-    const parsed = new Date(milliseconds);
-
-    if (Number.isNaN(parsed.getTime())) {
-      return { local: '', utc: '', error: 'The timestamp could not be converted into a valid date.' };
+    if (!result.date) {
+      return { local: '', utc: '', error: result.error };
     }
 
     return {
-      local: parsed.toLocaleString(),
-      utc: parsed.toUTCString(),
+      local: result.date.toLocaleString(),
+      utc: result.date.toUTCString(),
       error: '',
     };
-  }, [epochInput]);
+  }, [epochInput, epochUnit]);
 
   const dateConversion = useMemo(() => {
     if (!dateInput) {
@@ -144,17 +142,34 @@ export default function UnixTimestampTool() {
                 Epoch To Date
               </div>
               <p className="text-sm leading-relaxed text-slate-400">
-                Paste seconds or milliseconds to see both local and UTC renderings.
+                Choose the input unit, then see both local and UTC renderings.
               </p>
             </div>
 
-            <input
-              type="text"
-              value={epochInput}
-              onChange={(event) => setEpochInput(event.target.value)}
-              placeholder="1710352200 or 1710352200000"
-              className="mb-6 w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-lg text-cyan-300 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
-            />
+            <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_170px]">
+              <label>
+                <span className="sr-only">Unix timestamp</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={epochInput}
+                  onChange={(event) => setEpochInput(event.target.value)}
+                  placeholder={epochUnit === 'seconds' ? '1710352200' : '1710352200000'}
+                  className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-lg text-cyan-300 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
+                />
+              </label>
+              <label>
+                <span className="sr-only">Timestamp unit</span>
+                <select
+                  value={epochUnit}
+                  onChange={(event) => setEpochUnit(event.target.value as UnixTimestampUnit)}
+                  className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-sm font-bold text-slate-200 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
+                >
+                  <option value="seconds">Seconds</option>
+                  <option value="milliseconds">Milliseconds</option>
+                </select>
+              </label>
+            </div>
 
             {epochConversion.error ? (
               <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-300">
