@@ -265,6 +265,17 @@ Production verification:
 - Expected outcome: Google should replace the stale non-`www` canonical selection after recrawling the updated pages. No traffic loss is established; Search Console performance data still contains historical impressions for both hosts, while all current site-owned canonical signals point to `www`.
 - Measurement: re-inspect the two examples after Google recrawls them and check whether `userCanonical` and `googleCanonical` converge on `www`. A manual validation request is optional, not required for the redirects and canonical tags to be processed.
 
+## Daily operating checkpoint — 2026-08-03
+
+- Search Console final data through 2026-08-01: the latest seven days produced 50 impressions, zero clicks, and average position 57.86, versus 229 impressions, zero clicks, and position 51.07 in the previous seven days. The latest 28 days produced 333 impressions, zero clicks, and position 53.26, versus 75 impressions, one click, and position 73.37 in the previous 28 days. The seven-day impression decline is real in final data; no click or activation lift was claimed.
+- Left the SQL Formatter, Unix Timestamp Converter, and environment-variable pages unchanged for their recrawl windows. SQL Formatter remained the leading tool page with 20 impressions at position 80.65; the two environment-variable guides recorded four impressions each at positions 24.00 and 30.25.
+- Audited the UUID generator and its indexed browser-generation guide after that article recorded two impressions at position 27. Found that the tool silently fell back from Web Crypto to `Math.random()` while still claiming secure local randomness; the article also misstated the UUID v4 collision space and recommended UUIDs too broadly for sessions and tokens.
+- Replaced the weak fallback with `crypto.getRandomValues()`, set the RFC 9562 version and variant bits explicitly, refuse generation when secure browser randomness is unavailable, and normalize fractional or invalid batch sizes. Added eight regression tests for the secure fallback, native path, failure path, formatting, and count bounds.
+- Rewrote the guide around the measured browser-generation intent using RFC 9562, MDN Web Crypto, and OWASP session/IDOR primary guidance. It now explains the 122-random-bit space, birthday-bound collision handling, v4/v7/integer tradeoffs, authorization limits, and why an identifier format is not a complete session or secret design.
+- Validation passed: `git diff --check`, targeted ESLint, content-source verification, TypeScript typecheck, all 43 Vitest tests, and the 121-page production build. Commit `0f5ccd1` was pushed and the new UUID tool wording, article title, and 122-bit explanation were verified on production with HTTP 200.
+- Zoho inbox remained unchanged at zero unread and three total messages. Aggregate Vercel custom-event reporting remains unavailable, so no `tool_used`, `tool_result_copied`, or activation baseline was inferred. No X action was taken because the only known credential is not a verified OpsecForge brand identity.
+- Next measurement decision: allow the UUID, SQL, and timestamp pages to recrawl. Investigate the final-data seven-day impression decline through page/index coverage trends, but do not churn recently corrected metadata before seven- and fourteen-day evidence is available.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
