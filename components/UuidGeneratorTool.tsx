@@ -3,22 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Check, Copy, Hash, Lock, RefreshCw, ShieldCheck } from 'lucide-react';
-
-function fallbackUuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
-    const random = (Math.random() * 16) | 0;
-    const value = char === 'x' ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
-}
-
-function createUuid() {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  return fallbackUuid();
-}
+import { createUuidV4, normalizeUuidCount } from '@/lib/uuid';
 
 export default function UuidGeneratorTool() {
   const [count, setCount] = useState(1);
@@ -26,26 +11,33 @@ export default function UuidGeneratorTool() {
   const [removeHyphens, setRemoveHyphens] = useState(false);
   const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState('');
 
-  const normalizedCount = useMemo(() => Math.min(100, Math.max(1, count || 1)), [count]);
+  const normalizedCount = useMemo(() => normalizeUuidCount(count), [count]);
 
   const generateUuids = () => {
-    const values = Array.from({ length: normalizedCount }, () => {
-      let uuid = createUuid();
+    try {
+      const values = Array.from({ length: normalizedCount }, () => {
+        let uuid = createUuidV4();
 
-      if (removeHyphens) {
-        uuid = uuid.replaceAll('-', '');
-      }
+        if (removeHyphens) {
+          uuid = uuid.replaceAll('-', '');
+        }
 
-      if (uppercase) {
-        uuid = uuid.toUpperCase();
-      }
+        if (uppercase) {
+          uuid = uuid.toUpperCase();
+        }
 
-      return uuid;
-    });
+        return uuid;
+      });
 
-    setOutput(values.join('\n'));
-    setCopied(false);
+      setOutput(values.join('\n'));
+      setCopied(false);
+      setError('');
+    } catch {
+      setOutput('');
+      setError('Secure browser randomness is unavailable, so no UUID was generated.');
+    }
   };
 
   const copyAll = async () => {
@@ -161,6 +153,12 @@ export default function UuidGeneratorTool() {
             spellCheck={false}
           />
 
+          {error ? (
+            <p role="alert" className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-4 text-sm text-rose-300">
+              {error}
+            </p>
+          ) : null}
+
           <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800 pt-6 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-600">
             <div className="flex items-center gap-5">
               <span className="flex items-center gap-1.5">
@@ -172,7 +170,7 @@ export default function UuidGeneratorTool() {
                 Max batch size 100
               </span>
             </div>
-            <span>Uses crypto.randomUUID() with fallback support</span>
+            <span>Uses crypto.randomUUID() or crypto.getRandomValues()</span>
           </div>
         </section>
       </div>
