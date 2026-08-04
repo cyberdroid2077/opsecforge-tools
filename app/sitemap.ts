@@ -5,7 +5,31 @@ import path from 'node:path';
 const baseUrl = 'https://www.opsecforge.com';
 const nonCanonicalToolRoutes = new Set(['/tools/json-formatter']);
 
-function listBlogRoutes() {
+type SitemapRoute = {
+  route: string;
+  lastModified?: string;
+};
+
+function readContentDate(filePath: string) {
+  const source = fs.readFileSync(filePath, 'utf8');
+  const frontmatter = source.match(/^---\s*\n([\s\S]*?)\n---/);
+
+  if (!frontmatter) {
+    return undefined;
+  }
+
+  for (const field of ['updated', 'reviewed', 'source_reviewed', 'date']) {
+    const match = frontmatter[1].match(new RegExp(`^${field}:\\s*["']?(\\d{4}-\\d{2}-\\d{2})["']?\\s*$`, 'm'));
+
+    if (match) {
+      return match[1];
+    }
+  }
+
+  return undefined;
+}
+
+function listBlogRoutes(): SitemapRoute[] {
   const blogDirectory = path.join(process.cwd(), 'content/blog');
 
   if (!fs.existsSync(blogDirectory)) {
@@ -15,10 +39,13 @@ function listBlogRoutes() {
   return fs
     .readdirSync(blogDirectory)
     .filter((fileName) => fileName.endsWith('.md'))
-    .map((fileName) => `/blog/${fileName.replace(/\.md$/, '')}`);
+    .map((fileName) => ({
+      route: `/blog/${fileName.replace(/\.md$/, '')}`,
+      lastModified: readContentDate(path.join(blogDirectory, fileName)),
+    }));
 }
 
-function listToolRoutes() {
+function listToolRoutes(): SitemapRoute[] {
   const toolsDirectory = path.join(process.cwd(), 'app/tools');
 
   if (!fs.existsSync(toolsDirectory)) {
@@ -30,7 +57,8 @@ function listToolRoutes() {
     .filter((entry) => entry.isDirectory())
     .filter((entry) => fs.existsSync(path.join(toolsDirectory, entry.name, 'page.tsx')))
     .map((entry) => `/tools/${entry.name}`)
-    .filter((route) => !nonCanonicalToolRoutes.has(route));
+    .filter((route) => !nonCanonicalToolRoutes.has(route))
+    .map((route) => ({ route }));
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -47,25 +75,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/blog',
   ];
 
-  const routes = Array.from(new Set([
-    ...staticRoutes,
+  const routes: SitemapRoute[] = [
+    ...staticRoutes.map((route) => ({ route })),
     ...listBlogRoutes(),
     ...listToolRoutes(),
-  ])).sort((left, right) => {
-    if (left === '') {
+  ].sort((left, right) => {
+    if (left.route === '') {
       return -1;
     }
 
-    if (right === '') {
+    if (right.route === '') {
       return 1;
     }
 
-    return left.localeCompare(right);
+    return left.route.localeCompare(right.route);
   });
 
-  return routes.map((route) => ({
+  return routes.map(({ route, lastModified }) => ({
     url: `${baseUrl}${route}`,
-    changeFrequency: 'weekly',
-    priority: route === '' ? 1 : route === '/tools' ? 0.95 : route.startsWith('/tools/') ? 0.9 : 0.8,
+    ...(lastModified ? { lastModified } : {}),
   }));
 }
