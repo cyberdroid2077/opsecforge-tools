@@ -1,6 +1,6 @@
 # OpsecForge Operations
 
-Last updated: 2026-08-02
+Last updated: 2026-08-05
 
 This file is the durable source of truth for website operations. Update it after any meaningful change to measurement, publishing, deployment, SEO, experiments, or operating risk.
 
@@ -288,6 +288,16 @@ Production verification:
 - The production checkout ended synchronized with `origin/main`; the pre-existing uncommitted `scripts/tts/send_mira_dm_voice.py` change was preserved and excluded from both commits.
 - Zoho inbox remained unchanged at zero unread and three total messages. Aggregate Vercel custom-event reporting remains unavailable, so no tool-use or activation claim was inferred. No X action was taken because the only known credential remains tied to a personal-looking identity rather than a verifiable OpsecForge brand account.
 - Next measurement decision: verify sitemap `lastmod` values after deployment, then monitor whether the four revised search guides receive new crawls. Prioritize source review or consolidation of the 48 discovered/unknown URLs before adding more content; do not treat sitemap inclusion alone as an indexing strategy.
+
+## Daily operating checkpoint — 2026-08-05
+
+- Search Console final data through 2026-08-03: the latest seven days produced 48 impressions, zero clicks, and average position 56.44, versus 197 impressions, zero clicks, and position 50.30 in the previous seven days. The latest 28 days produced 345 impressions, zero clicks, and position 52.42, versus 79 impressions, one click, and position 73.39 in the previous 28 days. No click or activation lift was claimed.
+- Left the recently revised SQL Formatter, Unix Timestamp Converter, UUID guide/tool, and environment-variable/JWT cluster unchanged for recrawl. SQL Formatter remained the leading tool page with 18 impressions at position 80.11; its measured queries still center on MySQL/PostgreSQL beautification.
+- Prioritized traffic-weighted source review within the historical content inventory. The hash-collision guide recorded six impressions at position 38.5 but had no sources and included unsupported cost, hardware, timing, and attack assertions. It also implied that a matching hash can establish file authenticity.
+- Replaced the article with a distinct collision-security and safe-verification guide backed by NIST, RFC 6151, SHAttered, the published SHA-1 chosen-prefix research, and the HashClash rogue-CA demonstration. It separates collision, second-preimage, and preimage resistance; explains why MD5/SHA-1 are unsuitable for security decisions; and states that a locally calculated digest must be compared with an authenticated source and does not prove publisher identity.
+- Validation passed: `git diff --check`, content-source verification, TypeScript typecheck, all 43 Vitest tests, and the 121-page production build. The unrelated pre-existing `scripts/tts/send_mira_dm_voice.py` edit remained excluded.
+- Full live-site checks continued to show 101 sitemap URLs, zero HTTP/canonical/noindex problems, and zero missing canonicals. Zoho inbox remained unchanged at zero unread and three total messages. Aggregate Vercel custom-event reports remain unavailable, so no tool-use or activation baseline was inferred.
+- Next measurement decision: verify the revised hash-collision guide after deployment and allow recrawl. Continue source-reviewing or consolidating historical discovered/unknown pages by measured demand; do not publish another overlapping hash article.
 
 ## Decisions
 
