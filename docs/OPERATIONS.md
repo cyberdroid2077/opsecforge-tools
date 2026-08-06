@@ -299,6 +299,18 @@ Production verification:
 - Full live-site checks continued to show 101 sitemap URLs, zero HTTP/canonical/noindex problems, and zero missing canonicals. Zoho inbox remained unchanged at zero unread and three total messages. Aggregate Vercel custom-event reports remain unavailable, so no tool-use or activation baseline was inferred.
 - Next measurement decision: verify the revised hash-collision guide after deployment and allow recrawl. Continue source-reviewing or consolidating historical discovered/unknown pages by measured demand; do not publish another overlapping hash article.
 
+## Daily operating checkpoint — 2026-08-06
+
+- Search Console final data through 2026-08-04: the latest seven days produced 50 impressions, zero clicks, and average position 54.52, versus 159 impressions, zero clicks, and position 50.79 in the previous seven days. The latest 28 days produced 352 impressions, zero clicks, and position 52.40, versus 77 impressions, one click, and position 73.25 in the previous 28 days. No click or activation lift was claimed.
+- Left the recently revised SQL Formatter, Unix Timestamp Converter, UUID, environment-variable, JWT, and hash-collision pages unchanged for recrawl. SQL Formatter remained the leading tool page with 16 impressions at position 80.06; measured demand remained centered on MySQL and PostgreSQL beautification.
+- Consolidated two overlapping hash-generator guides after the surviving page recorded one impression at position 37 and the companion carried no measured query demand. Replaced unsupported incident, authenticity, Git, password-hashing, and product claims with a source-reviewed guide grounded in NIST, OWASP, and Git primary documentation.
+- The surviving guide now distinguishes change detection from authenticity, recommends an authenticated expected digest or verified publisher signature, uses current Argon2id/scrypt/bcrypt guidance, and accurately states that the OpsecForge tool accepts text rather than files. The retired article permanently redirects to the surviving guide.
+- Corrected Hash Generator metadata that advertised unavailable SHA-512 output and narrowed bcrypt language to learning and testing rather than a production credential workflow. Updated the UI warning so MD5 and SHA-1 are not presented as suitable for authenticity decisions.
+- Fixed the content-source gate after the planned article deletion exposed an `ENOENT` build failure. Default changed-file discovery now ignores deleted Markdown paths while an explicitly supplied missing path still fails with a clear error. The default pass and explicit missing-file negative case were both verified.
+- Validation passed: `git diff --check`, content-source verification, the missing-file negative case, TypeScript typecheck, all 43 Vitest tests, and the 120-page production build. Commit `c39f679` was pushed. Production returned HTTP 200 for the consolidated guide and tool, HTTP 308 for the retired URL, and a 100-URL sitemap containing only the surviving hash guide.
+- Zoho inbox remained unchanged at zero unread and three total messages. Aggregate Vercel custom-event reports remain unavailable, so no tool-use or activation baseline was inferred. No X action was taken because the only known credential is not a verifiable OpsecForge brand identity.
+- Next measurement decision: allow the consolidated hash guide and corrected hash-collision page to recrawl, then compare their query coverage and positions at seven and fourteen days. Continue traffic-weighted consolidation or source review among discovered/unknown historical pages; do not add another overlapping hash article.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
