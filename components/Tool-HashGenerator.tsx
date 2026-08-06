@@ -113,7 +113,7 @@ export default function SecureHashGenerator() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Secure Hash Generator</h1>
         <p className="text-gray-600 dark:text-gray-400 text-sm">
-          Generate cryptographic hashes 100% locally in your browser. Your data never leaves your device.
+          Generate SHA-256 and legacy text digests locally in your browser, plus bcrypt output for learning and testing.
         </p>
       </div>
 
@@ -134,7 +134,7 @@ export default function SecureHashGenerator() {
           <div className="mt-8 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
             <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-3">Bcrypt Generator</h3>
             <p className="text-xs text-blue-700 dark:text-blue-400 mb-4">
-              Bcrypt is computationally expensive by design. It is generated on-demand rather than as-you-type.
+              Bcrypt is computationally expensive by design. This browser output is for learning and testing; use your application's password-hashing library for production credentials.
             </p>
             
             <div className="flex items-center gap-4 mb-4">
@@ -173,7 +173,7 @@ export default function SecureHashGenerator() {
           <HashOutput label="MD5" value={hashes.md5} type="md5" />
           
           <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-3 rounded-md">
-            <p><strong>Note on MD5/SHA-1:</strong> These algorithms are considered cryptographically broken and should only be used for backward compatibility or checksum validation, not for secure password hashing.</p>
+            <p><strong>Note on MD5/SHA-1:</strong> These algorithms have practical collision weaknesses. Use them only when a legacy format requires them, never for authenticity decisions or password storage.</p>
           </div>
         </div>
       </div>

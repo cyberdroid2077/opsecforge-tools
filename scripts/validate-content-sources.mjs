@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const BLOG_PREFIX = "content/blog/";
 const CVE_PATTERN = /\bCVE-\d{4}-\d{4,}\b/gi;
@@ -27,7 +27,9 @@ function changedBlogFiles() {
 }
 
 const explicitFiles = process.argv.slice(2);
-const files = explicitFiles.length > 0 ? explicitFiles : changedBlogFiles();
+const files = explicitFiles.length > 0
+  ? explicitFiles
+  : changedBlogFiles().filter((file) => existsSync(file));
 const failures = [];
 const highRiskClaimPattern =
   /(?:\$\s?\d[\d,.]*|\b\d+(?:\.\d+)?%\b|\b\d[\d,.]*\s+(?:million|billion)\b|\b(?:study|survey|research|report)\s+(?:found|shows?|reveals?|reports?)\b|\b(?:breach|incident)\b.{0,100}\b(?:cost|fine|records?|customers?|users?|sessions?)\b)/i;
@@ -53,6 +55,11 @@ const unsupportedProductClaims = [
 ];
 
 for (const file of files) {
+  if (!existsSync(file)) {
+    failures.push(`${file}: file does not exist`);
+    continue;
+  }
+
   const content = readFileSync(file, "utf8");
   const cves = [...new Set((content.match(CVE_PATTERN) ?? []).map((id) => id.toUpperCase()))];
 

@@ -29,6 +29,11 @@ const nextConfig = {
         source: '/blog/base64-vs-base64url-a-developer-s-guide-to-secure-encoding',
         destination: '/blog/base64-vs-base64url',
         permanent: true,
+      },
+      {
+        source: '/blog/how-to-generate-cryptographic-hashes-offline',
+        destination: '/blog/hash-generator-tools-data-integrity-security',
+        permanent: true,
       }
     ];
   },
