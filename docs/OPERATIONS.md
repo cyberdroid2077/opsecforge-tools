@@ -311,6 +311,16 @@ Production verification:
 - Zoho inbox remained unchanged at zero unread and three total messages. Aggregate Vercel custom-event reports remain unavailable, so no tool-use or activation baseline was inferred. No X action was taken because the only known credential is not a verifiable OpsecForge brand identity.
 - Next measurement decision: allow the consolidated hash guide and corrected hash-collision page to recrawl, then compare their query coverage and positions at seven and fourteen days. Continue traffic-weighted consolidation or source review among discovered/unknown historical pages; do not add another overlapping hash article.
 
+## Daily operating checkpoint — 2026-08-08
+
+- Search Console final data through 2026-08-06: the latest seven days produced 50 impressions, zero clicks, and average position 53.38, versus 106 impressions, zero clicks, and position 51.46 in the previous seven days. The latest 28 days produced 361 impressions, zero clicks, and position 52.68, versus 80 impressions, one click, and position 70.79 in the previous 28 days. No click or activation lift was claimed.
+- SQL Formatter remained the leading measured tool page with 17 impressions at position 81.71. Its measured queries remained centered on `mysql beautifier` (six impressions), `postgresql beautifier` (five), and `sql beautify` (four). It was left unchanged during its recrawl window.
+- Replaced the existing BOLA article at its original URL after source review found fabricated or unsupported 87%, 113%, $4.7 million, 240,000-customer, incident-timing, and absolute security claims. The corrected guide is grounded in OWASP API1:2023, the OWASP Authorization Cheat Sheet, and the OWASP GraphQL Cheat Sheet.
+- The revised guide distinguishes authentication from object-level authorization; explains why UUIDs, gateways, and client-side filtering are insufficient; includes a bounded server-side example; and adds a negative authorization-test matrix. The JWT tool callout now states that decoding is not signature validation or authorization testing.
+- Validation passed: `git diff --check`, content-source verification, TypeScript typecheck, all 43 Vitest tests, and the 120-page production build. Commit `6370dd9` was pushed to `main`; production returned HTTP 200 with the new title, exactly one H1, the matching self-canonical, all three OWASP source links, and one sitemap entry. The unsupported metrics were absent from the live response.
+- The pre-existing uncommitted `scripts/tts/send_mira_dm_voice.py` change was preserved and excluded. Zoho inbox remained at three total messages and zero unread. Aggregate Vercel custom-event reporting remains unavailable, so no tool-use or activation claim was inferred. No X action was taken because no verified OpsecForge brand identity was available.
+- Next measurement decision: leave the BOLA page unchanged for recrawl and compare its impressions, queries, CTR, and position at seven and fourteen days. Continue source review by measured search demand rather than adding new overlapping content.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
