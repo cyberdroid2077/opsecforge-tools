@@ -321,6 +321,16 @@ Production verification:
 - The pre-existing uncommitted `scripts/tts/send_mira_dm_voice.py` change was preserved and excluded. Zoho inbox remained at three total messages and zero unread. Aggregate Vercel custom-event reporting remains unavailable, so no tool-use or activation claim was inferred. No X action was taken because no verified OpsecForge brand identity was available.
 - Next measurement decision: leave the BOLA page unchanged for recrawl and compare its impressions, queries, CTR, and position at seven and fourteen days. Continue source review by measured search demand rather than adding new overlapping content.
 
+## Daily operating checkpoint — 2026-08-09
+
+- Search Console final data through 2026-08-07: the latest seven days produced 51 impressions, one click, 1.96% CTR, and average position 48.47, versus 73 impressions, zero clicks, and position 52.79 in the previous seven days. The latest 28 days produced 364 impressions, one click, 0.27% CTR, and position 52.19, versus 82 impressions, one click, 1.22% CTR, and position 70.91. This is the first observed click in the current seven-day window, not yet evidence of a stable trend.
+- The click landed on the existing API JSON response-security article, which recorded three impressions at average position 21.67. SQL Formatter remained the leading tool page with 14 impressions at position 76; its measured queries remained `mysql beautifier`, `postgresql beautifier`, and `sql beautify`. Recently revised SQL, JWT, UUID, hash, and BOLA pages were left unchanged for recrawl.
+- Preserved the clicked article's URL, title, H1, and search intent while tightening its technical guidance. Distinguished response over-exposure from request-side mass assignment, bounded ORM behavior by framework configuration, required caller-specific property authorization, clarified that closed schemas help only when enforced, and stopped presenting response-size limits as authorization controls.
+- Replaced absolute prevention and elimination language with risk-bounded guidance, added an explicit warning against logging sensitive response bodies, and linked the article to OWASP API3:2023 and the OWASP Authorization Cheat Sheet. No new article or overlapping keyword page was added.
+- Validation passed: `git diff --check`, content-source verification, TypeScript typecheck, all 43 Vitest tests, and the 120-page production build. Commit `9257b39` was pushed to `main`; production returned HTTP 200 with exactly one H1, the matching self-canonical, both OWASP sources, the revised principle, and exactly one sitemap entry.
+- The pre-existing uncommitted `scripts/tts/send_mira_dm_voice.py` change remained preserved and excluded. Zoho inbox remained at three total messages and zero unread. Aggregate Vercel custom-event reporting remains unavailable, so no tool-use or activation claim was inferred. No X action was taken because no verified OpsecForge brand identity was available.
+- Next measurement decision: preserve the clicked JSON response article during recrawl and compare its impressions, clicks, CTR, and position at seven and fourteen days. Continue source review by measured demand without changing recently revised pages prematurely.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
