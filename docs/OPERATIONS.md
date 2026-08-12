@@ -353,6 +353,16 @@ Production verification:
 - The pre-existing uncommitted `scripts/tts/send_mira_dm_voice.py` change remained preserved and excluded. Zoho inbox remained at three total messages and zero unread. Aggregate Vercel custom-event reporting remains unavailable, so no activation claim was inferred. No X action was taken because no verified OpsecForge brand identity was available.
 - Next measurement decision: leave the request-smuggling, OAuth CI/CD, and clicked JSON response pages unchanged for recrawl. Compare their impressions, queries, CTR, and positions at seven and fourteen days; continue traffic-weighted source review of newly visible historical pages without publishing overlapping content.
 
+## Daily operating checkpoint — 2026-08-12
+
+- Search Console final data through 2026-08-10: the latest seven days produced 68 impressions, one click, 1.47% CTR, and average position 46.65, versus 48 impressions, zero clicks, and position 56.44 in the previous seven days. The latest 28 days produced 397 impressions, one click, 0.25% CTR, and position 50.85, versus 76 impressions, one click, 1.32% CTR, and position 70.29. The small sample and single click do not establish a stable growth trend.
+- The API JSON response-security article retained the click on two impressions at position 25.5 and was left unchanged. SQL Formatter remained the leading measured tool page with 17 impressions at position 76, driven by `mysql beautifier`, `postgresql beautifier`, and `sql beautify`; it was also left unchanged during recrawl.
+- Prioritized the existing CVE-2026-33143 OneUptime webhook article after it appeared on two impressions at average position 6.5. Primary-source review confirmed the missing WhatsApp webhook HMAC check and the 10.0.34 fix, but found that the article mislabeled the GitHub High advisory as Critical and presented unsupported 15-platform, 35-advisory, and 60% statistics as established facts.
+- Preserved the article URL and webhook-verification intent while replacing it with a source-reviewed guide grounded in the OneUptime advisory, NVD, and official GitHub and Stripe webhook documentation. The revised page distinguishes schema validation, signature verification, authorization, and replay controls; requires exact raw-body verification; and explains why provider protocols, timestamps, and delivery identifiers are not interchangeable.
+- Removed the unsafe universal parser examples, generic five-minute replay rule, wrong-length `timingSafeEqual` failure path, absolute vulnerability claims, and unsupported data grid. Added a bounded negative-test matrix, provider-specific operational checklist, and an accurately scoped browser-local Webhook Signature Verifier CTA.
+- Zoho inbox remained at three total messages and zero unread. Aggregate Vercel custom-event reporting remains unavailable, so no activation claim was inferred. No X action was taken because no verified OpsecForge brand identity was available.
+- Next measurement decision: leave the revised webhook CVE, request-smuggling, OAuth CI/CD, and clicked JSON response pages unchanged for recrawl. Compare their impressions, queries, CTR, and positions at seven and fourteen days; continue traffic-weighted source review without adding overlapping content.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
