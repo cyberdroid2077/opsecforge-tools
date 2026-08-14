@@ -76,10 +76,10 @@ export default function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       aria-pressed={theme === "dark"}
-      className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/80 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-300 transition-all hover:border-emerald-500/40 hover:text-emerald-400"
+      className="inline-flex items-center gap-0 rounded-lg border border-slate-700 bg-slate-900/80 px-2.5 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-300 transition-all hover:border-emerald-500/40 hover:text-emerald-400 sm:gap-2 sm:rounded-xl sm:px-3"
     >
       {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-      <span>{theme}</span>
+      <span className="hidden sm:inline">{theme}</span>
     </button>
   );
 }

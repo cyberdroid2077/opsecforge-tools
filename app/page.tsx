@@ -1,36 +1,45 @@
 import {
   ArrowRight,
-  Blocks,
-  Bug,
-  FileCode,
   Fingerprint,
-  KeyRound,
   ShieldCheck,
   UploadCloud,
   Webhook,
 } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { primaryToolHrefs, primaryTools, toolGroups } from '@/lib/tool-catalog';
+import { primaryToolHrefs, primaryTools, toolGroups } from '../lib/tool-catalog';
+import styles from './home.module.css';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
 
-const primaryIcons = {
-  '/tools/env-sanitizer': FileCode,
-  '/tools/webhook-debugger': Webhook,
-  '/tools/sha256-hash': Fingerprint,
-  '/tools/base64-converter': UploadCloud,
-};
-
-const groupIcons = {
-  'encoding-formatting': Blocks,
-  'credentials-security': KeyRound,
-  'debugging-validation': Bug,
-};
-
+const [sanitizerTool, webhookTool, hashTool, base64Tool] = primaryTools;
 const primaryHrefSet = new Set<string>(primaryToolHrefs);
+
+const featuredTools = [
+  {
+    tool: webhookTool,
+    label: 'Debugging & validation',
+    action: 'Open verifier',
+    Icon: Webhook,
+    variant: styles.workflowWide,
+  },
+  {
+    tool: hashTool,
+    label: 'Credentials & security',
+    action: 'Generate a hash',
+    Icon: Fingerprint,
+    variant: styles.workflowDark,
+  },
+  {
+    tool: base64Tool,
+    label: 'Encoding & formatting',
+    action: 'Open converter',
+    Icon: UploadCloud,
+    variant: styles.workflowBright,
+  },
+];
 
 const featuredArticles = [
   {
@@ -59,107 +68,146 @@ const featuredArticles = [
   },
 ];
 
+const websiteStructuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      name: 'OpsecForge',
+      url: 'https://www.opsecforge.com/',
+      description: 'Browser-local developer utilities for formatting, inspection, and verification.',
+    },
+    {
+      '@type': 'ItemList',
+      name: 'Primary OpsecForge tools',
+      itemListElement: primaryTools.map((tool, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: tool.name,
+        url: `https://www.opsecforge.com${tool.href}`,
+      })),
+    },
+  ],
+};
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-12 text-slate-300 selection:bg-emerald-500/30 lg:px-24 lg:py-20">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-14 max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-slate-300">
-            <ShieldCheck aria-hidden="true" size={14} className="text-emerald-400" />
-            <span className="text-xs font-bold uppercase tracking-wider">Browser-local developer tools</span>
-          </div>
-          <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-6xl">
-            Your sensitive inputs stay in your browser.
-          </h1>
-          <p className="text-lg leading-8 text-slate-400">
-            Format, inspect, and verify without sending tool inputs to a processing backend.
-          </p>
-        </header>
-
-        <section aria-labelledby="primary-tasks" className="mb-16">
-          <div className="mb-7 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">
-                Start with a task
-              </p>
-              <h2 id="primary-tasks" className="text-3xl font-bold text-slate-100">
-                Security workflows
-              </h2>
+    <main className={styles.page}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }}
+      />
+      <div aria-hidden="true" className={styles.gridBackdrop} />
+      <div className={styles.pageShell}>
+        <section className={styles.hero} aria-labelledby="home-title">
+          <div className={styles.heroCopy}>
+            <p className={styles.eyebrow}>
+              <span className={styles.liveDot} aria-hidden="true" />
+              Browser-local developer tools
+            </p>
+            <h1 id="home-title">Developer tools. No uploads.</h1>
+            <p className={styles.heroSubtitle}>
+              Format, inspect, and verify sensitive data directly in your browser.
+            </p>
+            <div className={styles.heroActions}>
+              <Link className={styles.primaryButton} href={sanitizerTool.href}>
+                Open Safe-to-Share Sanitizer <ArrowRight aria-hidden="true" size={17} />
+              </Link>
+              <Link className={styles.secondaryButton} href="/tools">
+                Browse all 21 tools
+              </Link>
             </div>
-            <Link
-              href="/tools"
-              className="inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm font-bold text-emerald-300 transition-colors hover:bg-emerald-500/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-            >
-              Browse all 21 tools <ArrowRight aria-hidden="true" size={16} />
-            </Link>
+            <ul className={styles.trustRow} aria-label="Tool privacy boundaries">
+              <li><span aria-hidden="true">✓</span> Runs in your browser</li>
+              <li><span aria-hidden="true">✓</span> No tool-input processing backend</li>
+              <li><span aria-hidden="true">◇</span> Review every result</li>
+            </ul>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            {primaryTools.map((tool) => {
-              const Icon = primaryIcons[tool.href as keyof typeof primaryIcons];
+          <section className={styles.sanitizerCard} aria-labelledby="sanitizer-title">
+            <div aria-hidden="true" className={styles.scanLine} />
+            <div className={styles.sanitizerHeader}>
+              <div>
+                <p className={styles.cardKicker}>Start here · Credential hygiene</p>
+                <h2 id="sanitizer-title">{sanitizerTool.name}</h2>
+              </div>
+              <ShieldCheck aria-hidden="true" className={styles.sanitizerIcon} size={27} />
+            </div>
+            <p className={styles.sanitizerDescription}>{sanitizerTool.description}</p>
+            <div className={styles.terminalPreview} aria-label="Synthetic sanitizer result preview">
+              <div className={styles.terminalBar} aria-hidden="true">
+                <span /><span /><span /><code>config.env</code>
+              </div>
+              <div className={styles.terminalLines} aria-hidden="true">
+                <p><b>API_URL</b><i>=</i>https://api.example.dev</p>
+                <p><b>API_KEY</b><i>=</i><mark>••••••••••••••••</mark></p>
+                <p><b>PUBLIC_KEY_ID</b><i>=</i>pk_synthetic</p>
+              </div>
+              <div className={styles.terminalStatus}>
+                <span>2 likely secrets masked</span><span>Review required</span>
+              </div>
+            </div>
+          </section>
+        </section>
 
-              return (
-                <Link
-                  key={tool.href}
-                  href={tool.href}
-                  className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-6 transition-colors hover:border-emerald-500/40 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-                >
-                  <div className="mb-4 flex items-center gap-3">
-                    <span className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5">
-                      <Icon aria-hidden="true" className="text-emerald-400" size={22} />
-                    </span>
-                    <h3 className="text-xl font-bold text-slate-100 group-hover:text-emerald-300">
-                      {tool.name}
-                    </h3>
+        <section className={styles.workflowSection} aria-labelledby="focused-workflows">
+          <div className={styles.sectionHeading}>
+            <div>
+              <p className={styles.sectionIndex}>{'// 01 — Focused workflows'}</p>
+              <h2 id="focused-workflows">One clear task at a time.</h2>
+            </div>
+            <p>Use a purpose-built local workflow, then move on. No account or upload step.</p>
+          </div>
+
+          <div className={styles.workflowGrid}>
+            {featuredTools.map(({ tool, label, action, Icon, variant }, index) => (
+              <Link className={`${styles.workflowCard} ${variant}`} href={tool.href} key={tool.href}>
+                <Icon aria-hidden="true" className={styles.workflowIcon} size={index === 0 ? 43 : 35} />
+                <div className={styles.workflowCopy}>
+                  <p className={styles.cardKicker}>{label}</p>
+                  <h3>{tool.name}</h3>
+                  <p>{tool.description}</p>
+                </div>
+                <span className={styles.cardLink}>{action} <ArrowRight aria-hidden="true" size={15} /></span>
+                {index === 0 && (
+                  <div className={styles.signatureArt} aria-hidden="true">
+                    <span>sha256=</span><b>9c2e••••a71f</b><i>match</i>
                   </div>
-                  <p className="leading-7 text-slate-400">{tool.description}</p>
-                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-emerald-400">
-                    Open tool <ArrowRight aria-hidden="true" size={15} />
-                  </span>
-                </Link>
-              );
-            })}
+                )}
+                {index > 0 && <span className={styles.workflowNumber} aria-hidden="true">{index === 1 ? '#' : '64'}</span>}
+              </Link>
+            ))}
           </div>
         </section>
 
-        <section aria-labelledby="more-tools" className="border-t border-slate-800 pt-14">
-          <div className="mb-9 max-w-3xl">
-            <h2 id="more-tools" className="text-3xl font-bold text-slate-100">
-              More tools by purpose
-            </h2>
-            <p className="mt-3 leading-7 text-slate-400">
-              Choose a category for the rest of the toolkit, or use the complete tools center for
-              descriptions and related guides.
-            </p>
+        <section className={styles.toolsSection} aria-labelledby="more-tools">
+          <div className={`${styles.sectionHeading} ${styles.compactHeading}`}>
+            <div>
+              <p className={styles.sectionIndex}>{'// 02 — Full toolkit'}</p>
+              <h2 id="more-tools">More tools by purpose.</h2>
+            </div>
+            <Link className={styles.textLink} href="/tools">
+              View complete tools center <ArrowRight aria-hidden="true" size={15} />
+            </Link>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            {toolGroups.map((group) => {
-              const Icon = groupIcons[group.id];
+          <div className={styles.toolDirectory}>
+            {toolGroups.map((group, index) => {
               const remainingTools = group.tools.filter((tool) => !primaryHrefSet.has(tool.href));
 
               return (
-                <section
-                  key={group.id}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6"
-                  aria-labelledby={`home-${group.id}`}
-                >
-                  <div className="mb-5 flex items-center gap-3">
-                    <Icon aria-hidden="true" className="text-emerald-400" size={21} />
-                    <h3 id={`home-${group.id}`} className="text-xl font-bold text-slate-100">
-                      {group.name}
-                    </h3>
+                <section className={styles.directoryColumn} key={group.id} aria-labelledby={`home-${group.id}`}>
+                  <div className={styles.directoryHeading}>
+                    <span aria-hidden="true">0{index + 1}</span>
+                    <div>
+                      <h3 id={`home-${group.id}`}>{group.name}</h3>
+                      <p>{group.description}</p>
+                    </div>
                   </div>
-                  <ul className="space-y-2">
+                  <ul>
                     {remainingTools.map((tool) => (
                       <li key={tool.href}>
-                        <Link
-                          href={tool.href}
-                          className="flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-emerald-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-                        >
-                          {tool.name}
-                          <ArrowRight aria-hidden="true" className="shrink-0" size={14} />
-                        </Link>
+                        <Link href={tool.href}>{tool.name}<ArrowRight aria-hidden="true" size={14} /></Link>
                       </li>
                     ))}
                   </ul>
@@ -169,32 +217,23 @@ export default function Home() {
           </div>
         </section>
 
-        <section aria-labelledby="guides" className="mt-20 border-t border-slate-800 pt-14">
-          <div className="mb-8 flex items-end justify-between gap-4">
-            <h2 id="guides" className="text-3xl font-bold text-slate-100">
-              Practical security guides
-            </h2>
-            <Link
-              href="/blog"
-              className="hidden items-center gap-2 text-sm font-bold text-emerald-400 sm:inline-flex"
-            >
+        <section className={styles.guidesSection} aria-labelledby="security-guides">
+          <div className={`${styles.sectionHeading} ${styles.compactHeading}`}>
+            <div>
+              <p className={styles.sectionIndex}>{'// 03 — Practical guides'}</p>
+              <h2 id="security-guides">Security decisions, explained.</h2>
+            </div>
+            <Link className={styles.textLink} href="/blog">
               View all articles <ArrowRight aria-hidden="true" size={15} />
             </Link>
           </div>
-          <div className="grid gap-5 md:grid-cols-2">
-            {featuredArticles.map((article) => (
-              <Link
-                key={article.href}
-                href={article.href}
-                className="group rounded-2xl border border-slate-800 bg-slate-900/40 p-6 transition-colors hover:border-emerald-500/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-              >
-                <p className="mb-3 text-xs font-bold uppercase tracking-widest text-emerald-400">
-                  {article.label}
-                </p>
-                <h3 className="text-xl font-bold text-slate-100 group-hover:text-emerald-300">
-                  {article.title}
-                </h3>
-                <p className="mt-3 leading-7 text-slate-400">{article.description}</p>
+          <div className={styles.guidesGrid}>
+            {featuredArticles.map((article, index) => (
+              <Link className={styles.guideCard} href={article.href} key={article.href}>
+                <div className={styles.guideMeta}><span>0{index + 1}</span><span>{article.label}</span></div>
+                <h3>{article.title}</h3>
+                <p>{article.description}</p>
+                <ArrowRight aria-hidden="true" className={styles.guideArrow} size={17} />
               </Link>
             ))}
           </div>

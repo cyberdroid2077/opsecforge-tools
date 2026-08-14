@@ -15,7 +15,7 @@ export default function Navbar() {
       aria-label="Primary navigation"
       className="fixed inset-x-0 top-0 z-40 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md"
     >
-      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-2 px-4 sm:gap-4">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-1.5 px-3 sm:gap-4 sm:px-4">
         <Link
           href="/"
           aria-label="OpSecForge home"
@@ -31,25 +31,25 @@ export default function Navbar() {
           <Link
             href="/tools"
             aria-current={isToolsRoute ? 'page' : undefined}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:px-3 ${
+            className={`inline-flex items-center gap-0 rounded-lg px-2 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:gap-1.5 sm:px-3 ${
               isToolsRoute
                 ? 'bg-slate-800 text-emerald-400'
                 : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100'
             }`}
           >
-            <Wrench aria-hidden="true" size={16} />
+            <Wrench aria-hidden="true" className="hidden sm:block" size={16} />
             Tools
           </Link>
           <Link
             href="/blog"
             aria-current={isBlogRoute ? 'page' : undefined}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:px-3 ${
+            className={`inline-flex items-center gap-0 rounded-lg px-2 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 sm:gap-1.5 sm:px-3 ${
               isBlogRoute
                 ? 'bg-slate-800 text-emerald-400'
                 : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100'
             }`}
           >
-            <BookOpen aria-hidden="true" size={16} />
+            <BookOpen aria-hidden="true" className="hidden sm:block" size={16} />
             Blog
           </Link>
           <ThemeToggle />
