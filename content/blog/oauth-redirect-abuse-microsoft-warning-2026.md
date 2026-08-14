@@ -1,297 +1,136 @@
 ---
-title: "OAuth Redirect Abuse: How Attackers Weaponize Legitimate Login Flows to Bypass Security"
+title: "OAuth Redirect Abuse: Detection and Defensive Controls"
 date: "2026-03-27"
-description: "Microsoft warns that hackers are abusing legitimate OAuth error flows to bypass phishing protections. Learn how these attacks work and how to defend your APIs."
+updated: "2026-08-14"
+source_reviewed: "2026-08-14"
+primary_source: "https://www.microsoft.com/en-us/security/blog/2026/03/02/oauth-redirection-abuse-enables-phishing-malware-delivery/"
+description: "How OAuth error redirects can carry users from trusted identity-provider URLs to phishing or malware pages, with role-specific detection and mitigation guidance."
 category: "API Security"
-tags: ["OAuth", "API Security", "Phishing", "Authentication", "Microsoft Entra ID"]
+tags: ["OAuth", "Phishing", "Authentication", "Microsoft Entra ID", "Identity Security"]
 ---
 
-<h1 class="text-3xl font-bold text-slate-100 mb-6">OAuth Redirect Abuse: How Attackers Weaponize Legitimate Login Flows to Bypass Security</h1>
+OAuth redirect abuse uses a legitimate authorization endpoint as the first hop to an attacker-controlled destination. The trusted identity-provider hostname does not make the final destination trustworthy. Defenders should inspect the complete redirect chain, govern application consent, and correlate email, identity, browser, and endpoint signals instead of classifying a link from its first domain alone.
 
-<div class="my-6 inline-flex items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-medium text-rose-400">
-  <span class="relative flex h-2 w-2">
-    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
-    <span class="relative inline-flex h-2 w-2 rounded-full bg-rose-500"></span>
-  </span>
-  Active Threat: Microsoft Confirms Government-Targeted Campaigns
-</div>
+Microsoft documented active campaigns in March 2026 that targeted government and public-sector organizations. The observed links used silent authorization requests and intentionally invalid scopes. When the request failed, the identity provider returned an OAuth error to the redirect URI registered for the attacker's application. The failed flow did not give the attacker an access token; the redirect enabled phishing, malware delivery, and limited session-state probing.
 
-Microsoft Defender researchers issued a stark warning in early March 2026: threat actors have figured out how to abuse legitimate OAuth redirection mechanisms to bypass phishing protections in email clients and browsers. The attacks specifically target government and public-sector organizations, leveraging a "feature" in OAuth 2.0 that behaves exactly as the standard specifies—just not how anyone intended it to be weaponized.
+This is abuse of by-design behavior, not evidence that every OAuth redirect or `prompt=none` request is malicious.
 
-This isn't a vulnerability that needs patching. It's a protocol behavior that needs rethinking.
+## What happens in the observed attack
 
-## <span class="flex items-center gap-2 text-slate-100"><svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> The Attack: When Error Handling Becomes Exploitation</span>
+The sequence Microsoft reported was:
 
-OAuth 2.0 includes a legitimate feature that allows identity providers to redirect users to specific landing pages under certain conditions—typically in error scenarios. Attackers have realized they can weaponize this by crafting malicious URLs with popular identity providers like Microsoft Entra ID and Google Workspace.
+1. An attacker registered an OAuth application under an account or tenant they controlled.
+2. The application used an attacker-controlled redirect URI.
+3. A phishing lure linked to a legitimate authorization endpoint with parameters intended to make silent authorization fail.
+4. The authorization server sent the OAuth error response to the application's registered redirect URI.
+5. The attacker-controlled page continued the social-engineering or malware-delivery chain.
 
-Here's the flow:
+Some campaigns placed an encoded target email in `state`, allowing the landing page to prefill an address. Microsoft also observed redirects to attacker-in-the-middle phishing frameworks and, in one campaign, ZIP archives containing shortcut and HTML-smuggling components.
 
-1. **Attacker creates a malicious OAuth app** in a tenant they control
-2. **They configure a redirect URI** pointing to attacker-controlled infrastructure
-3. **They craft URLs with invalid parameters** (`scope`, `prompt=none`) that trigger authentication errors
-4. **The identity provider redirects to the attacker's URL**—exactly as OAuth specifies
-5. **Victim lands on a phishing page** or malware delivery site, often with their email pre-populated for authenticity
+The important boundary is that the authorization server did not accept an arbitrary redirect destination supplied without an application relationship. The attacker first controlled an OAuth application and its registered redirect URI. Exact redirect matching remains important, but it does not by itself stop a malicious developer from registering a destination they already control.
 
-Microsoft observed victims being redirected to EvilProxy frameworks that intercept session cookies to bypass MFA, or to `/download` endpoints that automatically deliver ZIP files containing malicious LNK shortcuts and HTML smuggling tools.
+## Why a trusted login hostname is not enough
 
-<div class="my-6 rounded-xl border-l-4 border-amber-500 bg-amber-950/30 p-5">
-  <h4 class="mb-2 flex items-center gap-2 font-semibold text-amber-400">
-    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-    The State Parameter Trick
-  </h4>
-  <p class="text-slate-300">Attackers pass the target's email address through the <code class="rounded bg-slate-800 px-1.5 py-0.5 text-amber-300">state</code> parameter using various encoding techniques. This auto-populates the email field on phishing pages, dramatically increasing perceived legitimacy. Users see their own email already filled in and assume the site is authentic.</p>
-</div>
+The first visible host may be `login.microsoftonline.com` or another legitimate provider. That establishes where the authorization request begins, not where the browser will finish after success or failure.
 
-## <span class="flex items-center gap-2 text-slate-100"><svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Why Traditional Defenses Fail</span>
+Likewise, the following signals are not conclusive on their own:
 
-The insidious part of OAuth redirect abuse is that every component appears legitimate:
+- `prompt=none` is a defined way to request an authorization result without interactive UI. Legitimate applications use it, although Microsoft observed attackers using it to force a silent error path.
+- A broad scope can be excessive, but a scope name is meaningful only in the context of the authorization server and application.
+- A missing `state` can expose an OAuth client to request-forgery or response-injection risks, but inspecting a third party's link cannot prove how that client correlates requests.
+- A `state` value may be opaque application state. Microsoft observed encoded email addresses in the campaigns, but encoding alone is not a reliable maliciousness test.
 
-- The URL domain is `login.microsoftonline.com` or `accounts.google.com`
-- The SSL certificate is valid
-- The OAuth application is properly registered (just malicious)
-- The redirect is standard OAuth behavior
+A static risk score built from these fields will produce both false positives and false negatives. It also cannot observe the redirect chain, application ownership, tenant consent, endpoint behavior, or later payload execution.
 
-Email security gateways scanning for suspicious domains won't flag these URLs. Browser phishing protections don't trigger because the initial domain is trusted. Even security-aware users inspecting the URL see a legitimate Microsoft or Google domain.
+## Detection for security teams
 
-The attack exploits the gap between "is this a valid OAuth flow?" and "is this OAuth flow being used maliciously?"
+Treat the complete chain as the unit of investigation.
 
-## <span class="flex items-center gap-2 text-slate-100"><svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg> Detection: Spotting Malicious OAuth Parameters</span>
+### Email and browser telemetry
 
-Here's a Python script to analyze OAuth URLs and detect suspicious patterns commonly used in redirect abuse attacks:
+- Preserve and expand the original URL rather than allowlisting it because the first hop is a known identity provider.
+- Look for authorization URLs with `prompt=none` plus deliberately invalid or unexpected scopes in unsolicited messages.
+- Capture the redirect destination and subsequent hops. Escalate when an authorization error lands on an unknown domain, triggers a download, or leads to a credential-entry page.
+- Correlate the click with message theme, sender history, attachment behavior, newly seen domains, and user reports. A single parameter is not a verdict.
 
-```python
-#!/usr/bin/env python3
-"""
-OAuth Redirect Abuse Detector
-Analyzes OAuth URLs for suspicious patterns indicating redirect abuse attacks
-"""
+### Identity and application telemetry
 
-import re
-from urllib.parse import urlparse, parse_qs
-from dataclasses import dataclass
-from typing import List, Optional
+- Review newly introduced enterprise applications, consent grants, service principals, publishers, owners, redirect URIs, and requested permissions.
+- Alert on unusual consent activity and applications requesting privileges unrelated to their stated function.
+- Investigate repeated failed silent-authorization requests when they align with suspicious email or browser activity.
+- Remove or disable malicious applications and revoke associated grants according to the identity provider's incident-response procedures.
 
-@dataclass
-class OAuthAnalysis:
-    url: str
-    is_suspicious: bool
-    risk_score: int  # 0-100
-    findings: List[str]
+### Endpoint telemetry
 
-class OAuthAbuseDetector:
-    # Suspicious redirect URI patterns
-    SUSPICIOUS_REDIRECTS = [
-        r'evilproxy',
-        r'phishing',
-        r'download\.php',
-        r'\/download\?',
-        r'\.tk\b', r'\.ml\b',  # Free TLDs commonly abused
-        r'bit\.ly', r'tinyurl',  # URL shorteners
-    ]
-    
-    # Dangerous scope combinations that suggest data exfiltration
-    HIGH_RISK_SCOPES = [
-        'mail.read', 'mail.send',
-        'files.read.all', 'files.readwrite.all',
-        'user.read.all', 'directory.read.all'
-    ]
-    
-    # Silent auth bypass attempts
-    SILENT_AUTH_PARAMS = ['prompt=none', 'prompt=consent']
+- Correlate an OAuth-link click with archive downloads, shortcut execution, script interpreters, DLL side-loading, or outbound connections from newly launched processes.
+- Quarantine and investigate delivered files using established endpoint procedures. Do not execute a sample merely to confirm the redirect.
 
-    def analyze(self, url: str) -> OAuthAnalysis:
-        findings = []
-        risk_score = 0
-        
-        parsed = urlparse(url)
-        params = parse_qs(parsed.query)
-        
-        # Check for suspicious redirect URIs
-        redirect_uri = params.get('redirect_uri', [''])[0]
-        if redirect_uri:
-            decoded_redirect = self._safe_url_decode(redirect_uri)
-            for pattern in self.SUSPICIOUS_REDIRECTS:
-                if re.search(pattern, decoded_redirect, re.IGNORECASE):
-                    findings.append(f"Suspicious redirect_uri pattern: {pattern}")
-                    risk_score += 30
-        
-        # Check for silent authentication attempts (bypasses user interaction)
-        if 'prompt' in params:
-            prompt_val = params['prompt'][0]
-            if prompt_val == 'none':
-                findings.append("Silent auth requested (prompt=none) - bypasses user interaction")
-                risk_score += 25
-        
-        # Check for overly broad scopes
-        if 'scope' in params:
-            scopes = params['scope'][0].split()
-            for high_risk in self.HIGH_RISK_SCOPES:
-                if high_risk in scopes:
-                    findings.append(f"High-risk scope detected: {high_risk}")
-                    risk_score += 20
-        
-        # Check state parameter for encoded data (email auto-fill trick)
-        if 'state' in params:
-            state = params['state'][0]
-            if self._looks_like_encoded_email(state):
-                findings.append("State parameter appears to contain encoded email (phishing auto-fill)")
-                risk_score += 15
-        
-        # Check for missing or weak state (CSRF protection)
-        if 'state' not in params:
-            findings.append("Missing state parameter - no CSRF protection")
-            risk_score += 10
-        
-        return OAuthAnalysis(
-            url=url,
-            is_suspicious=risk_score >= 30,
-            risk_score=min(risk_score, 100),
-            findings=findings
-        )
-    
-    def _safe_url_decode(self, s: str) -> str:
-        """Safely decode URL-encoded strings"""
-        result = s
-        for _ in range(3):  # Limit recursion
-            try:
-                import urllib.parse
-                decoded = urllib.parse.unquote(result)
-                if decoded == result:
-                    break
-                result = decoded
-            except:
-                break
-        return result
-    
-    def _looks_like_encoded_email(self, s: str) -> bool:
-        """Check if string looks like base64-encoded email"""
-        import base64
-        try:
-            # Try base64 decoding
-            decoded = base64.b64decode(s + '==').decode('utf-8', errors='ignore')
-            return '@' in decoded and '.' in decoded.split('@')[1]
-        except:
-            # Check for URL-encoded email patterns
-            return '%40' in s or '@' in self._safe_url_decode(s)
+Microsoft publishes product-specific hunting queries and observed indicators in its campaign report. Indicators age quickly, so use them as investigation pivots rather than permanent proof of compromise.
 
+## Controls for tenant administrators
 
-# Example usage
-detector = OAuthAbuseDetector()
+Tenant controls reduce exposure even though they cannot change how every external authorization server handles errors.
 
-# Test with a potentially malicious OAuth URL
-test_url = (
-    "https://login.microsoftonline.com/common/oauth2/authorize?"
-    "client_id=malicious-app-id&"
-    "redirect_uri=https%3A%2F%2Fevil-proxy.example.com%2Fcallback&"
-    "response_type=code&"
-    "scope=mail.read%20files.read.all&"
-    "prompt=none&"
-    "state=dXNlckBjb21wYW55LmNvbQ=="  # base64("user@company.com")
-)
+- Limit user consent to applications and permissions that meet the organization's policy. Route higher-risk consent through an administrator review process.
+- Regularly review granted permissions and remove unused, abandoned, or overprivileged applications.
+- Prefer verified publishers and explicitly approved applications where the platform supports those controls, while recognizing that publisher verification is not a guarantee of benign behavior.
+- Apply Conditional Access and identity-risk controls based on the organization's threat model.
+- Keep email, identity, browser, and endpoint detections connected. The campaign crossed those boundaries, so a single-domain blocklist is insufficient.
+- Teach users to evaluate the final destination and the application or consent context. A familiar login hostname at the start of a link does not validate the landing page.
 
-result = detector.analyze(test_url)
-print(f"Risk Score: {result.risk_score}/100")
-print(f"Suspicious: {result.is_suspicious}")
-for finding in result.findings:
-    print(f"  ⚠️  {finding}")
-```
+If a user entered credentials or opened a delivered file, follow the appropriate credential-compromise or endpoint-response playbook. Do not assume that changing a password alone invalidates every session or token.
 
-## <span class="flex items-center gap-2 text-slate-100"><svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Defense Strategies</span>
+## Controls for OAuth client developers
 
-<div class="my-6 grid gap-4 sm:grid-cols-2">
-  <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-    <h4 class="mb-2 font-semibold text-slate-100">Strict Redirect URI Validation</h4>
-    <p class="text-sm text-slate-400">Register exact redirect URIs. Avoid wildcards. Reject any redirect that doesn't match pre-registered endpoints character-for-character.</p>
-  </div>
-  <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-    <h4 class="mb-2 font-semibold text-slate-100">State Parameter Enforcement</h4>
-    <p class="text-sm text-slate-400">Require cryptographically random state parameters. Validate them strictly. Reject OAuth flows without state validation.</p>
-  </div>
-  <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-    <h4 class="mb-2 font-semibold text-slate-100">Scope Minimization</h4>
-    <p class="text-sm text-slate-400">Request minimal scopes. Review and audit granted permissions regularly. Revoke unnecessary access promptly.</p>
-  </div>
-  <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-    <h4 class="mb-2 font-semibold text-slate-100">User Education</h4>
-    <p class="text-sm text-slate-400">Train users to verify consent screens carefully. Legitimate apps don't request broad permissions without clear justification.</p>
-  </div>
-</div>
+These controls protect an application you operate. They do not turn its callback into a detector for unrelated malicious applications.
 
-### Implementation: Safe OAuth Redirect Handling
+1. Register the minimum required redirect URIs and use exact matching. Avoid wildcard and open-redirect patterns.
+2. Use an OAuth or OpenID Connect library that implements the provider's current guidance.
+3. Bind the authorization response to the browser transaction using a one-time value. Depending on the protocol and library, that may be `state`, PKCE, an OpenID Connect `nonce`, or a combination.
+4. Reject responses that cannot be correlated to a request your application initiated, including error responses.
+5. Do not place email addresses, secrets, tokens, or unnecessary personal data in `state`. Treat authorization-response parameters as untrusted input and avoid logging sensitive values.
+6. Request only the scopes needed for the current feature and explain why they are needed.
+7. Validate tokens according to the provider and protocol requirements. A successful redirect is not proof that the user is authorized for an application resource.
 
-```python
-# Flask example for secure OAuth callback handling
-from flask import Flask, request, abort, session
-import secrets
-import re
+Google's web-server OAuth documentation, for example, requires the redirect URI to match a configured URI and directs clients to generate and verify `state` to reduce request-forgery risk. Microsoft Entra likewise documents registered redirect URI restrictions and application-consent controls.
 
-ALLOWED_REDIRECT_HOSTS = {
-    'app.yourcompany.com',
-    'auth.yourcompany.com'
-}
+## Controls for authorization-server operators
 
-def validate_oauth_callback():
-    """
-    Strict validation of OAuth callback parameters.
-    Reject any suspicious patterns.
-    """
-    state = request.args.get('state')
-    code = request.args.get('code')
-    error = request.args.get('error')
-    
-    # 1. Validate state parameter matches session
-    if not state or state != session.get('oauth_state'):
-        abort(400, "Invalid state parameter")
-    
-    # 2. Clear used state to prevent replay
-    session.pop('oauth_state', None)
-    
-    # 3. Check for error parameters that might indicate manipulation
-    if error:
-        # Log for security monitoring
-        app.logger.warning(f"OAuth error received: {error}")
-        
-        # Reject known abuse patterns
-        if error in ['invalid_scope', 'access_denied']:
-            abort(400, "OAuth flow aborted")
-    
-    # 4. Validate authorization code format
-    if not code or not re.match(r'^[A-Za-z0-9\-_]+$', code):
-        abort(400, "Invalid authorization code format")
-    
-    return True
-```
+[RFC 9700, section 4.11](https://datatracker.ietf.org/doc/html/rfc9700#section-4.11) describes authorization-server open-redirect risks. It requires exact string matching against registered redirect URIs, with the limited exception of localhost port handling for native applications, and recommends avoiding redirect URI patterns that can become open redirectors.
 
-<div class="my-6 rounded-xl border border-rose-500/30 bg-rose-950/20 p-5">
-  <h4 class="mb-2 flex items-center gap-2 font-semibold text-rose-400">
-    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    Critical Takeaway
-  </h4>
-  <p class="text-slate-300">OAuth redirect abuse exploits the trust users and systems place in legitimate identity providers. Your defense can't rely on users spotting fake domains—because the domains are real. Implement strict technical controls, validate every parameter, and monitor for anomalous OAuth flows.</p>
-</div>
+Authorization servers should also:
 
-## <span class="flex items-center gap-2 text-slate-100"><svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Key Indicators of Compromise</span>
+- reject authorization requests whose `redirect_uri` does not match the client registration;
+- prevent client registration or redirect endpoints from introducing open redirects;
+- make application identity and requested permissions clear before consent;
+- detect and disable applications used for phishing or malware delivery; and
+- avoid leaking unnecessary user or session information in error responses.
 
-Monitor your logs for these OAuth redirect abuse indicators:
+These are platform responsibilities. A relying organization cannot retrofit them by validating parameters only after a victim has already followed another application's redirect.
 
-- **Multiple failed OAuth flows** from the same source IP with `invalid_scope` errors
-- **Redirect URIs containing URL shorteners** or unexpected domains
-- **State parameters that decode to email addresses** or other PII
-- **OAuth apps requesting broad scopes** (`mail.read`, `files.readwrite.all`)
-- **Silent authentication attempts** (`prompt=none`) for sensitive resources
+## Safe investigation checklist
 
-## <span class="flex items-center gap-2 text-slate-100"><svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Bottom Line</span>
+When an OAuth link is reported:
 
-OAuth redirect abuse represents a new evolution in phishing—one that weaponizes legitimate infrastructure against itself. The attackers aren't exploiting bugs; they're exploiting trust assumptions baked into the protocol design.
+- preserve the original message and URL as evidence;
+- use controlled security tooling to inspect the redirect chain without authenticating or opening downloaded content;
+- identify the authorization host, client identifier, registered or resulting destination, and requested scopes;
+- determine whether the application is known and approved in the affected tenant;
+- correlate identity events with email, browser, DNS, proxy, and endpoint telemetry;
+- block confirmed malicious infrastructure and applications using supported administrative controls;
+- revoke grants, sessions, or credentials only when the evidence and provider guidance support that action; and
+- document what was observed separately from what remains inferred.
 
-Defending against these attacks requires moving beyond "is this domain legitimate?" to "is this OAuth flow behaving legitimately?" That means strict validation, aggressive scope minimization, and treating every OAuth parameter as potentially hostile—because in 2026, it probably is.
+Do not paste a live authorization URL containing user identifiers, tenant details, or transaction state into an unrelated public analyzer. Redact sensitive values before sharing evidence, and retain the original only in the authorized incident system.
 
-Stay paranoid. Validate everything.
+## Sources
 
-<div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
-  <h3 class="mb-3 text-2xl font-bold text-slate-100">Decode JWTs Without Exposing Secrets</h3>
-  <p class="mb-8 text-slate-400 text-lg">Stop pasting your tokens into online decoders that log your payload. Use our fully client-side JWT decoder to inspect headers and payloads without sending data to any server.</p>
-  <a href="/tools/jwt-decoder" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-    Open JWT Decoder →
-  </a>
-</div>
+- [Microsoft Defender Security Research Team: OAuth redirection abuse enables phishing and malware delivery](https://www.microsoft.com/en-us/security/blog/2026/03/02/oauth-redirection-abuse-enables-phishing-malware-delivery/)
+- [IETF RFC 9700: Best Current Practice for OAuth 2.0 Security](https://datatracker.ietf.org/doc/html/rfc9700)
+- [Microsoft Entra: Configure how users consent to applications](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/configure-user-consent)
+- [Microsoft identity platform: Redirect URI restrictions and limitations](https://learn.microsoft.com/en-us/entra/identity-platform/reply-url)
+- [Google OAuth 2.0 for web server applications](https://developers.google.com/identity/protocols/oauth2/web-server)
+
+## Bottom line
+
+OAuth redirect abuse turns a legitimate identity-provider endpoint into a trusted first hop. The observed Microsoft campaigns used failed silent authorization to reach attacker-controlled destinations without obtaining an access token. Effective defense therefore depends on redirect-chain visibility, application governance, consent controls, and cross-domain detection—not a parameter checklist or the reputation of the first hostname.
