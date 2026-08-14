@@ -4,7 +4,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
-import LanguageSelector from "../components/LanguageSelector";
 import Navbar from "../components/Navbar";
 import FloatingTicketButton from "../components/FloatingTicketButton";
 import AdBanner from "../components/AdBanner";
@@ -109,7 +108,6 @@ export default function RootLayout({
             ))}
           </div>
         </footer>
-        <LanguageSelector />
         <FloatingTicketButton />
         <Analytics />
       </body>

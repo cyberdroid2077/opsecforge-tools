@@ -137,10 +137,11 @@
 .workflowCard:hover { transform: translateY(-3px); border-color: var(--home-line-strong); }
 .workflowCard h3 { margin: 5px 0 13px; font-size: 1.6875rem; line-height: 1.12; letter-spacing: -0.035em; }
 .workflowCopy > p:last-child { max-width: 480px; margin: 0; color: var(--home-muted); line-height: 1.55; }
+.workflowCard:not(.workflowWide) .workflowCopy { position: relative; z-index: 1; padding-left: 58px; }
 .workflowWide { grid-row: 1 / 3; min-height: 488px; padding: 35px; background: linear-gradient(145deg, var(--home-panel-strong), var(--home-panel)); }
 .workflowWide .workflowCopy { position: relative; z-index: 2; margin-top: 101px; }
 .workflowWide h3 { font-size: 2.375rem; }
-.workflowIcon { position: absolute; top: 32px; left: 34px; color: var(--home-green); }
+.workflowIcon { position: absolute; z-index: 2; top: 32px; left: 34px; color: var(--home-green); }
 .cardLink { position: absolute; left: 28px; bottom: 28px; display: inline-flex; align-items: center; gap: 7px; color: var(--home-green); font-size: 0.8125rem; font-weight: 800; }
 .workflowWide .cardLink { left: 35px; bottom: 35px; }
 .signatureArt { position: absolute; right: 34px; bottom: 34px; width: 230px; padding: 15px; border: 1px solid var(--home-line); background: var(--home-bg); border-radius: 10px; font: 0.625rem var(--font-geist-mono), monospace; color: var(--home-soft); }
@@ -153,7 +154,7 @@
 .workflowBright .workflowIcon { color: #0c512d; }
 .workflowBright .workflowCopy > p:last-child { color: #245d3c; }
 .workflowBright .workflowNumber { color: rgba(4, 17, 9, 0.09); }
-.workflowNumber { position: absolute; right: 25px; top: 10px; font: 800 5.25rem/1 var(--font-geist-mono), monospace; color: color-mix(in srgb, var(--home-green) 8%, transparent); }
+.workflowNumber { position: absolute; z-index: 0; right: 25px; top: 10px; font: 800 5.25rem/1 var(--font-geist-mono), monospace; color: color-mix(in srgb, var(--home-green) 8%, transparent); }
 
 .toolDirectory { display: grid; grid-template-columns: 1.25fr 1fr 1fr; border: 1px solid var(--home-line); border-radius: 18px; overflow: hidden; background: color-mix(in srgb, var(--home-panel) 76%, transparent); }
 .directoryColumn { padding: 30px; }
