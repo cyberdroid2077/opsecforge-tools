@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Historical and superseded.** This roadmap is preserved for context only and has no operating authority. Follow the [OpsecForge Product Charter](docs/PRODUCT_CHARTER.md) and the current factual record in [OPERATIONS.md](docs/OPERATIONS.md). Producer/OpenClaw roles, recurring bulk publishing, automatic content quotas, and related scheduling rules are explicitly superseded.
+
 # OpsecForge 工具库 - 长期运维 Roadmap (V5 - Native Recurring)
 
 **背景与基线**: 本项目为全静态纯前端工具站（Next.js + Vercel）。当前仓库 `~/opsecforge-tools/` 已有 ~20 个上线工具及完善的 AI-SEO 自动发文管线。

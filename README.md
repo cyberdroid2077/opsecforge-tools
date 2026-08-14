@@ -50,8 +50,15 @@ The production build runs content-source verification through `prebuild`.
 - Keep defensive tools browser-local. Do not add remote scanners, proxy behavior, or requests to user-supplied URLs.
 - Do not weaken the visible limitations of heuristic tools such as secret redaction.
 
+## Governance
+
+- [Product Charter](docs/PRODUCT_CHARTER.md): the authoritative, stable product and operating constitution.
+- [Operations Log](docs/OPERATIONS.md): the chronological record of verified facts, deployments, experiments, measurements, risks, and decisions.
+
+When documentation conflicts, follow the hierarchy in the Product Charter and verify behavior against current code and production.
+
 ## Contributing
 
 Keep changes focused and preserve unrelated work. For a proposed feature or material behavior change, start with an issue describing the user need, privacy boundary, evidence, and test plan. Security reports should use the contact method published on the live site and must not include active credentials or unnecessary sensitive data.
 
-Deployment, analytics access, active experiments, and operating decisions are documented in `docs/OPERATIONS.md`.
+Deployment, analytics access, active experiments, and operating decisions are recorded in the Operations Log.

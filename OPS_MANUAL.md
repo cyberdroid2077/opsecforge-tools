@@ -1,3 +1,6 @@
+> [!WARNING]
+> **Historical and superseded.** This manual is preserved for context only and has no operating authority. Follow the [OpsecForge Product Charter](docs/PRODUCT_CHARTER.md) and the current factual record in [OPERATIONS.md](docs/OPERATIONS.md). Producer/OpenClaw scheduling and daily bulk-publishing instructions are explicitly superseded.
+
 # OpSecForge - Operations & Development Manual
 
 ## 1. Project Overview

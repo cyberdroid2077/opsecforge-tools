@@ -385,6 +385,16 @@ Production verification:
 - Day-28 review: repeat the same aggregate cuts, compare equivalent Vercel homepage metrics with the July 24 baseline of 269 visitors, 417 page views, and 88% bounce where definitions match, and assess whether the Sanitizer page gained a larger share of homepage-driven tool visits without claiming tool use. Review article entrances and downstream tool-page views only at page level.
 - Measurement guardrail: do not add tracking for pasted input, secrets, source text, output, redaction counts, detection results, clipboard actions, or tool payload characteristics. If aggregate referrer or custom-event data remains unavailable, report the gap rather than infer activation from visits.
 
+## Product governance baseline — 2026-08-14
+
+- Established [PRODUCT_CHARTER.md](PRODUCT_CHARTER.md) version 1.0.0 as the authoritative product and operating constitution. It defines mission, funnel, tool/content standards, privacy and security boundaries, UI/brand rules, SEO/AEO, distribution, monetization, measurement, AI autonomy, escalation, documentation hierarchy, and revision governance.
+- Kept this file as the chronological factual log. The authority order is now Product Charter, current README/boundary documentation, this operations log, then historical reports and plans. Conflicts must be checked against current code and production, then recorded rather than resolved through silent documentation drift.
+- Marked `OPS_MANUAL.md` and `ROADMAP.md` historical and superseded without deleting their contents. Their Producer/OpenClaw roles, recurring bulk publishing, automatic content quotas, and related scheduling rules have no operating authority.
+- Added README governance links to the charter and operations log. No application code, production behavior, analytics, advertising, SEO metadata, content, tool behavior, or deployment configuration changed.
+- First formal 28-day charter review: **2026-09-11**. Review inputs are the operations log, production behavior, verified GSC and aggregate Vercel signals, article-to-tool proxy paths, support/user feedback, active experiment outcomes, and newly observed risks.
+- Review early if a material security, legal, privacy, or factual error is found; if code or production contradicts the charter; if a proposed tool or monetization change crosses an existing boundary; if an experiment causes user harm or trust/accessibility/SEO regression; or if new verified evidence makes a current rule materially inaccurate.
+- Any revision must update the charter version and record the evidence, reason, change summary, and affected rules here. Emergency corrections may proceed before the scheduled review but must not become undocumented policy drift.
+
 ## Decisions
 
 - Quality over volume; no daily content quota.
