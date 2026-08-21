@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { TerminalSquare, ShieldCheck, Lock, Copy, Check, Trash2, ArrowRight, ShieldAlert, Cpu, Network, AlertTriangle, Clock, Info } from 'lucide-react';
+import { Lock, Trash2, ShieldAlert, Cpu, Network, AlertTriangle, Clock, Info } from 'lucide-react';
 import Link from 'next/link';
 
 interface SecurityAlert {
@@ -9,14 +9,9 @@ interface SecurityAlert {
   message: string;
 }
 
-export default function JwtDecoder() {
-  const [input, setInput] = useState('');
-  const [decoded, setDecoded] = useState<{header: any, payload: any, signature: string} | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [error, setError] = useState('');
-  const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
+type JwtPart = Record<string, unknown>;
 
-  const formatTimestamp = (ts: number) => {
+const formatTimestamp = (ts: number) => {
     if (ts > 1e12) ts = ts / 1000; // milliseconds → seconds
     const date = new Date(ts * 1000);
     const utc = date.toISOString().replace('T', ' ').replace('Z', ' UTC');
@@ -32,44 +27,65 @@ export default function JwtDecoder() {
       return `${Math.floor(abs / 2592000000)} months ago`;
     })();
     return { utc, local, relative, isExpired: ts * 1000 < Date.now() };
-  };
+};
 
-  const checkSecurity = (header: any, payload: any) => {
+const toNumericDate = (value: unknown) => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() && Number.isFinite(Number(value))) return Number(value);
+  return null;
+};
+
+const checkSecurity = (header: JwtPart, payload: JwtPart) => {
     const issues: SecurityAlert[] = [];
+    const algorithm = typeof header.alg === 'string' ? header.alg : '';
 
     // alg: none
-    if (header.alg && header.alg.toLowerCase() === 'none') {
+    if (algorithm.toLowerCase() === 'none') {
       issues.push({ type: 'error', message: 'Dangerous: "alg: none" detected. Token is not cryptographically signed and can be forged.' });
     }
 
     // Weak algorithms
     const weakAlgs = ['HS256', 'HS384', 'HS512'];
-    if (header.alg && weakAlgs.includes(header.alg)) {
+    if (weakAlgs.includes(algorithm)) {
       issues.push({ type: 'info', message: 'HMAC algorithm detected. Signature cannot be verified without your secret key.' });
     }
 
     // Expired
-    if (payload.exp) {
-      const expInfo = formatTimestamp(payload.exp);
+    const expiration = toNumericDate(payload.exp);
+    if (expiration !== null) {
+      const expInfo = formatTimestamp(expiration);
       if (expInfo.isExpired) {
         issues.push({ type: 'warning', message: `Token expired on ${expInfo.utc} (${expInfo.relative})` });
       }
     }
 
     // Missing standard claims
-    if (!payload.exp) issues.push({ type: 'info', message: 'Token has no "exp" (expiration) claim. It never expires.' });
-    if (!payload.iat) issues.push({ type: 'info', message: 'Token has no "iat" (issued at) claim.' });
+    if (!('exp' in payload)) issues.push({ type: 'info', message: 'Token has no "exp" (expiration) claim.' });
+    if (!('iat' in payload)) issues.push({ type: 'info', message: 'Token has no "iat" (issued at) claim.' });
 
     return issues;
-  };
+};
 
-  const formatClaim = (key: string, value: any): string => {
+const formatClaim = (key: string, value: unknown): string => {
     if (['exp', 'iat', 'nbf', 'auth_time'].includes(key)) {
-      const info = formatTimestamp(value);
+      const timestamp = toNumericDate(value);
+      if (timestamp === null) return JSON.stringify(value) ?? String(value);
+      const info = formatTimestamp(timestamp);
       return `${info.utc} (${info.relative})${info.isExpired ? ' ⛔ EXPIRED' : ''}`;
     }
-    return JSON.stringify(value);
-  };
+    return JSON.stringify(value) ?? String(value);
+};
+
+const formatLocalTimestamp = (value: unknown) => {
+  const timestamp = toNumericDate(value);
+  return timestamp === null ? 'Invalid numeric date' : formatTimestamp(timestamp).local;
+};
+
+export default function JwtDecoder() {
+  const [input, setInput] = useState('');
+  const [decoded, setDecoded] = useState<{header: JwtPart, payload: JwtPart, signature: string} | null>(null);
+  const [error, setError] = useState('');
+  const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
 
   useEffect(() => {
     setAlerts([]);
@@ -85,12 +101,16 @@ export default function JwtDecoder() {
         throw new Error('Invalid JWT format: Must have 3 parts separated by dots');
       }
 
-      const decodePart = (part: string) => {
+      const decodePart = (part: string): JwtPart => {
         const base64 = part.replace(/-/g, '+').replace(/_/g, '/');
         const json = decodeURIComponent(atob(base64).split('').map((c) => {
           return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
-        return JSON.parse(json);
+        const value: unknown = JSON.parse(json);
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+          throw new Error('Invalid JWT format: Header and payload must be JSON objects');
+        }
+        return value as JwtPart;
       };
 
       const header = decodePart(parts[0]);
@@ -100,18 +120,12 @@ export default function JwtDecoder() {
       setDecoded({ header, payload, signature });
       setError('');
       setAlerts(checkSecurity(header, payload));
-    } catch (err: any) {
-      setError(err.message || 'Failed to decode token');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to decode token');
       setDecoded(null);
       setAlerts([]);
     }
   }, [input]);
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 font-sans selection:bg-emerald-500/30">
@@ -128,7 +142,7 @@ export default function JwtDecoder() {
         <div className="mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-6 shadow-sm">
             <Lock size={14} />
-            <span className="text-xs font-bold tracking-wider uppercase">Zero-Trust • 100% Client-Side</span>
+            <span className="text-xs font-bold tracking-wider uppercase">Local Inspection • No Tool-Input Upload</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-100 mb-6 leading-tight">
             JWT Decoder <br/>
@@ -141,7 +155,7 @@ export default function JwtDecoder() {
                 <Cpu size={14} /> Browser-Only Execution
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-emerald-400">
-                <Network size={14} /> 0 Network Activity
+                <Network size={14} /> No Tool-Input Backend
             </div>
             <div className="flex items-center gap-2 px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-emerald-400">
                 <Clock size={14} /> Timestamp Parsing
@@ -214,13 +228,13 @@ export default function JwtDecoder() {
                     <div className="space-y-2">
                       {Object.entries(decoded.payload).map(([key, value]) => (
                         <div key={key} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
-                          <span className="text-indigo-300 font-bold shrink-0">"{key}"</span>
+                          <span className="text-indigo-300 font-bold shrink-0">&quot;{key}&quot;</span>
                           <span className="text-slate-600 shrink-0">→</span>
                           <div className="text-slate-300 break-all leading-relaxed">
                             {['exp', 'iat', 'nbf', 'auth_time'].includes(key) ? (
                               <div>
                                 <div className="text-emerald-400 font-mono">{formatClaim(key, value)}</div>
-                                <div className="text-slate-500 text-xs mt-0.5">Local: {formatTimestamp(value as number).local}</div>
+                                <div className="text-slate-500 text-xs mt-0.5">Local: {formatLocalTimestamp(value)}</div>
                               </div>
                             ) : (
                               <span className="text-emerald-300">{formatClaim(key, value)}</span>
@@ -239,7 +253,7 @@ export default function JwtDecoder() {
                     <pre className="text-amber-500/70 text-xs break-all whitespace-pre-wrap">{decoded.signature}</pre>
                     <div className="mt-3 flex items-center gap-2 text-xs text-slate-500 bg-slate-800/50 rounded-lg px-3 py-2">
                       <Info size={12} />
-                      <span>Signature verification requires your secret key — we never ask for it.</span>
+                      <span>Signature verification requires trusted key material — this tool does not request it.</span>
                     </div>
                   </div>
                 </div>
@@ -261,45 +275,62 @@ export default function JwtDecoder() {
                     They consist of three Base64Url-encoded parts separated by dots: the <strong>header</strong>, the <strong>payload</strong> (carrying claims and user data), and the <strong>signature</strong>. Developers frequently need to inspect these tokens during debugging or security audits to verify token structure and claims.
                 </p>
 
-                <h2 className="text-3xl font-bold text-slate-100 mt-16">How it works locally (WASM/JS)</h2>
+                <h2 className="text-3xl font-bold text-slate-100 mt-16">How local decoding works</h2>
                 <p>
-                    Our JWT Decoder operates entirely within your browser using JavaScript, ensuring <strong>zero data transmission</strong> to external servers. When you paste a token, the browser parses the string and applies Base64Url decoding in-memory.
+                    When you paste a compact JWT, JavaScript in this browser tab parses the three
+                    segments and applies Base64URL decoding in memory. OpsecForge does not send the
+                    pasted token to a tool-processing backend or include its contents in analytics
+                    events.
                 </p>
                 <p>
-                    All processing occurs in a sandboxed environment. Your sensitive authentication tokens <strong>never leave your machine</strong>, making this tool suitable for examining production tokens containing proprietary claims or personally identifiable information (PII).
+                    The site still loads normal page resources and aggregate analytics, and browser
+                    extensions or a compromised device remain outside this tool&apos;s control. Follow
+                    your organization&apos;s token-handling policy and prefer synthetic or revoked tokens
+                    when inspection does not require a live bearer credential.
                 </p>
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">Smart Timestamp Parsing</h2>
                 <p>
-                    Common JWT claims like <code>exp</code>, <code>iat</code>, and <code>nbf</code> are Unix timestamps — raw numbers that are hard to read at a glance. Our decoder automatically converts them to human-readable dates in both UTC and your local timezone, plus a relative description like "3 hours ago" or "expired 2 days ago".
+                    Common JWT claims like <code>exp</code>, <code>iat</code>, and <code>nbf</code> are Unix timestamps — raw numbers that are hard to read at a glance. Our decoder automatically converts them to human-readable dates in both UTC and your local timezone, plus a relative description such as &quot;3 hours ago&quot; or &quot;expired 2 days ago&quot;.
                 </p>
 
-                <div className="bg-rose-500/10 border-l-4 border-rose-500 p-8 my-16 rounded-r-2xl">
-                    <h3 className="text-rose-400 mt-0 flex items-center gap-2">
-                        <ShieldAlert size={24} /> Security Risks of Cloud-based Alternatives
+                <div className="bg-amber-500/5 border-l-4 border-amber-500 p-8 my-16 rounded-r-2xl">
+                    <h3 className="text-amber-400 mt-0 flex items-center gap-2">
+                        <ShieldAlert size={24} /> Decoding does not validate a JWT
                     </h3>
                     <p className="text-slate-300">
-                        Most online JWT tools transmit your token to their servers. This means your potentially sensitive session data, user IDs, and role permissions are now sitting in someone else&apos;s log files. 
-                    </p>
-                    <p className="text-slate-300 mb-0">
-                        オンラインのデコーダーは、中間者攻撃やサーバー側の侵害の影響を受けやすく、重大なコンプライアンス違反（GDPR/SOC2）につながる可能性があります。
+                        Anyone holding a JWT can usually decode its header and payload. Treat those
+                        values as untrusted until a server verifies the expected signature, issuer,
+                        audience, time constraints, and token type. Authorization remains a separate
+                        decision after validation.
                     </p>
                 </div>
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">Security Analysis</h2>
                 <p>
-                    This decoder automatically flags common JWT security issues: <code>alg: none</code> tokens (which are trivially forgeable), expired tokens, and missing expiration claims. It doesn&apos;t replace a full audit tool, but it gives you immediate visibility into token health during debugging.
+                    This decoder flags unsigned <code>alg: none</code> headers, expired <code>exp</code>
+                    values, and missing timestamp claims as review signals. It does not verify a
+                    signature, establish that a claim is trustworthy, test server configuration, or
+                    prove that a token is safe to accept.
                 </p>
+
+                <div className="not-prose my-10 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                    <h3 className="mb-2 text-lg font-bold text-slate-100">Understand HS256 and JWT validation failures</h3>
+                    <p className="mb-4 text-sm leading-relaxed text-slate-400">HS256 is not inherently vulnerable. Learn how weak secrets, algorithm confusion, untrusted key selection, and missing claim checks create real failures.</p>
+                    <Link href="/blog/jwt-token-vulnerabilities-authentication-security" className="text-sm font-bold text-emerald-400 hover:text-emerald-300">
+                      Read the JWT vulnerabilities and validation guide →
+                    </Link>
+                </div>
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">FAQ</h2>
                 <div className="space-y-8 mt-8">
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Can this tool validate JWT signatures?</h4>
-                        <p className="text-slate-400 mb-0">No. Signature verification requires access to your secret key. To maintain security, we never ask for your keys. This tool is for inspection only.</p>
+                        <p className="text-slate-400 mb-0">No. Verification requires trusted key material, an expected algorithm, and server-side claim policy. This tool does not request keys and is limited to structural inspection.</p>
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Does it support encrypted JWTs (JWE)?</h4>
-                        <p className="text-slate-400 mb-0">Currently, we support signed tokens (JWS). Encrypted tokens require decryption keys that should not be handled in a browser for security reasons.</p>
+                        <p className="text-slate-400 mb-0">No. This page handles three-part compact JWS input. JWE decryption and its key-handling policy are outside this inspection tool.</p>
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">What timestamps are automatically converted?</h4>

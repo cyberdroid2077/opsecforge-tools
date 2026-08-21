@@ -1,26 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Lock, Copy, Check, Trash2, ShieldAlert, ScanFace, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { sanitizeForSharing } from '@/lib/safe-share-sanitizer';
 
 export default function EnvSanitizer() {
   const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
-  const [detections, setDetections] = useState<string[]>([]);
-
-  useEffect(() => {
+  const { output, detections } = useMemo(() => {
     if (!input) {
-      setOutput('');
-      setDetections([]);
-      return;
+      return { output: '', detections: [] };
     }
 
     const result = sanitizeForSharing(input);
-    setOutput(result.output);
-    setDetections(result.findings.map(({ kind, count }) => `${kind} (${count})`));
+    return {
+      output: result.output,
+      detections: result.findings.map(({ kind, count }) => `${kind} (${count})`),
+    };
   }, [input]);
 
   const copyToClipboard = () => {
@@ -129,7 +126,7 @@ export default function EnvSanitizer() {
 
                 <div className="bg-amber-500/5 border-l-4 border-amber-500 p-8 my-16 rounded-r-2xl">
                     <h3 className="text-amber-400 mt-0 flex items-center gap-2">
-                        <ShieldAlert size={24} /> The Danger of "Beautifiers"
+                        <ShieldAlert size={24} /> The Danger of &quot;Beautifiers&quot;
                     </h3>
                     <p className="text-slate-300">
                         Detection is not exhaustive and a clean-looking result is not proof that all
@@ -149,6 +146,31 @@ export default function EnvSanitizer() {
                         <h4 className="text-slate-100 mt-0">Is the redaction reversible?</h4>
                         <p className="text-slate-400 mb-0">No mapping is retained. The output contains replacement markers, not an encrypted or reversible copy. Keep the original private and manually confirm that the draft still contains enough context.</p>
                     </div>
+                </div>
+
+                <h2 className="text-3xl font-bold text-slate-100 mt-16">Environment-variable security guides</h2>
+                <p>
+                    Redaction helps with a sharing workflow; it does not replace secret storage,
+                    rotation, access control, or incident response. Use the guide that matches the
+                    decision you need to make.
+                </p>
+                <div className="not-prose mt-8 grid gap-4 sm:grid-cols-2">
+                    <Link
+                      href="/blog/environment-variable-security-secrets-management"
+                      className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition-colors hover:border-emerald-500/30"
+                    >
+                      <h3 className="mb-2 text-lg font-bold text-slate-100">Are environment variables secure?</h3>
+                      <p className="mb-4 text-sm leading-relaxed text-slate-400">Choose safer storage and delivery patterns for development, CI/CD, containers, and production.</p>
+                      <span className="text-sm font-bold text-emerald-400">Read the secrets-management guide →</span>
+                    </Link>
+                    <Link
+                      href="/blog/environment-variable-leaks-security-risks"
+                      className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition-colors hover:border-emerald-500/30"
+                    >
+                      <h3 className="mb-2 text-lg font-bold text-slate-100">Did a real secret escape?</h3>
+                      <p className="mb-4 text-sm leading-relaxed text-slate-400">Revoke first, determine scope, remove reachable copies, and fix the original leak path.</p>
+                      <span className="text-sm font-bold text-emerald-400">Open the leak-response guide →</span>
+                    </Link>
                 </div>
             </article>
         </section>
