@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Lock, Key, Play, Copy, Check, RefreshCw, ShieldCheck } from 'lucide-react';
+import { generateJwtTestSecret } from '@/lib/jwt-test-secret';
 
 type Algorithm = 'HS256' | 'HS512';
 
@@ -129,10 +130,19 @@ export default function JwtEncoder() {
     setError('');
   };
 
+  const generateTestSecret = () => {
+    try {
+      setSecret(generateJwtTestSecret(algorithm));
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate a test secret');
+    }
+  };
+
   const presetPayloads = [
-    { name: 'Standard Claims', content: '{\n  "sub": "1234567890",\n  "name": "John Doe",\n  "iat": 1516239022\n}' },
-    { name: 'Admin User', content: '{\n  "sub": "admin-001",\n  "role": "admin",\n  "permissions": ["read", "write", "delete"],\n  "iat": 1516239022,\n  "exp": 1735689600\n}' },
-    { name: 'API Key', content: '{\n  "api_key": "sk_live_xxxxx",\n  "scope": "read:users write:repos",\n  "iat": 1516239022,\n  "exp": 1735689600\n}' },
+    { name: 'Basic Fixture', content: '{\n  "sub": "test-user-123",\n  "name": "Synthetic User"\n}' },
+    { name: 'API Fixture', content: '{\n  "iss": "https://issuer.test.example",\n  "aud": "https://api.test.example",\n  "sub": "test-service-123",\n  "scope": "records:read"\n}' },
+    { name: 'Tenant Fixture', content: '{\n  "sub": "test-user-456",\n  "tenant_id": "tenant-fixture",\n  "roles": ["reader"]\n}' },
   ];
 
   return (
@@ -147,6 +157,12 @@ export default function JwtEncoder() {
             <h1 className="text-3xl font-bold">JWT Encoder</h1>
             <p className="text-slate-400">Encode and sign JSON Web Tokens client-side</p>
           </div>
+        </div>
+
+        <div className="mb-6 rounded-lg border border-amber-400/40 bg-amber-400/10 p-4 text-sm text-amber-100">
+          <strong>Development fixtures only.</strong> Use invented claims and a throwaway key. Do not paste
+          production signing secrets, bearer tokens, API keys, or real identity data. This tool does not
+          validate a production token design or manage key rotation.
         </div>
 
         {/* Algorithm Selection */}
@@ -231,7 +247,9 @@ export default function JwtEncoder() {
             placeholder="Enter your secret key..."
             className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg font-mono text-sm focus:border-emerald-400 focus:outline-none"
           />
-          <p className="mt-1 text-xs text-slate-500">This key is never sent to any server</p>
+          <p className="mt-1 text-xs text-slate-500">
+            The signing operation runs in this browser page. Use throwaway test material only.
+          </p>
         </div>
 
         {/* Action Buttons */}
@@ -251,11 +269,11 @@ export default function JwtEncoder() {
             Reset
           </button>
           <button
-            onClick={() => setSecret(crypto.randomUUID())}
+            onClick={generateTestSecret}
             className="flex items-center gap-2 px-4 py-3 bg-blue-500/80 hover:bg-blue-600 rounded-lg font-medium transition-colors"
           >
             <Key className="w-4 h-4" />
-            Generate Secret
+            Generate Test Secret
           </button>
         </div>
 
@@ -271,7 +289,7 @@ export default function JwtEncoder() {
           <div className="p-6 bg-slate-800/50 border border-slate-600 rounded-xl">
             <div className="flex items-center gap-2 mb-4">
               <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              <h3 className="font-semibold text-emerald-400">JWT Created Successfully</h3>
+              <h3 className="font-semibold text-emerald-400">Synthetic JWT Created</h3>
             </div>
             <div className="relative">
               <pre className="p-4 bg-slate-900 rounded-lg font-mono text-sm break-all whitespace-pre-wrap text-slate-300">
@@ -355,7 +373,8 @@ export default function JwtEncoder() {
             <li>• JWT consists of Header, Payload, and Signature separated by dots</li>
             <li>• Header and Payload are Base64URL encoded JSON</li>
             <li>• Signature is HMAC using the algorithm you selected</li>
-            <li>• All encoding happens in your browser — no data is sent to any server</li>
+            <li>• The encoding and HMAC operation run in this browser page</li>
+            <li>• The result is a test fixture, not a production identity credential</li>
           </ul>
         </div>
 
