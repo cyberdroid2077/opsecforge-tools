@@ -3,30 +3,42 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const baseUrl = 'https://www.opsecforge.com';
-const nonCanonicalToolRoutes = new Set(['/tools/json-formatter']);
+const nonIndexableToolRoutes = new Set([
+  '/tools/json-formatter',
+  '/tools/lorem-ipsum',
+  '/tools/markdown-to-html',
+  '/tools/qr-generator',
+  '/tools/sha256-hash',
+  '/tools/text-case',
+  '/tools/text-diff',
+  '/tools/url-encoder',
+  '/tools/word-counter',
+]);
 
 type SitemapRoute = {
   route: string;
   lastModified?: string;
 };
 
-function readContentDate(filePath: string) {
+function readContentMetadata(filePath: string) {
   const source = fs.readFileSync(filePath, 'utf8');
   const frontmatter = source.match(/^---\s*\n([\s\S]*?)\n---/);
 
   if (!frontmatter) {
-    return undefined;
+    return { reviewed: false };
   }
+
+  const reviewed = /^(source_reviewed|reviewed):\s*["']?\d{4}-\d{2}-\d{2}["']?\s*$/m.test(frontmatter[1]);
 
   for (const field of ['updated', 'reviewed', 'source_reviewed', 'date']) {
     const match = frontmatter[1].match(new RegExp(`^${field}:\\s*["']?(\\d{4}-\\d{2}-\\d{2})["']?\\s*$`, 'm'));
 
     if (match) {
-      return match[1];
+      return { reviewed, lastModified: match[1] };
     }
   }
 
-  return undefined;
+  return { reviewed };
 }
 
 function listBlogRoutes(): SitemapRoute[] {
@@ -39,10 +51,15 @@ function listBlogRoutes(): SitemapRoute[] {
   return fs
     .readdirSync(blogDirectory)
     .filter((fileName) => fileName.endsWith('.md'))
-    .map((fileName) => ({
-      route: `/blog/${fileName.replace(/\.md$/, '')}`,
-      lastModified: readContentDate(path.join(blogDirectory, fileName)),
-    }));
+    .map((fileName) => {
+      const metadata = readContentMetadata(path.join(blogDirectory, fileName));
+      return {
+        route: `/blog/${fileName.replace(/\.md$/, '')}`,
+        ...metadata,
+      };
+    })
+    .filter((post) => post.reviewed)
+    .map(({ route, lastModified }) => ({ route, lastModified }));
 }
 
 function listToolRoutes(): SitemapRoute[] {
@@ -57,7 +74,7 @@ function listToolRoutes(): SitemapRoute[] {
     .filter((entry) => entry.isDirectory())
     .filter((entry) => fs.existsSync(path.join(toolsDirectory, entry.name, 'page.tsx')))
     .map((entry) => `/tools/${entry.name}`)
-    .filter((route) => !nonCanonicalToolRoutes.has(route))
+    .filter((route) => !nonIndexableToolRoutes.has(route))
     .map((route) => ({ route }));
 }
 

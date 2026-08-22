@@ -19,29 +19,29 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-bold text-slate-100 mb-12">Privacy Policy</h1>
         <div className="prose prose-invert prose-slate lg:prose-lg max-w-none">
           <p className="text-xl text-slate-400 mb-8">
-            Your privacy is not just a policy here; it&apos;s our entire architecture.
+            This policy describes how tool inputs, aggregate analytics, and site resources are handled.
           </p>
-          <h2 className="text-slate-100">Zero Data Retention</h2>
+          <h2 className="text-slate-100">Tool-input processing</h2>
           <p>
-            OpSecForge is a suite of static, client-side tools. When you use any of our sanitizers, formatters, or decoders:
+            Core transformations for OpsecForge&apos;s sanitizers, formatters, encoders, decoders, and generators run in the loaded browser page unless a tool explicitly states otherwise.
           </p>
           <ul className="space-y-4 my-8">
             <li className="flex gap-4">
               <Shield className="text-emerald-500 shrink-0 mt-1" />
-              <span><strong>Local Execution:</strong> Your data never leaves your browser. All processing is done locally in your machine&apos;s memory using client-side JavaScript.</span>
+              <span><strong>Local execution:</strong> Tool input is processed in browser memory and is not submitted to an OpsecForge processing API.</span>
             </li>
             <li className="flex gap-4">
               <Shield className="text-emerald-500 shrink-0 mt-1" />
-              <span><strong>No Database:</strong> We do not have a backend database that stores user-pasted content.</span>
+              <span><strong>No tool-input database:</strong> OpsecForge does not store user-pasted tool content in a backend database.</span>
             </li>
             <li className="flex gap-4">
               <Shield className="text-emerald-500 shrink-0 mt-1" />
-              <span><strong>No Logs:</strong> Our web servers do not log the content of your input or the results of the tool processing.</span>
+              <span><strong>No input-level analytics:</strong> Tool input and generated output are not included in analytics events.</span>
             </li>
           </ul>
-          <h2 className="text-slate-100">Analytics & Tracking</h2>
+          <h2 className="text-slate-100">Analytics and advertising</h2>
           <p>
-            We may use minimal, privacy-respecting analytics (like Vercel Analytics) to track page visits and tool popularity, but we never track the specific data you input into our tools. We do not use third-party advertising cookies or cross-site tracking.
+            OpsecForge uses Vercel Analytics for aggregate page-view measurement. Those events do not include tool input or output. At the time of this update, OpsecForge does not serve advertisements or load the AdSense ad-serving script. The public ads.txt file and publisher meta tag are ownership-verification signals; they do not by themselves display ads. This policy will be reviewed before advertising is enabled.
           </p>
           <h2 className="text-slate-100">Contact</h2>
           <p>
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
           </p>
         </div>
         <div className="mt-24 pt-8 border-t border-slate-900 text-slate-600 text-sm">
-          Last Updated: March 11, 2026.
+          Last Updated: August 21, 2026.
         </div>
       </div>
     </main>

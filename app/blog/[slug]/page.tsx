@@ -27,9 +27,12 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
   }
 
+  const reviewedForIndexing = Boolean(post.sourceReviewed || post.qualityReviewed);
+
   return {
     title: post.title,
     description: post.description,
+    robots: reviewedForIndexing ? undefined : { index: false, follow: false },
     alternates: {
       canonical: `/blog/${post.slug}`,
     },

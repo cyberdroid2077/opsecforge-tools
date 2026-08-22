@@ -1,4 +1,3 @@
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -6,7 +5,6 @@ import Link from "next/link";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import FloatingTicketButton from "../components/FloatingTicketButton";
-import AdBanner from "../components/AdBanner";
 
 const themeBootstrapScript = `
   (function() {
@@ -43,7 +41,10 @@ export const metadata: Metadata = {
     default: "OpSecForge Hub | Privacy-First Developer Tools",
     template: "%s | OpsecForge",
   },
-  description: "A suite of zero-trust, 100% client-side security tools for developers. Handle sensitive JWTs, .env files, and JSON logs safely in your browser.",
+  description: "Browser-local developer tools and source-reviewed guidance for formatting, inspecting, and sanitizing sensitive technical data.",
+  other: {
+    "google-adsense-account": "ca-pub-7680565010427495",
+  },
   manifest: "/manifest.json",
   openGraph: {
     type: "website",
@@ -63,12 +64,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7680565010427495"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-background text-foreground antialiased transition-colors duration-300 pt-16`}
@@ -86,7 +81,6 @@ export default function RootLayout({
         />
         <Navbar />
         {children}
-        <AdBanner />
         <footer className="border-t border-slate-800 bg-slate-950 px-4 py-8 transition-colors">
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-6 gap-y-3">
             {[

@@ -35,6 +35,12 @@ export default function AboutPage() {
           <p>
             The site is built with Next.js and browser APIs. After a page has loaded, its core transformation can be inspected in developer tools and tested without sending the pasted value to OpsecForge.
           </p>
+          <p>
+            Security articles that remain in the public index include an explicit review date and, where applicable, a primary authoritative source. Older material that has not completed that review is excluded from the blog index and sitemap until it is corrected or retired.
+          </p>
+          <p>
+            Product questions, corrections, and responsible security reports can be sent to <a href="mailto:admin@opsecforge.com">admin@opsecforge.com</a>. OpsecForge does not present anonymous marketing claims as user counts, customer results, or incident facts.
+          </p>
           <div className="mt-12 p-6 bg-slate-900/50 rounded-2xl border border-slate-800 flex items-center gap-6">
             <div className="p-4 bg-emerald-500/10 rounded-full text-emerald-500">
               <Shield size={32} />

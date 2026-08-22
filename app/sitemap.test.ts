@@ -23,4 +23,14 @@ describe('sitemap', () => {
     expect(urls).toContain('https://www.opsecforge.com/tools/json-beautifier');
     expect(urls).not.toContain('https://www.opsecforge.com/tools/json-formatter');
   });
+
+  it('excludes unreviewed articles and thin or duplicate utility routes', () => {
+    const urls = sitemap().map((entry) => entry.url);
+
+    expect(urls).not.toContain('https://www.opsecforge.com/blog/20260321-938dbbbc');
+    expect(urls).not.toContain('https://www.opsecforge.com/blog/ai-anomaly-detection-api-security-2026');
+    expect(urls).not.toContain('https://www.opsecforge.com/tools/sha256-hash');
+    expect(urls).not.toContain('https://www.opsecforge.com/tools/lorem-ipsum');
+    expect(urls).not.toContain('https://www.opsecforge.com/tools/word-counter');
+  });
 });

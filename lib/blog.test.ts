@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'node:fs';
-import { getAllPosts, getPostBySlug } from './blog';
+import { getAllPosts, getPostBySlug, getReviewedPosts } from './blog';
 
 vi.mock('node:fs', () => ({
   default: {
@@ -65,6 +65,24 @@ describe('blog utilities', () => {
 
       const posts = getAllPosts();
       expect(posts).toHaveLength(1);
+    });
+  });
+
+  describe('getReviewedPosts', () => {
+    it('only publishes posts with explicit source or quality review metadata', () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true as any);
+      vi.mocked(fs.readdirSync).mockReturnValue(['legacy.md', 'sourced.md', 'reviewed.md'] as any);
+      vi.mocked(fs.readFileSync).mockImplementation(((path: string) => {
+        if (String(path).endsWith('sourced.md')) {
+          return '---\ntitle: Sourced\ndate: "2026-03-22"\ndescription: Desc\nsource_reviewed: "2026-08-21"\n---\nContent';
+        }
+        if (String(path).endsWith('reviewed.md')) {
+          return '---\ntitle: Reviewed\ndate: "2026-03-21"\ndescription: Desc\nreviewed: "2026-08-20"\n---\nContent';
+        }
+        return '---\ntitle: Legacy\ndate: "2026-03-20"\ndescription: Desc\n---\nContent';
+      }) as any);
+
+      expect(getReviewedPosts().map((post) => post.title)).toEqual(['Sourced', 'Reviewed']);
     });
   });
 

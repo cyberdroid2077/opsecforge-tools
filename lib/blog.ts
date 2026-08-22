@@ -20,6 +20,7 @@ export type BlogPostMetadata = {
   author: string;
   category: string;
   sourceReviewed?: string;
+  qualityReviewed?: string;
   primarySource?: string;
 };
 
@@ -52,10 +53,15 @@ export function getAllPosts(): BlogPostMetadata[] {
         author: String(data.author ?? 'OpsecForge Security Team'),
         category: String(data.category ?? 'Developer Security'),
         sourceReviewed: data.source_reviewed ? String(data.source_reviewed) : undefined,
+        qualityReviewed: data.reviewed ? String(data.reviewed) : undefined,
         primarySource: data.primary_source ? String(data.primary_source) : undefined,
       };
     })
     .sort((left, right) => right.date.localeCompare(left.date));
+}
+
+export function getReviewedPosts(): BlogPostMetadata[] {
+  return getAllPosts().filter((post) => post.sourceReviewed || post.qualityReviewed);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
@@ -85,6 +91,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     author: String(data.author ?? 'OpsecForge Security Team'),
     category: String(data.category ?? 'Developer Security'),
     sourceReviewed: data.source_reviewed ? String(data.source_reviewed) : undefined,
+    qualityReviewed: data.reviewed ? String(data.reviewed) : undefined,
     primarySource: data.primary_source ? String(data.primary_source) : undefined,
     contentHtml,
     faqs: (data.faqs as FaqItem[] | undefined) ?? [],

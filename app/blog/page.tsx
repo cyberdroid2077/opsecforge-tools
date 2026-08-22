@@ -2,7 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
-import { getAllPosts } from '@/lib/blog';
+import { getReviewedPosts } from '@/lib/blog';
 
 export const metadata: Metadata = {
   title: 'Developer Security Articles',
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function BlogIndex() {
-  const posts = getAllPosts();
+  const posts = getReviewedPosts();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 text-slate-300">
@@ -27,7 +27,7 @@ export default function BlogIndex() {
             Security Briefings
           </h1>
           <p className="text-slate-400 max-w-2xl text-lg mb-8 leading-relaxed">
-            Markdown-backed articles for security tooling, privacy-first workflows, and practical engineering guides.
+            Source-reviewed guidance for security tooling, browser-local workflows, and practical engineering decisions.
           </p>
         </header>
 
