@@ -14,6 +14,14 @@ Never add logging, storage, analytics, error reporting, or network calls that ca
 
 ## Tools
 
+### Try a real workflow
+
+- [Compare a file checksum](https://www.opsecforge.com/tools/hash-generator?utm_source=github&utm_medium=readme&utm_campaign=file_checksum_20260904#file-checksum): select a file up to 32 MiB, calculate SHA-256 or SHA-512, and compare a trusted publisher's digest. No file upload. A match does not prove the file is safe or authenticate its publisher.
+- [Sanitize a configuration before sharing](https://www.opsecforge.com/tools/env-sanitizer): mask likely secrets in synthetic test data first. Detection is heuristic; review all output.
+- [Check a webhook signature](https://www.opsecforge.com/tools/webhook-debugger): compare supplied GitHub, Stripe, or generic HMAC fixtures. Matching supplied values does not replace a production receiver's replay controls.
+
+For a reproducible checksum demo, create a text file containing exactly `abc` with no newline. Its SHA-256 is `ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`. Change one byte and the digest changes. File names, bytes, and digests are not included in analytics. Campaign labels on the public README link describe the distribution channel only.
+
 The `/tools` hub groups the current utilities into:
 
 - Encoding and formatting
@@ -54,6 +62,7 @@ The production build runs content-source verification through `prebuild`.
 
 - [Product Charter](docs/PRODUCT_CHARTER.md): the authoritative, stable product and operating constitution.
 - [Operations Log](docs/OPERATIONS.md): the chronological record of verified facts, deployments, experiments, measurements, risks, and decisions.
+- [Current growth plan](docs/GROWTH_PLAN.md): dated experiments, distribution work, measurable decisions, and outstanding access needs.
 
 When documentation conflicts, follow the hierarchy in the Product Charter and verify behavior against current code and production.
 

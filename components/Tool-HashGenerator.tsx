@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import CryptoJS from 'crypto-js';
 import bcrypt from 'bcryptjs';
+import FileChecksum from './FileChecksum';
 
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,12 +112,14 @@ export default function SecureHashGenerator() {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Secure Hash Generator</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">File Checksum & Text Hash Generator</h1>
         <p className="text-gray-600 dark:text-gray-400 text-sm">
-          Generate SHA-256 and legacy text digests locally in your browser, plus bcrypt output for learning and testing.
+          Verify a file checksum or generate text hashes in your browser. Compare SHA-256 or SHA-512 without uploading your file.
         </p>
       </div>
 
+      <FileChecksum />
+      <h2 className="mb-5 text-xl font-bold text-gray-900 dark:text-white">Hash text</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Input Section */}
         <div className="flex flex-col">

@@ -28,7 +28,7 @@ const featuredTools = [
   {
     tool: hashTool,
     label: 'Credentials & security',
-    action: 'Generate a hash',
+    action: 'Compare a file checksum',
     Icon: Fingerprint,
     variant: styles.workflowDark,
   },
@@ -114,7 +114,7 @@ export default function Home() {
                 Open Safe-to-Share Sanitizer <ArrowRight aria-hidden="true" size={17} />
               </Link>
               <Link className={styles.secondaryButton} href="/tools">
-                Browse all 21 tools
+                Browse all tools
               </Link>
             </div>
             <ul className={styles.trustRow} aria-label="Tool privacy boundaries">

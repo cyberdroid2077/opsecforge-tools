@@ -12,7 +12,7 @@ const groupIcons = {
 export const metadata: Metadata = {
   title: 'Privacy-First Developer Tools',
   description:
-    'Browse 21 browser-local developer tools for encoding, formatting, credentials, security, debugging, and validation.',
+    'Browse browser-local developer tools for encoding, formatting, credentials, security, debugging, and validation.',
   alternates: { canonical: '/tools' },
   openGraph: {
     title: 'Privacy-First Developer Tools',
@@ -64,7 +64,7 @@ export default function ToolsPage() {
         <div className="mx-auto max-w-6xl">
           <header className="mb-14 max-w-3xl">
             <p className="mb-3 text-sm font-bold uppercase tracking-widest text-emerald-400">
-              21 browser-local utilities
+              {allTools.length} browser-local utilities
             </p>
             <h1 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-6xl">
               Privacy-first developer tools

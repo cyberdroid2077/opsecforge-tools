@@ -1,13 +1,13 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Hash Generator - SHA-256, SHA-1, MD5 & bcrypt',
-  description: 'Generate SHA-256, SHA-1, MD5, and bcrypt output for text locally in your browser. Legacy algorithms are clearly labeled and no input is submitted for processing.',
+  title: 'File Checksum Verifier & SHA-256 Hash Generator',
+  description: 'Calculate and compare SHA-256 or SHA-512 file checksums locally, up to 32 MiB. No file upload. Includes text hashes and clear mismatch troubleshooting.',
   alternates: { canonical: '/tools/hash-generator' },
   keywords: ['hash generator', 'SHA256 generator', 'SHA-1 generator', 'MD5 generator', 'bcrypt generator', 'crypto hash', 'client-side hash'],
   openGraph: {
-    title: 'Hash Generator - SHA-256, SHA-1, MD5 & bcrypt | OpsecForge',
-    description: 'Generate text hashes locally in your browser, with clear guidance for legacy algorithms and bcrypt.',
+    title: 'File Checksum Verifier & SHA-256 Hash Generator | OpsecForge',
+    description: 'Compare a local file with a trusted SHA-256 or SHA-512 checksum. Up to 32 MiB, without uploading the file.',
   },
 };
 

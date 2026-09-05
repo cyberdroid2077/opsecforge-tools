@@ -1,8 +1,19 @@
 # OpsecForge Operations
 
-Last updated: 2026-08-05
+Last updated: 2026-09-04
 
 This file is the durable source of truth for website operations. Update it after any meaningful change to measurement, publishing, deployment, SEO, experiments, or operating risk.
+
+## Current execution pointer — September 4
+
+Read `docs/GROWTH_PLAN.md` before acting on historical entries below. It is the current dated growth allocation and decision plan under `PRODUCT_CHARTER.md`. Older baselines and completed experiment descriptions remain historical, not instructions to keep waiting. The September 4 growth review supersedes the earlier same-day decision to wait for Ads.txt recognition and GSC aggregate refresh as mandatory AdSense preconditions; those gates were unsupported. Actual quality/setup readiness and final user confirmation still govern resubmission.
+
+- Fresh complete GSC periods: August 6–September 2, 455 impressions / 5 clicks / 1.10% CTR / position 58.65; July 9–August 5, 358 / 0 / position 52.25. Growth is small, not a proven acquisition engine. Filter irrelevant gaming queries out of qualified-demand assessment.
+- Current intervention: add exact-byte local file checksum comparison to the existing canonical hash tool, connect two already-reviewed hash guides, and distribute a reproducible example through the public repository README. Remove two already-redirected aliases from the tool catalog, not the redirect routes.
+- Prepublication evidence: 57 tests, explicit TypeScript, targeted ESLint, content gate (two modified guides), and production build (120 generated pages) passed. Isolated Chrome browser checks passed SHA-256/SHA-512 synthetic vectors, matching/mismatching expected values, algorithm reset, clear, empty files, no horizontal overflow at 375/1440/2560 pixels, no duplicate catalog alias links, and no JavaScript errors. No synthetic filename or digest appeared in observed network requests. Static input-path inspection found no raw-input telemetry, fetch, logging or storage in the new feature; existing generic aggregate instrumentation remains unchanged and is not proof of completed tool use.
+- File hashing is bounded to 32 MiB because Web Crypto digest reads the buffer into memory. Larger-file local commands are shown. A match is not publisher authentication, malware detection, or a signature check. No new tracker, paid service, external social post or AdSense submission was made by this wave.
+- Next deadlines: September 7 analytics access and AdSense readiness; September 11 distribution and SQL correctness check; September 18 keep/iterate/stop decision; October 2 complete 28-day business review. Missing access must be escalated once with a concrete action, not silently rechecked forever. See the growth plan for thresholds, honest limitations and campaign links.
+- Deployment and production acceptance will be recorded after publication; local completion alone is not a deployed result.
 
 ## Mission
 

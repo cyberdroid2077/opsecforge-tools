@@ -3,8 +3,9 @@ import { allTools, primaryToolHrefs, primaryTools, toolGroups } from './tool-cat
 
 describe('tool catalog', () => {
   it('keeps every live tool discoverable exactly once', () => {
-    expect(allTools).toHaveLength(21);
-    expect(new Set(allTools.map((tool) => tool.href)).size).toBe(21);
+    expect(allTools).toHaveLength(19);
+    expect(new Set(allTools.map((tool) => tool.href)).size).toBe(allTools.length);
+    expect(allTools.some((tool) => ['/tools/json-formatter', '/tools/sha256-hash'].includes(tool.href))).toBe(false);
     expect(allTools.every((tool) => /^\/tools\/[a-z0-9-]+$/.test(tool.href))).toBe(true);
   });
 
@@ -22,7 +23,7 @@ describe('tool catalog', () => {
     expect(primaryToolHrefs).toEqual([
       '/tools/env-sanitizer',
       '/tools/webhook-debugger',
-      '/tools/sha256-hash',
+      '/tools/hash-generator',
       '/tools/base64-converter',
     ]);
   });

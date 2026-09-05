@@ -1,7 +1,7 @@
 ---
 title: "Hash Collision Attacks: MD5, SHA-1, and Safe Verification"
 date: "2026-04-04"
-updated: "2026-08-05"
+updated: "2026-09-04"
 description: "Understand hash collisions, why MD5 and SHA-1 are unsafe for signatures, and how to verify files with SHA-256 and an authenticated source."
 author: "OpsecForge Security Team"
 category: "Application Security"
@@ -15,6 +15,12 @@ primary_source: "https://www.nist.gov/news-events/news/2022/12/nist-retires-sha-
 A hash collision exists when two different inputs produce the same digest. Collisions must exist because a fixed-size digest represents an unlimited set of possible inputs. A cryptographic hash is useful only when finding a collision is computationally impractical.
 
 The practical rule is simple: do not use MD5 or SHA-1 where collision resistance protects a signature, certificate, update, or other security decision. Use an approved SHA-2 or SHA-3 algorithm and verify the expected digest through an authenticated source.
+
+<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+  <h2 class="mt-0 text-2xl font-bold text-slate-100">Check a downloaded file against its checksum</h2>
+  <p class="text-slate-300">Select a file up to 32 MiB and compare its SHA-256 or SHA-512 digest in your browser. The file is not uploaded. Get the expected digest from a trusted publisher; matching checksums do not prove a file is safe.</p>
+  <a href="/tools/hash-generator#file-checksum" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Compare a file checksum →</a>
+</div>
 
 ## Collision resistance is not preimage resistance
 

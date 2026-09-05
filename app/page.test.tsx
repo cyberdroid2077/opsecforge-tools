@@ -19,7 +19,7 @@ describe('homepage', () => {
     render(<Home />);
 
     expect(screen.getByRole('link', { name: /Webhook Signature Verifier/ }).getAttribute('href')).toBe('/tools/webhook-debugger');
-    expect(screen.getByRole('link', { name: /SHA Hash Generator/ }).getAttribute('href')).toBe('/tools/sha256-hash');
+    expect(screen.getByRole('link', { name: /File Checksum & Hash Generator/ }).getAttribute('href')).toBe('/tools/hash-generator');
     expect(screen.getByRole('link', { name: /Base64 Converter/ }).getAttribute('href')).toBe('/tools/base64-converter');
     expect(screen.getByRole('link', { name: /How to Sanitize .env Files Before Sharing/ }).getAttribute('href')).toBe('/blog/how-to-sanitize-env-files-before-sharing');
     expect(screen.getByRole('link', { name: /View complete tools center/ }).getAttribute('href')).toBe('/tools');

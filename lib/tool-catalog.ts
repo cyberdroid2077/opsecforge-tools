@@ -18,7 +18,7 @@ export type ToolGroup = {
 export const primaryToolHrefs = [
   '/tools/env-sanitizer',
   '/tools/webhook-debugger',
-  '/tools/sha256-hash',
+  '/tools/hash-generator',
   '/tools/base64-converter',
 ] as const;
 
@@ -51,11 +51,6 @@ export const toolGroups: ToolGroup[] = [
           title: 'Stop pasting sensitive JSON online',
           href: '/blog/stop-pasting-sensitive-json-online',
         },
-      },
-      {
-        name: 'JSON Formatter',
-        href: '/tools/json-formatter',
-        description: 'Validate, format, and minify JSON in the browser.',
       },
       {
         name: 'SQL Formatter & Minifier',
@@ -133,18 +128,13 @@ export const toolGroups: ToolGroup[] = [
         description: 'Generate random passwords using browser cryptography.',
       },
       {
-        name: 'SHA Hash Generator',
-        href: '/tools/sha256-hash',
-        description: 'Generate SHA-1, SHA-256, and SHA-512 digests in the browser.',
-        article: {
-          title: 'Generate cryptographic hashes offline',
-          href: '/blog/how-to-generate-cryptographic-hashes-offline',
-        },
-      },
-      {
-        name: 'Secure Hash Generator',
+        name: 'File Checksum & Hash Generator',
         href: '/tools/hash-generator',
-        description: 'Generate Bcrypt, SHA-256, and MD5 output locally for appropriate use cases.',
+        description: 'Compare SHA-256 or SHA-512 file checksums locally, without uploading files.',
+        article: {
+          title: 'What a matching checksum proves',
+          href: '/blog/hash-collision-attacks-data-integrity',
+        },
       },
     ],
   },

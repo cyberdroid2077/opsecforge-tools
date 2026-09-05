@@ -1,7 +1,7 @@
 ---
 title: "Hash Generator Guide: SHA-256, Password Hashing, and Verification"
 date: "2026-04-08"
-updated: "2026-08-06"
+updated: "2026-09-04"
 reviewed: "2026-08-06"
 source_reviewed: "2026-08-06"
 primary_source: "https://csrc.nist.gov/pubs/fips/180-4/upd1/final"
@@ -24,9 +24,9 @@ A hash generator turns an input into a fixed-length digest. That digest can help
 The distinction matters: a matching digest is useful only when the expected value comes from a source you already trust.
 
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
-  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Hash text locally</p>
-  <h2 class="mt-0 text-2xl font-bold text-slate-100">Generate SHA-256, SHA-1, MD5, or bcrypt output</h2>
-  <p class="text-slate-300">The OpsecForge tool processes text in your browser. Use SHA-256 for modern digest workflows; the legacy outputs are provided for compatibility and bcrypt is for learning or testing—not production credential handling.</p>
+  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">File and text checksums</p>
+  <h2 class="mt-0 text-2xl font-bold text-slate-100">Compare a file with its trusted SHA-256 digest</h2>
+  <p class="text-slate-300">Select a file up to 32 MiB for SHA-256 or SHA-512 comparison without uploading it. Text hashing is also available; legacy outputs are for compatibility and bcrypt is for learning or testing.</p>
   <a href="/tools/hash-generator" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Hash Generator →</a>
 </div>
 
@@ -68,7 +68,7 @@ shasum -a 256 release.tar.gz
 
 If the values differ, stop. The cause may be corruption, a different release artifact, or tampering. If they match, you have shown that your file matches the bytes represented by the trusted digest; you have not independently proven who created those bytes.
 
-The OpsecForge Hash Generator currently accepts text, not uploaded files. Use the operating-system commands above for file verification.
+The [OpsecForge file checksum verifier](/tools/hash-generator#file-checksum) accepts a local file up to 32 MiB and compares SHA-256 or SHA-512 against a pasted hexadecimal digest. It reads file bytes in the browser without uploading them. The size limit bounds memory use because the [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) reads the whole input rather than streaming it. Use the operating-system commands above for larger files. On Windows, use `Get-FileHash ./release.zip -Algorithm SHA256` in [PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash).
 
 ## Password hashing is deliberately different
 
