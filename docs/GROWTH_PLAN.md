@@ -44,13 +44,19 @@ These are operating targets, not forecasts or Google requirements: seek 20 Googl
 
 ## Distribution ready material
 
-Campaign URL: https://www.opsecforge.com/tools/hash-generator?utm_source=brand_post&utm_medium=social&utm_campaign=file_checksum_20260904#file-checksum
+Checksum campaign URL: https://www.opsecforge.com/tools/hash-generator?utm_source=x&utm_medium=social&utm_campaign=file_checksum_20260905#file-checksum
+
+Sanitized-log campaign URL: https://www.opsecforge.com/tools/env-sanitizer?utm_source=x&utm_medium=social&utm_campaign=sanitize_log_20260905
 
 Draft for one verified brand channel after production verification:
 
 > Checking a download against its checksum? OpsecForge now compares SHA-256 or SHA-512 locally in your browser. Select a file up to 32 MiB and paste the digest from a trusted publisher. No file upload. A match verifies the checksum you supplied—not publisher identity or malware safety. For larger files, the page includes local terminal commands.
 
-Use a screenshot of synthetic `abc` input only. Do not post via the owner's personal X identity or promise security/usage statistics. License-dependent directories remain deferred until the owner selects a license. Product Hunt/other launches need an authenticated suitable account and genuine launch participation; avoid directory quotas and mass submissions.
+Second-scenario draft, not to be posted on the same day:
+
+> Before sharing a `.env` snippet or debug log with AI or support, remove credentials and review the result yourself. OpsecForge's browser-local sanitizer flags common secrets and replaces matches without uploading the pasted text. Heuristics can miss custom formats, so treat it as a review aid—not a guarantee.
+
+Use a screenshot of synthetic `abc` input only. The user-confirmed Vincent Jia account may be used as the bounded X distribution channel, but each post must identify OpsecForge accurately and must not imply a separate brand identity, personal experience, security outcome, or usage statistic. License-dependent directories remain deferred until the owner selects a license. Product Hunt/other launches need an authenticated suitable account and genuine launch participation; avoid directory quotas and mass submissions.
 
 ## Corrected AdSense decision basis
 
@@ -67,3 +73,12 @@ Until October 2, every run reports: completed action or a named observation wind
 - Public HTTP checks passed on homepage, tools hub, hash tool and both edited articles (200, one H1, correct canonical), both legacy redirects (308), and sitemap uniqueness/canonical inclusion. Tests 57/57, TypeScript, targeted lint, content checks and production build passed before deployment.
 - README's reproducible example and tagged link are published in the existing public repository. The social post above is still a draft, not a completed external campaign. This is an initial distribution surface, not evidence that referral traffic has arrived.
 - The existing **OpsecForge 日常增长运营** automation was updated through the app, preserving daily 09:00 schedule, active status, project and model. It now explicitly reads this plan and follows the dated decision rules. No duplicate automation was created.
+
+## September 5 continuous-operation and distribution decision
+
+- Daily execution continues after the coordinating conversation ends. Do not wait for a user follow-up. Keep the September 7, 11, 18 and October 2 decision dates fixed; missing data requires an honest action judgment, not a silently extended observation window.
+- Vercel read-only access was restored on September 4. Preserve that authenticated browser session and use its aggregate landing-page and referrer views when available. Do not reopen the old access blocker or repeat already completed production and CI work: commit `e88fea1` is the CI correction, and GitHub Actions run `33943253323` must be checked as the acceptance record before any CI claim.
+- X is a distribution resource, not an independent growth objective. The owner confirmed the available identity as **Vincent Jia (@JiaVincent1747)**. A September 5 screenshot showed an active developer application, an OAuth 1.0 token labeled with read/write permission, USD 25 balance and zero usage in the preceding 30 days. No existing key was located and no connection or publication has been verified, so do not claim either. Do not recreate or rotate keys, buy credit or enable automatic recharge. Prefer an already-authorized web session when available; a platform login, security check, CAPTCHA or 2FA requires one precise user action.
+- Run a bounded distribution test around two real tasks: sharing a sanitized log with AI/support, and checking a local file against a publisher checksum. Use synthetic examples, direct tool URLs and a fixed source marker. Publish at most six original posts in the first wave and no more than one per day. No fabricated experience, testimonial, usage claim, engagement manipulation, unsolicited bulk direct messages or batch replies.
+- Before the first post, verify whether the existing aggregate analytics can expose the chosen source marker. If it cannot, record the attribution limitation and use page/referrer evidence without calling it conversion. Record every actual post's date, URL and channel. Review each scenario 14 days after its first publication; the September 18 whole-site review still occurs even if the channel has not launched.
+- A first interaction is not a successful use. Relevant-query clicks, attributable tool-page visits and genuine feedback are the evidence tiers for distribution. Retention is unmeasured until a supported privacy-safe signal exists. If both scenarios receive no signal, stop the current creative approach and state a new hypothesis. If visits appear without evidence of successful use, improve measurability or validate the experience before merely increasing posting volume.
