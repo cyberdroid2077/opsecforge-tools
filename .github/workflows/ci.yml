@@ -30,9 +30,7 @@ jobs:
         # Known pre-existing issues tracked in .eslintignore — CI reports but does not block
 
       - name: TypeScript check
-        run: npx tsc --noEmit --skipLibCheck --pretty -p tsconfig.health.json || true
-        # tsconfig.health.json excludes known pre-existing issues (jwt-encoder, TextDiffTool)
-        # Project uses ignoreBuildErrors:true in next.config
+        run: npm run typecheck
 
   audit:
     name: Security Audit
@@ -85,20 +83,13 @@ jobs:
 
       - run: npm ci
 
-      - name: Install Vitest
-        run: npm install --save-dev vitest @testing-library/react @testing-library/dom @testing-library/jest-dom jsdom
-        if: always()
-
       - name: Run tests
-        run: npx vitest run --reporter=verbose
+        # Test dependencies are already installed from package-lock.json by npm ci.
+        # Never re-resolve or mutate dependencies inside the verification job.
+        run: npm test -- --reporter=verbose
 
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage
-          path: coverage/
-          retention-days: 7
+      - name: Verify dependency manifests are unchanged
+        run: git diff --exit-code -- package.json package-lock.json
 
   monitor:
     name: Runtime Health Check

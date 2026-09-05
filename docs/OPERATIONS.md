@@ -17,6 +17,13 @@ Read `docs/GROWTH_PLAN.md` before acting on historical entries below. It is the 
 - Vercel access restored in Safari with the owner's confirmed existing Google account. Last 30 Days (August 5, 11pm–September 4, partial current day): 487 visitors (+45%), 576 views (+8%), 95% bounce (+5%). Hash tool 2 visitors/2 views, sanitizer 4/9, Base64 1/1, SQL 1/1. Article visitors: API-key 28, Base64 27, hash collisions 14. These separate per-page counts do not measure a funnel; today's synthetic QA may be present in the live partial-day totals. Custom events still require Pro and were not enabled. Full source/referrer details and limitations are in the growth plan.
 - The existing daily 09:00 automation is active and now explicitly reads the growth plan before historical memory, with dated September 7/11/18 and October 2 deliverables. Schedule, project, model and authority boundaries were preserved. No new automation, payment, credential or social account was created.
 
+## CI incident — September 4 growth wave follow-up
+
+- GitHub runs `33942717349` (`f0b43ee`) and `33943010530` (`24943d7`) failed in the **Install Vitest** step, before running any tests. The latter job `101243972578` shows `npm ci` succeeded, then the redundant `npm install --save-dev ...` crashed with `Cannot read properties of null (reading 'edgesOut')`. The earlier pre-wave commit `390334d` also has a failed workflow; this is not evidence that the new checksum assertions failed.
+- Fix: use the lockfile-installed test dependencies directly, remove the redundant mutation/install, verify package manifests stay unchanged, and remove the unused coverage-upload step (the workflow did not generate coverage). Full explicit TypeScript checking now blocks on failure instead of using a limited configuration with `|| true`.
+- Acceptance must include the actual GitHub run reaching success and its test step executing, not just local tests or a Vercel deployment. Historical failure emails remain historical; do not delete or hide them. Local validation and production checks from the previous wave remain valid, but the prior handoff omitted CI verification.
+- Security-audit and legacy lint/health tasks still contain advisory/non-blocking behavior. A green badge alone is not a clean vulnerability or full lint report; dependency audit remediation is a separate scoped follow-up, not silently suppressed or claimed resolved by this CI fix.
+
 ## Mission
 
 Grow OpsecForge into the trusted destination for privacy-first developer-security utilities: useful tools that process sensitive input locally in the browser, supported by accurate technical guidance.
