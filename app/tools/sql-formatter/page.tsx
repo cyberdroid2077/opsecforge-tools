@@ -118,6 +118,23 @@ export class SQLFormatter {
         continue;
       }
 
+      if (!inString && this.dialect === 'postgresql' && char === '$') {
+        const delimiter = sql.slice(i).match(/^(\$\$|\$[A-Za-z_][A-Za-z0-9_]*\$)/)?.[0];
+        if (delimiter) {
+          if (current) tokens.push(current);
+          const end = sql.indexOf(delimiter, i + delimiter.length);
+          if (end === -1) {
+            tokens.push(sql.slice(i));
+            current = '';
+            break;
+          }
+          tokens.push(sql.slice(i, end + delimiter.length));
+          current = '';
+          i = end + delimiter.length - 1;
+          continue;
+        }
+      }
+
       if (!inString && (char === "'" || char === '"' || char === '`')) {
         if (current) tokens.push(current);
         current = char;
@@ -128,7 +145,15 @@ export class SQLFormatter {
 
       if (inString) {
         current += char;
-        if (char === stringChar && sql[i - 1] !== '\\') {
+        if (char === stringChar && nextChar === stringChar) {
+          current += nextChar;
+          i++;
+          continue;
+        }
+
+        let precedingBackslashes = 0;
+        for (let j = i - 1; j >= 0 && sql[j] === '\\'; j--) precedingBackslashes++;
+        if (char === stringChar && precedingBackslashes % 2 === 0) {
           tokens.push(current);
           current = '';
           inString = false;
@@ -136,17 +161,22 @@ export class SQLFormatter {
         continue;
       }
 
-      if (['(', ')', ',', ';', '+', '-', '*', '/', '=', '<', '>', '!'].includes(char)) {
+      const operator = [
+        '->>', '#>>', '!~~*', '~~*', '!~*', '::', '->', '#>', '||', '&&',
+        '<=', '>=', '!=', '<>', ':=', '=>', '<<', '>>', '@>', '<@', '?&',
+        '?|', '@@', '@?', '^@', '!~~', '~~', '!~', '~*'
+      ].find(candidate => sql.startsWith(candidate, i));
+      if (operator) {
         if (current) tokens.push(current);
-        if ((char === '<' && nextChar === '=') || 
-            (char === '>' && nextChar === '=') ||
-            (char === '!' && nextChar === '=') ||
-            (char === '<' && nextChar === '>')) {
-          tokens.push(char + nextChar);
-          i++;
-        } else {
-          tokens.push(char);
-        }
+        tokens.push(operator);
+        current = '';
+        i += operator.length - 1;
+        continue;
+      }
+
+      if (['(', ')', '[', ']', ',', ';', '+', '-', '*', '/', '%', '=', '<', '>', '!', '|', '&', '^', '~', '?'].includes(char)) {
+        if (current) tokens.push(current);
+        tokens.push(char);
         current = '';
         continue;
       }
@@ -164,6 +194,15 @@ export class SQLFormatter {
 
     if (current) tokens.push(current);
     return tokens.filter(t => t.length > 0);
+  }
+
+  private isProtectedToken(token: string): boolean {
+    return token.startsWith('--') ||
+      token.startsWith('/*') ||
+      token.startsWith("'") ||
+      token.startsWith('"') ||
+      token.startsWith('`') ||
+      (this.dialect === 'postgresql' && /^(\$\$|\$[A-Za-z_][A-Za-z0-9_]*\$)/.test(token));
   }
 
   format(sql: string): string {
@@ -192,7 +231,13 @@ export class SQLFormatter {
         continue;
       }
 
-      if (token.startsWith("'") || token.startsWith('"') || token.startsWith('`')) {
+      if (this.isProtectedToken(token)) {
+        const previousToken = tokens[i - 1];
+        const isPrefixedString = token.startsWith("'") && previousToken && /^(E|N|X|B)$/i.test(previousToken);
+        if (result && !result.endsWith(' ') && !result.endsWith('\n') && !result.endsWith('(') && !result.endsWith('[') && !result.endsWith('.') && !isPrefixedString) {
+          result += ' ';
+          lineLength++;
+        }
         result += token;
         lineLength += token.length;
         continue;
@@ -243,6 +288,19 @@ export class SQLFormatter {
         continue;
       }
 
+      if (token === '[') {
+        result += token;
+        lineLength++;
+        continue;
+      }
+
+      if (token === ']') {
+        if (result.endsWith(' ')) result = result.slice(0, -1);
+        result += token;
+        lineLength++;
+        continue;
+      }
+
       if (token === ',') {
         if (this.options.commaPosition === 'after') {
           result += token;
@@ -287,24 +345,16 @@ export class SQLFormatter {
 
   minify(sql: string): string {
     if (!sql.trim()) return '';
-    const tokens = this.tokenize(sql);
+    const tokens = this.tokenize(sql).filter(token => !token.startsWith('--') && !token.startsWith('/*'));
     let result = '';
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
-      const nextToken = tokens[i + 1];
-      if (token.startsWith('--') || token.startsWith('/*')) continue;
-      if (token.startsWith("'") || token.startsWith('"') || token.startsWith('`')) {
-        result += token;
-        continue;
-      }
+      const previousToken = tokens[i - 1];
+      const noSpaceBefore = [')', ']', ',', ';'].includes(token);
+      const noSpaceAfterPrevious = previousToken === '(' || previousToken === '[';
+      const prefixedString = token.startsWith("'") && previousToken && /^(E|N|X|B)$/i.test(previousToken);
+      if (result && !noSpaceBefore && !noSpaceAfterPrevious && !prefixedString) result += ' ';
       result += token;
-      if (nextToken && 
-          !['(', ')', ',', ';'].includes(token) && 
-          !['(', ')', ',', ';'].includes(nextToken) &&
-          !token.match(/^[+\-*/=<>,;]$/) &&
-          !nextToken.match(/^[+\-*/=<>,;]$/)) {
-        result += ' ';
-      }
     }
     return result.trim();
   }
@@ -375,7 +425,7 @@ export default function SQLFormatterPage() {
             <span className="text-slate-400 font-medium text-3xl">Beautify Queries Without Data Exposure</span>
           </h1>
           <p className="text-slate-400 max-w-2xl text-lg mb-8 leading-relaxed">
-            Format or minify Standard SQL, MySQL, and PostgreSQL queries entirely in your browser, with customizable indentation and keyword casing.
+            Lexically format or compact Standard SQL, MySQL, and PostgreSQL queries entirely in your browser, with customizable indentation and keyword casing.
           </p>
         </div>
 
@@ -407,6 +457,10 @@ export default function SQLFormatterPage() {
                     </button>
                 </div>
             </div>
+
+            <p className="mb-8 text-sm leading-relaxed text-amber-300/90">
+              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. Review vendor-specific syntax before running the result.
+            </p>
 
             {showOptions && mode === 'format' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8 bg-slate-950/30 border border-slate-800 rounded-2xl mb-8 animate-in fade-in slide-in-from-top-2">
