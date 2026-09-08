@@ -3,37 +3,19 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeftRight, Check, Copy, Lock, ShieldCheck, Trash2, Type } from 'lucide-react';
+import { type Base64Variant, decodeBase64Text, encodeBase64Text } from '@/lib/base64-codec';
 
 type Mode = 'encode' | 'decode';
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-
-function encodeBase64(value: string) {
-  const bytes = encoder.encode(value);
-  let binary = '';
-
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary);
-}
-
-function decodeBase64(value: string) {
-  const binary = atob(value);
-  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-  return decoder.decode(bytes);
-}
-
 export default function Base64ConverterTool() {
   const [mode, setMode] = useState<Mode>('encode');
+  const [variant, setVariant] = useState<Base64Variant>('standard');
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const runConversion = (nextInput: string, nextMode: Mode) => {
+  const runConversion = (nextInput: string, nextMode: Mode, nextVariant = variant) => {
     setInput(nextInput);
     setError('');
 
@@ -43,12 +25,24 @@ export default function Base64ConverterTool() {
     }
 
     try {
-      const result = nextMode === 'encode' ? encodeBase64(nextInput) : decodeBase64(nextInput.trim());
+      const result = nextMode === 'encode'
+        ? encodeBase64Text(nextInput, nextVariant)
+        : decodeBase64Text(nextInput, nextVariant);
       setOutput(result);
     } catch (err) {
       setOutput('');
       setError(`Invalid Base64: ${err instanceof Error ? err.message : 'Unable to decode input.'}`);
     }
+  };
+
+  const changeVariant = (nextVariant: Base64Variant) => {
+    setVariant(nextVariant);
+    runConversion(input, mode, nextVariant);
+  };
+
+  const changeMode = (nextMode: Mode) => {
+    setMode(nextMode);
+    runConversion(input, nextMode);
   };
 
   const toggleMode = () => {
@@ -120,16 +114,34 @@ export default function Base64ConverterTool() {
                 Text Conversion Mode
               </div>
               <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
-                Encode UTF-8 text into Base64 or decode a Base64 string back into readable text.
+                Encode UTF-8 text as standard Base64 or unpadded Base64URL, then decode it back with strict UTF-8 validation.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1 rounded-2xl border border-slate-700 bg-slate-800/60 p-1.5" aria-label="Base64 variant">
+                {(['standard', 'url'] as Base64Variant[]).map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => changeVariant(item)}
+                    aria-pressed={variant === item}
+                    className={`rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                      variant === item
+                        ? 'bg-cyan-700 text-white'
+                        : 'text-slate-400 hover:text-slate-100'
+                    }`}
+                  >
+                    {item === 'url' ? 'Base64URL' : 'Standard'}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex items-center gap-1 rounded-2xl border border-slate-700 bg-slate-800/60 p-1.5">
                 {(['encode', 'decode'] as Mode[]).map((item) => (
                   <button
                     key={item}
-                    onClick={() => setMode(item)}
+                    onClick={() => changeMode(item)}
+                    aria-pressed={mode === item}
                     className={`rounded-xl px-5 py-2 text-xs font-bold uppercase tracking-wider transition-all ${
                       mode === item
                         ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
@@ -181,7 +193,7 @@ export default function Base64ConverterTool() {
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between px-1">
                 <label className="text-sm font-bold uppercase tracking-widest text-slate-400">
-                  {mode === 'encode' ? 'Plain Text Input' : 'Base64 Input'}
+                  {mode === 'encode' ? 'Plain Text Input' : `${variant === 'url' ? 'Base64URL' : 'Base64'} Input`}
                 </label>
                 <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-slate-600">
                   {input.length} chars
@@ -203,7 +215,7 @@ export default function Base64ConverterTool() {
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between px-1">
                 <label className="text-sm font-bold uppercase tracking-widest text-slate-400">
-                  {mode === 'encode' ? 'Base64 Output' : 'Decoded Text'}
+                  {mode === 'encode' ? `${variant === 'url' ? 'Base64URL' : 'Base64'} Output` : 'Decoded Text'}
                 </label>
                 <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-slate-600">
                   {output.length} chars
@@ -223,7 +235,7 @@ export default function Base64ConverterTool() {
             <div className="flex items-center gap-5">
               <span className="flex items-center gap-1.5">
                 <Type size={14} className="text-emerald-500" />
-                UTF-8 safe conversion
+                Strict UTF-8 text conversion
               </span>
               <span className="flex items-center gap-1.5">
                 <Lock size={14} className="text-cyan-500" />
