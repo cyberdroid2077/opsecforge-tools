@@ -1,6 +1,42 @@
-# Growth execution plan — 2026-09-04
+# Growth execution plan — active revision 2026-10-04
 
-Owner: OpsecForge autonomous operations. This plan implements PRODUCT_CHARTER.md. Daily operators must read this plan alongside OPERATIONS.md; historical wait instructions are not current decisions. Day-7 check: September 11. Day-14 decision: September 18. Day-28 business review: October 2. AdSense has a separate provisional September 20 deadline that still requires verification against the original notice.
+Owner: OpsecForge autonomous operations. This plan implements PRODUCT_CHARTER.md. Read the active queue below before historical sections. This revision supersedes the monitoring-only interpretation of earlier instructions, not the charter, privacy limits or fixed experiment dates. September dates and baselines below are historical. No verified future AdSense deactivation deadline is currently recorded; do not reuse September 20 as a live deadline.
+
+## Active execution queue — October 4–11
+
+Aim: establish useful acquisition and task fit, not publishing volume. Two hypotheses at most may receive active growth work; reliability fixes and scheduled decisions do not count as new experiments. A waiting observation window protects its affected pages, not the entire business. Dates use America/Toronto.
+
+| ID / due | State and evidence | Next concrete action | Acceptance / stop boundary |
+| --- | --- | --- | --- |
+| A1 / Oct 5 | READY; sanitizer 1 page visitor/28 days, X checksum creative failed. Sanitizer demonstration is a new hypothesis, not proven demand. | Verify synthetic before/after output on the live tool; verify whether a tool-page + t.co filter exposes aggregate landings; publish one task-led demonstration through the existing authorized Vincent Jia X session. | Synthetic values only, manual-review caveat, one original post, no spend/bulk outreach. Record fixture/result and actual post URL/time. If blocked, preserve prepared material, report one minimal human step, and work A2; never claim publication. Use October 3 test's 7/14/28-day rules from actual publication. |
+| A2 / Oct 7 | AUDIT STARTED Oct 4; existing `.env` sharing Markdown describes old broad AWS-secret matching and generic `_KEY` detection, no sources/review metadata, and absolute safe-sharing language. Current sanitizer deliberately excludes public-key near misses and is heuristic. | Repair the existing canonical sharing guide into a reproducible task walkthrough: synthetic input, actual redacted output, values it may miss, manual review and leak-response boundary; inspect overlapping redirected articles before adding anything. | Prefer repair over a new URL. Verify current index policy and preserve it until source/quality/unique-intent review passes. Source gate, tool fixture tests, rendered links/H1/canonical, build and production check required for publication. Do not promote this article before acceptance. Use September 4–October 1 baseline of 2 guide visitors and 1 sanitizer visitor as separate page proxies, not a conversion rate. Record actual release and fixed 14/28-day checks; without useful landings/feedback at day 28, stop additional content investment. |
+| D1 / Oct 6 | DUE; existing Base64 experiment, not a new task. | Close keep/iterate/stop decision using final available data and fresh indexing/page evidence. | Keep accurate functionality even if growth investment stops; do not extend observation, rewrite, or delete merely for low counts. |
+| A3 / Oct 9 | QUEUED; Unix Timestamp is the only tool with Google clicks (3), but only 13 impressions. | Run one desktop/mobile task-fit audit: seconds vs milliseconds, UTC/local labels, invalid input, examples, keyboard flow and article/tool fit. | Deliver reproducible audit evidence. Fix a proven defect or missing task explanation only; if experience passes, retain it and close the audit without cosmetic churn or another generic article. Operator visits are not acquisition. |
+| D2 / Oct 11 | DUE; first weekly execution review. | Review completed artifacts, overdue queue items, access blockers, campaign reach/referrals, page visits and genuine task feedback separately; choose next week's bounded action. | A trigger/log/plan alone is not a deliverable or growth. Report keep/iterate/stop and any missed commitment. Preserve Oct 12 hash, Oct 16 equal-14-day and Oct 30 equal-28-day decisions. |
+
+A1 and A2 are one sanitizer task cluster, not permission for several overlapping landing pages. Do not revive the checksum creative or promote Base64 during its existing hold. New public article allowance is **up to one task walkthrough per week when a verified distinct gap exists**, never a quota: first inspect existing intent owners, repair the matching page if available, and otherwise record why a new URL is necessary. External posts are usefulness/feedback probes, not a reliable growth engine simply because an account exists.
+
+## Daily execution loop and conditional decisions
+
+1. Read charter, this active queue and the latest operations pointer; check worktree and prior run's actual result. Check public health and fresh final-data availability briefly. Do not spend a whole run replaying unchanged dashboards.
+2. Resolve a material safety/function/availability regression first. Otherwise execute the earliest due READY task, or advance its first reversible prerequisite. A due action is not replaced by a monitoring entry because traffic is small or another experiment is observing.
+3. Persist task ID, state (`READY`, `IN PROGRESS`, `OBSERVING`, `BLOCKED`, `DONE`, `STOPPED`), next executable step, due date, artifact/commit/post reference, validation and decision. DONE means its acceptance evidence exists; documents and output drafts are never described as deployed or acquired users.
+4. For a human-dependent blocker, ask one minimal action once and continue an independent authorized task. For two consecutive runs blocked at the same step, diagnose the dependency rather than repeating it. For a due item more than 24 hours late, record the missed commitment and recovery step; do not silently move its deadline. Two consecutive runs with no actual execution evidence while a READY task is due are an operating incident, not a healthy monitoring result.
+5. Each Sunday, review the queue and spend allocation. Daily monitoring can stay quiet when nothing actionable changes; the weekly decision is an explicit review point. No daily mutation or post quota. If no worthwhile action exists, record why and when the next decision occurs instead of inventing work.
+
+| Evidence pattern | Action now | Decision boundary |
+| --- | --- | --- |
+| A functional error, unsafe/unsupported claim, crawl/canonical regression | Reproduce and repair with sources/tests; do not wait for traffic thresholds. | Verify production and record scope/rollback. |
+| Few impressions or a new indexed tool | Run task-fit checks, a source-backed walkthrough or one authorized feedback/distribution probe when a specific gap is evidenced. | Lack of 100 impressions is not a blanket no-work gate. Do not change titles repeatedly or promise demand. |
+| >=100 relevant impressions at typical positions 1–20 and weak CTR | Inspect actual query intent/SERP, then test one snippet change if mismatch is evidenced. | Equal-window 14/28-day review; no assumed CTR guarantee. |
+| Article visitors but few tool-page visitors | Inspect task relevance, existing module and next-step friction; test one concrete walkthrough if a gap exists. | Separate page totals are not conversion. Use supported aggregate path/referrer evidence or genuine task feedback; no new tracker or input logging. |
+| A post has very little reach and no landings | Check delivery and audience/task fit; stop that creative at its fixed review, not the tool. | One failed low-reach post does not disprove the product; do not buy reach or multiply posts. |
+| Visitors reach a tool but completion is unmeasurable | Check synthetic end-to-end task reliability and invite optional task-specific feedback through the existing channel. | Mark completion/retention unknown. New analytics/privacy/paid decisions require their own approval. |
+| Two bounded hypotheses fail their fair windows | On Oct 30, select one narrower problem/segment from actual query and feedback evidence, or explicitly pause growth expansion. | Do not silently renew the same broad tools-directory approach or wait another month without a new intervention. |
+
+Current whole-site targets remain 20 final Google clicks and 10 relevant page-destination clicks by the Oct 30 review. They are targets, not forecasts. Weekly output is validated actions and keep/iterate/stop decisions; traffic, attributed landings, successful use and retention remain separate evidence tiers.
+
+## Historical September baseline and decisions
 
 ## What the review established
 
@@ -64,7 +100,7 @@ Earlier logs treated Ads.txt recognition and refreshed GSC aggregate indexing as
 
 ## Daily operating contract
 
-Until October 2, every run reports: completed action or a named observation window, fresh data date, result, next dated action, and one precise blocker if present. Read this plan before replaying old automation-memory next steps. Missing access must be escalated once with a concise human-friendly action and tracked, not rediscovered silently each day. Weekly output must include a keep/iterate/stop decision even if the honest result is inconclusive. Keep measurement dates fixed for each experiment; other independent work may proceed.
+The October 4 execution loop above is the current contract. Preserve the historical September reviews below as evidence only. Missing access is escalated once and tracked, not rediscovered silently every day. Existing experiment dates stay fixed while independent authorized work proceeds; low sample size does not excuse a missed READY action.
 
 ## September 4 execution acceptance
 
