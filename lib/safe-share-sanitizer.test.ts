@@ -2,6 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { REDACTION_MARKER, sanitizeForSharing } from './safe-share-sanitizer';
 
 describe('sanitizeForSharing', () => {
+  it('matches the published synthetic sharing walkthrough and exposes review limits', () => {
+    const input = [
+      'API_KEY=example-not-a-real-key',
+      'DATABASE_URL=postgresql://demo:example-password@db.example.test/app',
+      'PUBLIC_KEY=public-demo-value',
+      'SUPPORT_REFERENCE=customer-demo-reference',
+    ].join('\n');
+
+    expect(sanitizeForSharing(input).output).toBe([
+      `API_KEY=${REDACTION_MARKER}`,
+      `DATABASE_URL=postgresql://demo:${REDACTION_MARKER}@db.example.test/app`,
+      'PUBLIC_KEY=public-demo-value',
+      'SUPPORT_REFERENCE=customer-demo-reference',
+    ].join('\n'));
+  });
+
   it('redacts provider credentials without corrupting surrounding text', () => {
     const syntheticAwsId = ['AKIA', 'ABCDEFGHIJKLMNOP'].join('');
     const syntheticStripeKey = ['sk_test_', 'aaaaaaaa', 'aaaaaaaa', 'aaaaaaaa'].join('');
