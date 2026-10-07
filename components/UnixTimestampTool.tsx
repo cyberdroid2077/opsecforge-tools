@@ -6,7 +6,7 @@ import { Check, Clock3, Copy, Lock, TimerReset } from 'lucide-react';
 import {
   unixTimestampToDate,
   type UnixTimestampUnit,
-} from '@/lib/unix-timestamp';
+} from '../lib/unix-timestamp';
 
 function formatDateTimeLocal(date: Date) {
   const year = date.getFullYear();
@@ -44,8 +44,12 @@ export default function UnixTimestampTool() {
     }
 
     return {
-      local: result.date.toLocaleString(),
-      utc: result.date.toUTCString(),
+      local: result.date.toLocaleString(undefined, {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        fractionalSecondDigits: 3, timeZoneName: 'short',
+      }),
+      utc: result.date.toISOString(),
       error: '',
     };
   }, [epochInput, epochUnit]);
@@ -125,6 +129,7 @@ export default function UnixTimestampTool() {
             </div>
 
             <button
+              aria-label="Copy current epoch seconds"
               onClick={() => copyValue('live', currentEpochSeconds)}
               className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-5 py-2.5 text-sm font-bold text-slate-200 transition-all hover:border-emerald-500/30 hover:text-emerald-300"
             >
@@ -142,7 +147,7 @@ export default function UnixTimestampTool() {
                 Epoch To Date
               </div>
               <p className="text-sm leading-relaxed text-slate-400">
-                Choose the input unit, then see both local and UTC renderings.
+                Choose seconds or milliseconds explicitly. UTC output uses ISO 8601 with milliseconds; local output uses your browser&apos;s timezone.
               </p>
             </div>
 
@@ -181,6 +186,7 @@ export default function UnixTimestampTool() {
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Local Time</span>
                     <button
+                      aria-label="Copy local time"
                       onClick={() => copyValue('local', epochConversion.local)}
                       disabled={!epochConversion.local}
                       className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 disabled:opacity-40"
@@ -189,7 +195,7 @@ export default function UnixTimestampTool() {
                       Copy
                     </button>
                   </div>
-                  <div className="font-mono text-sm text-emerald-300">
+                  <div className="break-words font-mono text-sm text-emerald-300">
                     {epochConversion.local || 'Waiting for input...'}
                   </div>
                 </div>
@@ -198,6 +204,7 @@ export default function UnixTimestampTool() {
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">UTC Time</span>
                     <button
+                      aria-label="Copy UTC time"
                       onClick={() => copyValue('utc', epochConversion.utc)}
                       disabled={!epochConversion.utc}
                       className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 disabled:opacity-40"
@@ -206,7 +213,7 @@ export default function UnixTimestampTool() {
                       Copy
                     </button>
                   </div>
-                  <div className="font-mono text-sm text-emerald-300">
+                  <div className="break-all font-mono text-sm text-emerald-300">
                     {epochConversion.utc || 'Waiting for input...'}
                   </div>
                 </div>
@@ -227,12 +234,14 @@ export default function UnixTimestampTool() {
 
             <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
               <input
+                aria-label="Local date and time"
                 type="datetime-local"
                 value={dateInput}
                 onChange={(event) => setDateInput(event.target.value)}
                 className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-base text-cyan-300 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
               />
               <input
+                aria-label="Seconds (0–59)"
                 type="number"
                 min={0}
                 max={59}
@@ -243,8 +252,12 @@ export default function UnixTimestampTool() {
             </div>
 
             <div className="mt-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-600">
-              Second override (0-59)
+              Seconds (0–59)
             </div>
+            <p className="mt-3 text-xs leading-relaxed text-slate-400">
+              This is a local time, not UTC. At daylight-saving transitions, JavaScript chooses the earlier repeated time or moves a skipped time forward.{' '}
+              <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_components_and_time_zones" className="text-emerald-400 underline">Date/time behavior</a>.
+            </p>
 
             {dateConversion.error ? (
               <div className="mt-6 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-300">
@@ -256,6 +269,7 @@ export default function UnixTimestampTool() {
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Epoch Seconds</span>
                     <button
+                      aria-label="Copy epoch seconds"
                       onClick={() => copyValue('epoch-seconds', dateConversion.seconds)}
                       disabled={!dateConversion.seconds}
                       className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 disabled:opacity-40"
@@ -273,6 +287,7 @@ export default function UnixTimestampTool() {
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <span className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Epoch Milliseconds</span>
                     <button
+                      aria-label="Copy epoch milliseconds"
                       onClick={() => copyValue('epoch-milliseconds', dateConversion.milliseconds)}
                       disabled={!dateConversion.milliseconds}
                       className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 disabled:opacity-40"
