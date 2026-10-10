@@ -1,14 +1,23 @@
 # OpsecForge Operations
 
-Last updated: 2026-10-09
+Last updated: 2026-10-10
 
 This file is the durable source of truth for website operations. Update it after any meaningful change to measurement, publishing, deployment, SEO, experiments, or operating risk.
 
-## Current execution pointer — October 9
+## Current execution pointer — October 10
 
 Read the October 4–11 active queue at the top of `docs/GROWTH_PLAN.md`; the September pointer below is historical. A3 is DONE October 8, ahead of its October 9 deadline: the remaining desktop/mobile/keyboard/clipboard gate for `dca0a6e` passed in a real browser. D1 remains DONE with additional Base64 growth investment STOPPED. A2 remains OBSERVING after `5609852`/`eac425d`. A1 remains OBSERVING after October 5 publication at https://x.com/JiaVincent1747/status/2107096234947211335 ; checks remain October 12/19 and November 2. Next weekly review is October 11. Native UI access is available again; no Vercel analytics tab is present in the current Safari inventory, and no fresh Vercel aggregate was read today. Historical snapshots are not current results.
 
 The last completed business comparison remains the October 2/3 review: Google clicks improved from four to nine across equal 28-day periods, while impressions and Vercel visitors declined. This is not effective acquisition or completed-use proof. The October 5 demonstration is a distribution deliverable, not growth; QA visits and the initial X self-view are excluded from success claims. GSC all-data metadata now reports firstIncompleteDate October 6, so final availability extends through October 5 (42 impressions, zero clicks); provisional October 6/7 rows are excluded. Preserve October 12 hash, October 16 equal-14-day and October 30 equal-28-day decisions; the guide's checks remain October 18 and November 1. No paid service, new tracker or tool-input logging is authorized by these dates.
+
+## Review preparation checkpoint — 2026-10-10
+
+- Verified HEAD `1b33c77`, active queue and charter; unrelated TTS edit remains untouched. A3/D1 are DONE; A1/A2 OBSERVING; D2 is due tomorrow, October 11. No overdue READY item exists and no experiment deadline moved.
+- Public homepage, sanitizer, hash generator and sitemap returned HTTP 200. No demonstrated new blocker was found. No product code, copy or external post changed today.
+- GSC availability metadata still says firstIncompleteDate October 7. The requested October 1–7 final-data response is therefore NOT a complete seven-day period: available final rows effectively cover October 1–6. Aggregate response: 150 impressions, one click, 0.67% CTR, position 22.52. The disclosed timestamp page has 71 impressions/one click/position 35.17; Base64 article 33/zero/6.42. This is review preparation, not an equal-window comparison or proof that the October 7 repair caused a click (the final data predates that release). Tomorrow must re-check the completion boundary and use genuinely equal final periods.
+- Page query was capped at ten rows, not a complete inventory; omitted pages are not zero. Base64 remains STOPPED for additional growth work; 33 impressions do not justify a speculative snippet change. No click-query attribution or completed-user-task inference is made.
+- Fresh Vercel aggregates remain uncollected, not zero or unchanged; historical counts cannot substitute for tomorrow's review. No repeated human permission request, new access, paid analytics or input tracking. D2 must explicitly separate this measurement limitation from accepted deliverables and choose a bounded next-week action rather than renew a blanket waiting period.
+- No independent evidence-backed mutation is warranted today. Next decision remains October 11, then A1/hash October 12 and whole-site October 16/30. This log is not itself a growth deliverable.
 
 ## Daily checkpoint — 2026-10-09
 
