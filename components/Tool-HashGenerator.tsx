@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CryptoJS from 'crypto-js';
 import bcrypt from 'bcryptjs';
 import FileChecksum from './FileChecksum';
@@ -25,6 +25,8 @@ export default function SecureHashGenerator() {
   });
 
   const [copied, setCopied] = useState<string | null>(null);
+  const hashGeneration = useRef(0);
+  const bcryptGeneration = useRef(0);
 
   const computeSubtleHash = async (algorithm: string, text: string) => {
     const msgBuffer = new TextEncoder().encode(text);
@@ -34,8 +36,9 @@ export default function SecureHashGenerator() {
   };
 
   const updateHashes = useCallback(async (text: string) => {
+    const run = ++hashGeneration.current;
+    setHashes({ md5: '', sha1: '', sha256: '' });
     if (!text) {
-      setHashes({ md5: '', sha1: '', sha256: '' });
       return;
     }
 
@@ -44,23 +47,27 @@ export default function SecureHashGenerator() {
       const sha1 = await computeSubtleHash('SHA-1', text);
       const sha256 = await computeSubtleHash('SHA-256', text);
       
-      setHashes({ md5, sha1, sha256 });
+      if (run === hashGeneration.current) setHashes({ md5, sha1, sha256 });
     } catch (error) {
       console.error('Hashing error:', error);
     }
   }, []);
 
   useEffect(() => {
-    updateHashes(inputText);
-  }, [inputText, updateHashes]);
+    const hashRuns = hashGeneration;
+    const bcryptRuns = bcryptGeneration;
+    return () => { hashRuns.current++; bcryptRuns.current++; };
+  }, []);
 
   const generateBcrypt = () => {
     if (!inputText) return;
+    const run = ++bcryptGeneration.current;
     
     setBcryptState(prev => ({ ...prev, isComputing: true }));
     
     // Use setTimeout to allow UI to update before heavy synchronous computation (or use async bcrypt if available)
     setTimeout(() => {
+      if (run !== bcryptGeneration.current) return;
       try {
         const hash = bcrypt.hashSync(inputText, bcryptState.rounds);
         setBcryptState(prev => ({ ...prev, hash, isComputing: false }));
@@ -78,7 +85,7 @@ export default function SecureHashGenerator() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const HashOutput = ({ label, value, type }: { label: string, value: string, type: string }) => (
+  const renderHashOutput = ({ label, value, type }: { label: string, value: string, type: string }) => (
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
       <div className="relative flex items-center">
@@ -129,7 +136,15 @@ export default function SecureHashGenerator() {
           <textarea
             id="hash-input"
             value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
+            onChange={(e) => {
+              hashGeneration.current++;
+              bcryptGeneration.current++;
+              setInputText(e.target.value);
+              setHashes({ md5: '', sha1: '', sha256: '' });
+              setBcryptState(prev => ({ ...prev, hash: '', isComputing: false }));
+              setCopied(null);
+              void updateHashes(e.target.value);
+            }}
             className="w-full h-40 p-4 bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none font-mono"
             placeholder="Enter text to hash here..."
           />
@@ -137,7 +152,7 @@ export default function SecureHashGenerator() {
           <div className="mt-8 p-5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
             <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-3">Bcrypt Generator</h3>
             <p className="text-xs text-blue-700 dark:text-blue-400 mb-4">
-              Bcrypt is computationally expensive by design. This browser output is for learning and testing; use your application's password-hashing library for production credentials.
+              Bcrypt is computationally expensive by design. This browser output is for learning and testing; use your application&apos;s password-hashing library for production credentials.
             </p>
             
             <div className="flex items-center gap-4 mb-4">
@@ -148,7 +163,12 @@ export default function SecureHashGenerator() {
                   min="4" 
                   max="14" 
                   value={bcryptState.rounds}
-                  onChange={(e) => setBcryptState(prev => ({ ...prev, rounds: parseInt(e.target.value) }))}
+                  aria-label="Bcrypt cost factor"
+                  onChange={(e) => {
+                    bcryptGeneration.current++;
+                    setBcryptState(prev => ({ ...prev, rounds: parseInt(e.target.value), hash: '', isComputing: false }));
+                    setCopied(null);
+                  }}
                   className="w-full"
                 />
               </div>
@@ -161,7 +181,7 @@ export default function SecureHashGenerator() {
               </button>
             </div>
             
-            <HashOutput label="Bcrypt Hash" value={bcryptState.hash} type="bcrypt" />
+            {renderHashOutput({ label: 'Bcrypt Hash', value: bcryptState.hash, type: 'bcrypt' })}
           </div>
         </div>
 
@@ -171,9 +191,9 @@ export default function SecureHashGenerator() {
             Standard Hashes (Real-time)
           </h3>
           
-          <HashOutput label="SHA-256" value={hashes.sha256} type="sha256" />
-          <HashOutput label="SHA-1" value={hashes.sha1} type="sha1" />
-          <HashOutput label="MD5" value={hashes.md5} type="md5" />
+          {renderHashOutput({ label: 'SHA-256', value: hashes.sha256, type: 'sha256' })}
+          {renderHashOutput({ label: 'SHA-1', value: hashes.sha1, type: 'sha1' })}
+          {renderHashOutput({ label: 'MD5', value: hashes.md5, type: 'md5' })}
           
           <div className="mt-4 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 p-3 rounded-md">
             <p><strong>Note on MD5/SHA-1:</strong> These algorithms have practical collision weaknesses. Use them only when a legacy format requires them, never for authenticity decisions or password storage.</p>
