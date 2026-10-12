@@ -1,9 +1,9 @@
 ---
 title: "Hash Generator Guide: SHA-256, Password Hashing, and Verification"
 date: "2026-04-08"
-updated: "2026-09-04"
-reviewed: "2026-08-06"
-source_reviewed: "2026-08-06"
+updated: "2026-10-12"
+reviewed: "2026-10-12"
+source_reviewed: "2026-10-12"
 primary_source: "https://csrc.nist.gov/pubs/fips/180-4/upd1/final"
 description: "Learn what SHA-256 and other hashes can prove, how to verify a digest safely, and why passwords need Argon2id, scrypt, bcrypt, or PBKDF2 instead."
 category: "Application Security"
@@ -27,7 +27,7 @@ The distinction matters: a matching digest is useful only when the expected valu
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">File and text checksums</p>
   <h2 class="mt-0 text-2xl font-bold text-slate-100">Compare a file with its trusted SHA-256 digest</h2>
   <p class="text-slate-300">Select a file up to 32 MiB for SHA-256 or SHA-512 comparison without uploading it. Text hashing is also available; legacy outputs are for compatibility and bcrypt is for learning or testing.</p>
-  <a href="/tools/hash-generator" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Hash Generator →</a>
+  <a href="/tools/hash-generator#file-checksum" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Compare a file checksum →</a>
 </div>
 
 ## What a cryptographic hash can and cannot prove
@@ -70,6 +70,29 @@ If the values differ, stop. The cause may be corruption, a different release art
 
 The [OpsecForge file checksum verifier](/tools/hash-generator#file-checksum) accepts a local file up to 32 MiB and compares SHA-256 or SHA-512 against a pasted hexadecimal digest. It reads file bytes in the browser without uploading them. The size limit bounds memory use because the [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) reads the whole input rather than streaming it. Use the operating-system commands above for larger files. On Windows, use `Get-FileHash ./release.zip -Algorithm SHA256` in [PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash).
 
+### Try a synthetic match, then a mismatch
+
+Use a test file, not a private download, for this walkthrough. On macOS or Linux, the following command creates a file containing exactly the three ASCII bytes `abc`, with **no newline**:
+
+```bash
+printf '%s' 'abc' > checksum-demo.txt
+```
+
+The SHA-256 digest for those exact bytes is:
+
+```text
+ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+```
+
+1. Open the [file-checksum section](/tools/hash-generator#file-checksum), select this synthetic file, and leave the algorithm set to **SHA-256**.
+2. Paste the digest above into **Expected checksum (optional)**, then select **Calculate file checksum**. The page should report a match.
+3. Change just the first character of the expected digest from `b` to `0`. Both values are valid hexadecimal, but the comparison should now report a mismatch.
+4. Select **Clear file and results** when finished. For a real download, obtain its expected digest from a trusted publisher; this synthetic value does not apply to other files.
+
+If the test does not match, check the exact bytes first. A text editor may add a newline or an encoding marker. Selecting SHA-512 produces a different, longer digest and cannot be compared with this SHA-256 value. A match checks the supplied digest, not publisher identity or whether a file contains malware.
+
+The same page's **Hash text** section offers SHA-256, SHA-1 and MD5 text digests plus an explicit bcrypt demonstration. **SHA-512 is available for file checksums, not for the text field.** Use the file section for downloaded bytes rather than pasting a filename or file contents into the text field.
+
 ## Password hashing is deliberately different
 
 Fast digests are good for checksums and bad for stored passwords because an attacker with a stolen database can test guesses quickly. OWASP recommends Argon2id for new systems and scrypt when Argon2id is unavailable. Bcrypt is primarily a legacy option when Argon2id and scrypt are not available; many bcrypt implementations also limit inputs to 72 bytes.
@@ -108,5 +131,5 @@ Git uses hashes to name content and detect corruption. Git's own transition docu
 ## Related guides and tools
 
 - See [how hash collisions affect integrity checks](/blog/hash-collision-attacks-data-integrity).
-- Use the focused [SHA Hash Generator](/tools/sha256-hash) for SHA-1, SHA-256, and SHA-512 text digests.
-- Open the [Hash Generator](/tools/hash-generator) for SHA-256, legacy digest compatibility, and a bcrypt demonstration.
+- Compare SHA-256 or SHA-512 file digests with the [local file checksum verifier](/tools/hash-generator#file-checksum).
+- Open the [text hash generator](/tools/hash-generator) for SHA-256, legacy SHA-1/MD5 compatibility, and a bcrypt demonstration; SHA-512 is file-only.
