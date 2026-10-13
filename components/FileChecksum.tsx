@@ -64,15 +64,15 @@ export default function FileChecksum() {
             if (file || expected) return;
             invalidate(); setExample(true); setExpected(EXAMPLE_CHECKSUMS[algorithm]);
           }} className="rounded-lg border border-emerald-500/60 px-3 py-2 font-semibold disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Try a synthetic example</button>
-          <p className="mt-2 text-slate-400">No file needed. Try a match, then a mismatch. Clear your file and expected checksum first; the example will not replace them.</p>
+          <p className="mt-2 text-slate-400">Try a match and a mismatch without a file. Clear existing inputs first; they will not be replaced.</p>
         </> : <>
           <p className="font-semibold text-emerald-300">Synthetic example active — not your file</p>
-          <p className="mt-2 text-slate-300">Exactly three ASCII bytes: <code>abc</code>, without a newline. Click Calculate file checksum to try a match. Then change the expected value below to see a mismatch. This is a public test vector, not a trusted download.</p>
+          <p className="mt-2 text-slate-300">Public test vector: <code>abc</code> (3 ASCII bytes, no newline). Calculate, then try a mismatch. Not a real download.</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" onClick={() => setExpected(EXAMPLE_CHECKSUMS[algorithm])} className="rounded-lg border border-slate-600 px-3 py-2 focus-visible:outline-2 focus-visible:outline-emerald-400">Use matching example checksum</button>
             <button type="button" onClick={() => setExpected(mismatchingExample(algorithm))} className="rounded-lg border border-slate-600 px-3 py-2 focus-visible:outline-2 focus-visible:outline-amber-300">Try a mismatching checksum</button>
           </div>
-          <p className="mt-2 text-slate-400">Clear file and results to exit, or select your own file. Selecting a file removes the example checksum.</p>
+          <p className="mt-2 text-slate-400">Clear to exit. Selecting a file clears the example checksum.</p>
         </>}
       </div>
       <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_150px]">
