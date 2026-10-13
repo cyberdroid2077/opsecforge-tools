@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Lock, Key, Play, Copy, Check, RefreshCw, ShieldCheck } from 'lucide-react';
 import { generateJwtTestSecret } from '@/lib/jwt-test-secret';
+import { encodeJwt as buildJwt, validateJsonObject, type JwtHmacAlg, type JwtPart } from '@/lib/jwt';
 
-type Algorithm = 'HS256' | 'HS512';
+type Algorithm = JwtHmacAlg;
 
 export default function JwtEncoder() {
   const [headerJson, setHeaderJson] = useState('{\n  "alg": "HS256",\n  "typ": "JWT"\n}');
@@ -12,99 +13,30 @@ export default function JwtEncoder() {
   const [secret, setSecret] = useState('');
   const [algorithm, setAlgorithm] = useState<Algorithm>('HS256');
   const [encodedJwt, setEncodedJwt] = useState('');
+  const [preview, setPreview] = useState<{ header: JwtPart; payload: JwtPart } | null>(null);
   const [copied, setCopied] = useState(false);
   const [segmentCopied, setSegmentCopied] = useState({ header: false, payload: false, signature: false });
   const [error, setError] = useState('');
-  const [headerError, setHeaderError] = useState('');
-  const [payloadError, setPayloadError] = useState('');
 
-  useEffect(() => {
-    try {
-      JSON.parse(headerJson);
-      setHeaderError('');
-    } catch (e) {
-      setHeaderError('Invalid JSON format');
-    }
-  }, [headerJson]);
-
-  useEffect(() => {
-    try {
-      JSON.parse(payloadJson);
-      setPayloadError('');
-    } catch (e) {
-      setPayloadError('Invalid JSON format');
-    }
-  }, [payloadJson]);
-
-  const base64UrlEncode = (str: string): string => {
-    const base64 = btoa(unescape(encodeURIComponent(str)));
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  };
-
-  const encodeSegment = (obj: object): string => {
-    return base64UrlEncode(JSON.stringify(obj));
-  };
-
-  const sign = (data: string, secret: string, alg: Algorithm): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const key = utf8Encode(secret);
-      
-      if (typeof crypto !== 'undefined' && crypto.subtle) {
-        crypto.subtle.importKey(
-          'raw',
-          key as unknown as BufferSource,
-          { name: 'HMAC', hash: { name: alg === 'HS256' ? 'SHA-256' : 'SHA-512' } },
-          false,
-          ['sign']
-        ).then(cryptoKey => {
-          crypto.subtle.sign('HMAC', cryptoKey, utf8Encode(data) as unknown as BufferSource).then(signature => {
-            const sigArray = new Uint8Array(signature);
-            const sigBase64 = btoa(String.fromCharCode(...sigArray));
-            resolve(sigBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''));
-          }).catch(reject);
-        }).catch(reject);
-      } else {
-        reject(new Error('Web Crypto API not available'));
-      }
-    });
-  };
-
-  const utf8Encode = (str: string): Uint8Array => {
-    return new TextEncoder().encode(str);
-  };
+  const headerError = useMemo(() => validateJsonObject(headerJson, 'Header'), [headerJson]);
+  const payloadError = useMemo(() => validateJsonObject(payloadJson, 'Payload'), [payloadJson]);
 
   const encodeJwt = async () => {
     setError('');
     setEncodedJwt('');
+    setPreview(null);
 
     if (headerError || payloadError) {
       setError('Please fix the JSON errors before encoding.');
       return;
     }
 
-    if (!secret.trim()) {
-      setError('Secret key is required');
-      return;
-    }
-
     try {
-      const header = JSON.parse(headerJson);
-      header.alg = algorithm;
-      const headerStr = JSON.stringify(header);
-      
-      const payload = JSON.parse(payloadJson);
-      const payloadStr = JSON.stringify(payload);
-
-      const headerEncoded = encodeSegment(header);
-      const payloadEncoded = encodeSegment(payload);
-      const data = `${headerEncoded}.${payloadEncoded}`;
-      
-      const signature = await sign(data, secret, algorithm);
-      const jwt = `${data}.${signature}`;
-      
-      setEncodedJwt(jwt);
-    } catch (err: any) {
-      setError(err.message || 'Failed to encode JWT');
+      const result = await buildJwt({ headerJson, payloadJson, secret, algorithm });
+      setEncodedJwt(result.token);
+      setPreview({ header: result.header, payload: result.payload });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to encode JWT');
     }
   };
 
@@ -127,6 +59,7 @@ export default function JwtEncoder() {
     setPayloadJson('{\n  "sub": "1234567890",\n  "name": "John Doe",\n  "iat": 1516239022\n}');
     setSecret('');
     setEncodedJwt('');
+    setPreview(null);
     setError('');
   };
 
@@ -348,7 +281,7 @@ export default function JwtEncoder() {
                   </button>
                 </div>
                 <pre className="font-mono text-xs text-emerald-300 whitespace-pre-wrap break-all">
-                  {JSON.stringify(JSON.parse(atob(encodedJwt.split('.')[0])), null, 2)}
+                  {JSON.stringify(preview?.header ?? {}, null, 2)}
                 </pre>
               </div>
               <div className="bg-slate-900 rounded-lg p-3">
@@ -359,7 +292,7 @@ export default function JwtEncoder() {
                   </button>
                 </div>
                 <pre className="font-mono text-xs text-blue-300 whitespace-pre-wrap break-all">
-                  {JSON.stringify(JSON.parse(atob(encodedJwt.split('.')[1])), null, 2)}
+                  {JSON.stringify(preview?.payload ?? {}, null, 2)}
                 </pre>
               </div>
             </div>
