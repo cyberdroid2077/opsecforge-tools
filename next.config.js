@@ -117,7 +117,7 @@ const nextConfig = {
     return [
       {
         source: '/tools/:path(lorem-ipsum|markdown-to-html|qr-generator|text-case|text-diff|url-encoder|word-counter)',
-        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
       },
     ];
   },

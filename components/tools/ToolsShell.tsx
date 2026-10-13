@@ -4,10 +4,13 @@ import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { track } from '@vercel/analytics';
 import SocialShare from '@/components/ui/SocialShare';
+import ToolDiscovery from '@/components/tools/ToolDiscovery';
+import { getToolSlug } from '../../lib/tool-discovery';
 
 export default function ToolsShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const toolContentRef = useRef<HTMLDivElement>(null);
+  const discoverySlug = getToolSlug(pathname);
 
   useEffect(() => {
     const tool = pathname.split('/').filter(Boolean)[1];
@@ -74,6 +77,7 @@ export default function ToolsShell({ children }: { children: React.ReactNode }) 
       <div ref={toolContentRef} className="contents">
         {children}
       </div>
+      {discoverySlug && <ToolDiscovery slug={discoverySlug} />}
       <div className="max-w-4xl mx-auto">
         <div className="mt-12 mb-24 px-6">
           <SocialShare />

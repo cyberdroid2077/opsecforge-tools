@@ -22,12 +22,19 @@ export const primaryToolHrefs = [
   '/tools/base64-converter',
 ] as const;
 
+/*
+ * Only indexable tools are listed here. Seven thin generic tools (Lorem Ipsum,
+ * Markdown to HTML, QR, Text Case, Text Diff, URL Encoder, Word Counter) still
+ * work at their URLs but are noindexed (see next.config.js and app/sitemap.ts),
+ * so the homepage and /tools do not link to them. Keep this list aligned with
+ * the sitemap; lib/tool-catalog.test.ts enforces that.
+ */
 export const toolGroups: ToolGroup[] = [
   {
     id: 'encoding-formatting',
     name: 'Encoding & Formatting',
     description:
-      'Convert, format, compare, and inspect text or structured data locally in your browser.',
+      'Convert, format, and inspect text or structured data locally in your browser.',
     tools: [
       {
         name: 'Base64 Converter',
@@ -39,17 +46,12 @@ export const toolGroups: ToolGroup[] = [
         },
       },
       {
-        name: 'URL Encoder & Decoder',
-        href: '/tools/url-encoder',
-        description: 'Encode URI components and decode escaped URL text.',
-      },
-      {
         name: 'JSON Beautifier',
         href: '/tools/json-beautifier',
         description: 'Format and inspect JSON without submitting the payload to a server.',
         article: {
-          title: 'Stop pasting sensitive JSON online',
-          href: '/blog/stop-pasting-sensitive-json-online',
+          title: 'Why API JSON responses are a security blind spot',
+          href: '/blog/api-json-response-security-blindspot-2026',
         },
       },
       {
@@ -57,39 +59,14 @@ export const toolGroups: ToolGroup[] = [
         href: '/tools/sql-formatter',
         description: 'Format MySQL and PostgreSQL queries locally.',
         article: {
-          title: 'Risks of online SQL formatters',
-          href: '/blog/the-hidden-risks-of-pasting-sql-queries-into-online-formatters',
+          title: 'SQL injection and parameterized queries',
+          href: '/blog/sql-injection-modern-apis-parameterized-queries-2026',
         },
-      },
-      {
-        name: 'Markdown to HTML',
-        href: '/tools/markdown-to-html',
-        description: 'Preview Markdown and inspect generated HTML side by side.',
-      },
-      {
-        name: 'Text Diff Checker',
-        href: '/tools/text-diff',
-        description: 'Compare two text versions and highlight additions and removals.',
-      },
-      {
-        name: 'Text Case Converter',
-        href: '/tools/text-case',
-        description: 'Convert text between common programming and writing case styles.',
       },
       {
         name: 'Hex RGB Converter',
         href: '/tools/hex-rgb-converter',
         description: 'Convert color values between hex, RGB, and HSL formats.',
-      },
-      {
-        name: 'Word & Character Counter',
-        href: '/tools/word-counter',
-        description: 'Measure words, characters, sentences, paragraphs, and reading time.',
-      },
-      {
-        name: 'Lorem Ipsum Generator',
-        href: '/tools/lorem-ipsum',
-        description: 'Generate placeholder words, sentences, or paragraphs locally.',
       },
     ],
   },
@@ -104,14 +81,18 @@ export const toolGroups: ToolGroup[] = [
         href: '/tools/jwt-decoder',
         description: 'Decode JWT headers and payloads locally. Decoding does not verify a signature.',
         article: {
-          title: 'Validate JWTs offline safely',
-          href: '/blog/how-to-validate-jwts-offline-without-exposing-your-secret-key',
+          title: 'JWT vulnerabilities and safe validation',
+          href: '/blog/jwt-token-vulnerabilities-authentication-security',
         },
       },
       {
         name: 'JWT Encoder',
         href: '/tools/jwt-encoder',
         description: 'Create signed test JWTs locally for development workflows.',
+        article: {
+          title: 'JWT signing: safe token issuance and validation',
+          href: '/blog/jwt-encoder-security-token-generation-best-practices',
+        },
       },
       {
         name: 'Safe-to-Share Sanitizer',
@@ -126,6 +107,10 @@ export const toolGroups: ToolGroup[] = [
         name: 'Password Generator',
         href: '/tools/password-generator',
         description: 'Generate random passwords using browser cryptography.',
+        article: {
+          title: 'Password security best practices',
+          href: '/blog/password-security-vulnerabilities-best-practices',
+        },
       },
       {
         name: 'File Checksum & Hash Generator',
@@ -142,15 +127,15 @@ export const toolGroups: ToolGroup[] = [
     id: 'debugging-validation',
     name: 'Debugging & Validation',
     description:
-      'Inspect signatures, identifiers, timestamps, and shareable development artifacts.',
+      'Inspect signatures, identifiers, and timestamps.',
     tools: [
       {
         name: 'Webhook Signature Verifier',
         href: '/tools/webhook-debugger',
         description: 'Check whether supplied payload, secret, and signature values match locally.',
         article: {
-          title: 'Why webhook signatures must be validated',
-          href: '/blog/what-is-a-webhook-signature-and-why-must-you-validate-it',
+          title: 'Webhook signature validation best practices',
+          href: '/blog/webhook-signature-validation-hmac-sha256-best-practices-2026',
         },
       },
       {
@@ -158,19 +143,14 @@ export const toolGroups: ToolGroup[] = [
         href: '/tools/uuid-generator',
         description: 'Generate RFC 4122 version 4 UUIDs using the browser crypto API.',
         article: {
-          title: 'ULID vs UUID',
-          href: '/blog/understanding-ulid-vs-uuid-which-should-you-choose-in-2026',
+          title: 'How to generate a UUID v4 in the browser',
+          href: '/blog/how-to-generate-uuids-in-browser',
         },
       },
       {
         name: 'Unix Timestamp Converter',
         href: '/tools/unix-timestamp',
         description: 'Convert Unix seconds or milliseconds to local and UTC date values.',
-      },
-      {
-        name: 'QR Code Generator',
-        href: '/tools/qr-generator',
-        description: 'Create and download QR codes locally from text or URLs.',
       },
     ],
   },

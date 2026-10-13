@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: ['text diff', 'compare text', 'find differences', 'diff checker', 'text comparison'],
   openGraph: {
     title: 'Text Diff - Compare and Find Differences | OpsecForge',
-    description: 'Free text diff tool. 100% browser-side.',
+    description: 'Free text diff tool. Runs in your browser.',
   },
 };
 

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   return {
     title: post.title,
     description: post.description,
-    robots: reviewedForIndexing ? undefined : { index: false, follow: false },
+    robots: reviewedForIndexing ? undefined : { index: false, follow: true },
     alternates: {
       canonical: `/blog/${post.slug}`,
     },

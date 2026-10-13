@@ -105,7 +105,7 @@ export default function UnixTimestampTool() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-emerald-400 shadow-sm">
             <Lock size={14} />
             <span className="text-xs font-bold uppercase tracking-wider">
-              Offline Date Math
+              Local Date Math
             </span>
           </div>
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">

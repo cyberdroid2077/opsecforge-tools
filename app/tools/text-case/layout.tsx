@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: ['text case converter', 'uppercase', 'lowercase', 'title case', 'change case', 'text transformer'],
   openGraph: {
     title: 'Text Case Converter - Change Text Case | OpsecForge',
-    description: 'Free text case converter. 100% browser-side.',
+    description: 'Free text case converter. Runs in your browser.',
   },
 };
 

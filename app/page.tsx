@@ -50,15 +50,15 @@ const featuredArticles = [
   },
   {
     label: 'Webhook security',
-    title: 'What Is a Webhook Signature and Why Must You Validate It?',
+    title: 'Webhook Signature Validation: HMAC-SHA256 Best Practices',
     description: 'Understand signature matching, timestamp checks, and replay defenses for production receivers.',
-    href: '/blog/what-is-a-webhook-signature-and-why-must-you-validate-it',
+    href: '/blog/webhook-signature-validation-hmac-sha256-best-practices-2026',
   },
   {
     label: 'Cryptography',
-    title: 'How to Generate Cryptographic Hashes Offline',
-    description: 'Choose an appropriate digest and keep sensitive source text out of remote utilities.',
-    href: '/blog/how-to-generate-cryptographic-hashes-offline',
+    title: 'Hash Generator Guide: SHA-256, Password Hashing, and Verification',
+    description: 'Choose an appropriate algorithm, verify a download against a trusted checksum, and know what a match proves.',
+    href: '/blog/hash-generator-tools-data-integrity-security',
   },
   {
     label: 'Encoding',

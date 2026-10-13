@@ -28,4 +28,4 @@ Your cloud provider account is the master key to all your infrastructure. Enable
 Don't store .env files in Slack, email, Confluence, Notion, or any SaaS tool. These services are often breached via phishing or have broad internal access. Use a password manager or dedicated secrets manager for credential storage.
 
 ## Use the OpsecForge Env Sanitizer
-Sanitize .env files safely at opsecforge.com/tools/env-sanitizer — 100% client-side, zero data transmission.
+Sanitize .env files safely at opsecforge.com/tools/env-sanitizer — redaction runs in your browser and the pasted text is not sent to OpsecForge for processing. Review the result.

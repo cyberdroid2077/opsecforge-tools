@@ -101,8 +101,10 @@ export default function Base64ConverterTool() {
             </span>
           </h1>
           <p className="max-w-3xl text-lg leading-relaxed text-slate-400">
-            Flip between plain text and Base64 in a zero-network workspace built for debugging
-            headers, credentials, and small config fragments locally in the browser.
+            Flip between plain text and Base64 while debugging headers, credentials, and small
+            config fragments. Conversion runs in this browser tab; OpsecForge does not send the
+            pasted text to a tool-processing backend. The page itself still loads site resources
+            and aggregate analytics.
           </p>
         </section>
 
@@ -242,7 +244,7 @@ export default function Base64ConverterTool() {
                 Browser-only execution
               </span>
             </div>
-            <span>No backend calls, no upload step</span>
+            <span>No tool-input upload</span>
           </div>
         </section>
       </div>

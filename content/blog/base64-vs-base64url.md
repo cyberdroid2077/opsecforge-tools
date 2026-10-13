@@ -323,7 +323,7 @@ Understanding the difference between Base64 and Base64URL helps prevent avoidabl
 - Use your language's built-in Base64URL functions when available.
 
 > **📬 Stay Ahead of Threats**
-> Continue with the [JWT Decoder](/tools/jwt-decoder) for JWT segments, the [URL Encoder](/tools/url-encoder) for query components, or browse the [complete tools center](/tools).
+> Continue with the [JWT Decoder](/tools/jwt-decoder) for JWT segments, or browse the [complete tools center](/tools).
 
 ## Primary references
 

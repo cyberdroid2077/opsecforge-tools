@@ -25,6 +25,15 @@ HMAC-SHA256 (Hash-based Message Authentication Code using SHA-256) is used by so
 3.  **Verification:** Your application receives the webhook, retrieves the same shared secret, and independently computes the HMAC-SHA256 hash of the received payload.
 4.  **Comparison:** The computed value is compared against the supplied signature. A match shows that the supplied payload, secret, and signature are consistent; it does not by itself establish request provenance, secret custody, or replay protection.
 
+<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Check a synthetic fixture</p>
+  <h3 class="mt-0 text-xl font-bold text-slate-100">Compare a payload, secret, and signature in your browser</h3>
+  <p class="text-slate-300">Paste an exact raw body, a throwaway secret, and the supplied signature to see whether a GitHub, Stripe, or generic HMAC value matches. The check runs in the browser tab. It cannot show who sent a request, how your secret is stored, or whether a delivery was replayed.</p>
+  <a href="/tools/webhook-debugger" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Webhook Signature Verifier →</a>
+</div>
+
+For a documented case of a handler that skipped this step, read our write-up of the [OneUptime webhook signature advisory](/blog/cve-2026-33143-webhook-signature-verification-bypass-2026).
+
 ## Timing-Safe Comparison: Preventing Timing Attacks on Webhook Validation
 
 A critical aspect of HMAC validation is the comparison of the computed signature with the received signature. A naive string comparison can be vulnerable to timing attacks. Attackers can potentially infer information about the shared secret by measuring the time it takes for the comparison to fail, as a comparison might fail faster if the initial characters match.

@@ -64,7 +64,7 @@ export default function QrGeneratorTool() {
         <section className="mb-16">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-emerald-400 shadow-sm">
             <Lock size={14} />
-            <span className="text-xs font-bold uppercase tracking-wider">Offline QR Rendering</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Local QR Rendering</span>
           </div>
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
             QR Code Generator

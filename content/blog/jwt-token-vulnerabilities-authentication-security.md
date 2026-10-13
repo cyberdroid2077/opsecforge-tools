@@ -110,7 +110,7 @@ JWT signatures do not create an automatic logout or revocation mechanism. A depl
 
 The correct choice depends on how quickly access must end after logout, account disablement, privilege change, or key compromise. Do not advertise “stateless authentication” while leaving the system unable to terminate stolen access.
 
-For standards-based revocation and refresh-token design, read [OAuth Token Revocation, Introspection, and Rotation](/blog/dynamic-oauth-token-revocation).
+For standards-based revocation and introspection, see [RFC 7009 (OAuth 2.0 Token Revocation)](https://www.rfc-editor.org/rfc/rfc7009) and [RFC 7662 (OAuth 2.0 Token Introspection)](https://www.rfc-editor.org/rfc/rfc7662).
 
 ## JWT validation checklist
 

@@ -26,6 +26,18 @@ describe('homepage', () => {
     expect(screen.getByRole('link', { name: /View all articles/ }).getAttribute('href')).toBe('/blog');
   });
 
+  it('does not link to the noindexed generic tools or to redirected guides', () => {
+    const { container } = render(<Home />);
+    const hrefs = [...container.querySelectorAll('a')].map((anchor) => anchor.getAttribute('href'));
+
+    for (const removed of ['lorem-ipsum', 'markdown-to-html', 'qr-generator', 'text-case', 'text-diff', 'url-encoder', 'word-counter']) {
+      expect(hrefs).not.toContain(`/tools/${removed}`);
+    }
+
+    expect(hrefs).not.toContain('/blog/how-to-generate-cryptographic-hashes-offline');
+    expect(hrefs).not.toContain('/blog/what-is-a-webhook-signature-and-why-must-you-validate-it');
+  });
+
   it('includes canonical website and primary-tool structured data', () => {
     const { container } = render(<Home />);
     const jsonLd = container.querySelector('script[type="application/ld+json"]');
