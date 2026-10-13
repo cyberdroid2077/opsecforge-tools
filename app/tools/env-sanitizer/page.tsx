@@ -140,7 +140,7 @@ export default function EnvSanitizer() {
                 <div className="space-y-8 mt-8">
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Which secrets do you detect?</h4>
-                        <p className="text-slate-400 mb-0">The heuristic checks common provider tokens, private-key blocks, authorization and cookie headers, credentials in URLs, sensitive query parameters, JWT-like strings, and values under common password, token, secret, and API-key field names. It can miss custom formats and may flag benign values.</p>
+                        <p className="text-slate-400 mb-0">The heuristic checks common provider tokens (for example AWS, Stripe, GitHub, GitLab, Slack, OpenAI, Anthropic, Google API and SendGrid formats), PEM, OpenSSH and PGP private-key blocks, authorization and cookie headers, credentials in URLs, sensitive query parameters, JWT-like strings, and values under common password, token, secret, and API-key field names (including camelCase names and multi-line YAML block or quoted values). A partly masked value such as pa****word is treated as a real value and redacted. It can miss custom formats and may flag benign values.</p>
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Is the redaction reversible?</h4>

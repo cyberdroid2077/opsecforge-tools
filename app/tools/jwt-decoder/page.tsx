@@ -1,129 +1,42 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Lock, Trash2, ShieldAlert, Cpu, Network, AlertTriangle, Clock, Info } from 'lucide-react';
 import Link from 'next/link';
+import {
+  analyzeJwt,
+  decodeJwt,
+  isTimeClaim,
+  type DecodedJwt,
+  type JwtAlert,
+  type JwtAnalysis,
+} from '@/lib/jwt';
 
-interface SecurityAlert {
-  type: 'error' | 'warning' | 'info';
-  message: string;
-}
-
-type JwtPart = Record<string, unknown>;
-
-const formatTimestamp = (ts: number) => {
-    if (ts > 1e12) ts = ts / 1000; // milliseconds → seconds
-    const date = new Date(ts * 1000);
-    const utc = date.toISOString().replace('T', ' ').replace('Z', ' UTC');
-    const local = date.toLocaleString();
-    const relative = (() => {
-      const now = Date.now();
-      const diff = ts * 1000 - now;
-      const abs = Math.abs(diff);
-      if (abs < 60000) return 'less than a minute ago';
-      if (abs < 3600000) return `${Math.floor(abs / 60000)} minutes ago`;
-      if (abs < 86400000) return `${Math.floor(abs / 3600000)} hours ago`;
-      if (abs < 2592000000) return `${Math.floor(abs / 86400000)} days ago`;
-      return `${Math.floor(abs / 2592000000)} months ago`;
-    })();
-    return { utc, local, relative, isExpired: ts * 1000 < Date.now() };
-};
-
-const toNumericDate = (value: unknown) => {
-  if (typeof value === 'number' && Number.isFinite(value)) return value;
-  if (typeof value === 'string' && value.trim() && Number.isFinite(Number(value))) return Number(value);
-  return null;
-};
-
-const checkSecurity = (header: JwtPart, payload: JwtPart) => {
-    const issues: SecurityAlert[] = [];
-    const algorithm = typeof header.alg === 'string' ? header.alg : '';
-
-    // alg: none
-    if (algorithm.toLowerCase() === 'none') {
-      issues.push({ type: 'error', message: 'Dangerous: "alg: none" detected. Token is not cryptographically signed and can be forged.' });
-    }
-
-    // Weak algorithms
-    const weakAlgs = ['HS256', 'HS384', 'HS512'];
-    if (weakAlgs.includes(algorithm)) {
-      issues.push({ type: 'info', message: 'HMAC algorithm detected. Signature cannot be verified without your secret key.' });
-    }
-
-    // Expired
-    const expiration = toNumericDate(payload.exp);
-    if (expiration !== null) {
-      const expInfo = formatTimestamp(expiration);
-      if (expInfo.isExpired) {
-        issues.push({ type: 'warning', message: `Token expired on ${expInfo.utc} (${expInfo.relative})` });
-      }
-    }
-
-    // Missing standard claims
-    if (!('exp' in payload)) issues.push({ type: 'info', message: 'Token has no "exp" (expiration) claim.' });
-    if (!('iat' in payload)) issues.push({ type: 'info', message: 'Token has no "iat" (issued at) claim.' });
-
-    return issues;
-};
-
-const formatClaim = (key: string, value: unknown): string => {
-    if (['exp', 'iat', 'nbf', 'auth_time'].includes(key)) {
-      const timestamp = toNumericDate(value);
-      if (timestamp === null) return JSON.stringify(value) ?? String(value);
-      const info = formatTimestamp(timestamp);
-      return `${info.utc} (${info.relative})${info.isExpired ? ' ⛔ EXPIRED' : ''}`;
+const formatClaim = (key: string, value: unknown, claims: JwtAnalysis['timeClaims']): string => {
+    if (isTimeClaim(key) && claims[key]) {
+      return claims[key]!.display;
     }
     return JSON.stringify(value) ?? String(value);
 };
 
-const formatLocalTimestamp = (value: unknown) => {
-  const timestamp = toNumericDate(value);
-  return timestamp === null ? 'Invalid numeric date' : formatTimestamp(timestamp).local;
-};
-
 export default function JwtDecoder() {
   const [input, setInput] = useState('');
-  const [decoded, setDecoded] = useState<{header: JwtPart, payload: JwtPart, signature: string} | null>(null);
-  const [error, setError] = useState('');
-  const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
 
-  useEffect(() => {
-    setAlerts([]);
-    if (!input) {
-      setDecoded(null);
-      setError('');
-      return;
-    }
+  const { decoded, error, alerts, timeClaims } = useMemo(() => {
+    const empty = {
+      decoded: null as DecodedJwt | null,
+      error: '',
+      alerts: [] as JwtAlert[],
+      timeClaims: {} as JwtAnalysis['timeClaims'],
+    };
+    if (!input) return empty;
 
     try {
-      const parts = input.trim().split('.');
-      if (parts.length !== 3) {
-        throw new Error('Invalid JWT format: Must have 3 parts separated by dots');
-      }
-
-      const decodePart = (part: string): JwtPart => {
-        const base64 = part.replace(/-/g, '+').replace(/_/g, '/');
-        const json = decodeURIComponent(atob(base64).split('').map((c) => {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        const value: unknown = JSON.parse(json);
-        if (!value || typeof value !== 'object' || Array.isArray(value)) {
-          throw new Error('Invalid JWT format: Header and payload must be JSON objects');
-        }
-        return value as JwtPart;
-      };
-
-      const header = decodePart(parts[0]);
-      const payload = decodePart(parts[1]);
-      const signature = parts[2];
-
-      setDecoded({ header, payload, signature });
-      setError('');
-      setAlerts(checkSecurity(header, payload));
+      const result = decodeJwt(input);
+      const analysis = analyzeJwt(result);
+      return { ...empty, decoded: result, alerts: analysis.alerts, timeClaims: analysis.timeClaims };
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to decode token');
-      setDecoded(null);
-      setAlerts([]);
+      return { ...empty, error: err instanceof Error ? err.message : 'Failed to decode token' };
     }
   }, [input]);
 
@@ -231,13 +144,21 @@ export default function JwtDecoder() {
                           <span className="text-indigo-300 font-bold shrink-0">&quot;{key}&quot;</span>
                           <span className="text-slate-600 shrink-0">→</span>
                           <div className="text-slate-300 break-all leading-relaxed">
-                            {['exp', 'iat', 'nbf', 'auth_time'].includes(key) ? (
+                            {isTimeClaim(key) && timeClaims[key] ? (
                               <div>
-                                <div className="text-emerald-400 font-mono">{formatClaim(key, value)}</div>
-                                <div className="text-slate-500 text-xs mt-0.5">Local: {formatLocalTimestamp(value)}</div>
+                                <div className={`font-mono ${
+                                  timeClaims[key]!.status === 'expired' ? 'text-rose-400' :
+                                  timeClaims[key]!.badge ? 'text-amber-400' : 'text-emerald-400'
+                                }`}>{formatClaim(key, value, timeClaims)}</div>
+                                <div className="text-slate-500 text-xs mt-0.5">
+                                  {timeClaims[key]!.local
+                                    ? `Local: ${timeClaims[key]!.local}`
+                                    : 'Local: not available for this value'}
+                                  {timeClaims[key]!.interpretedAsMilliseconds && ' · read as milliseconds'}
+                                </div>
                               </div>
                             ) : (
-                              <span className="text-emerald-300">{formatClaim(key, value)}</span>
+                              <span className="text-emerald-300">{formatClaim(key, value, timeClaims)}</span>
                             )}
                           </div>
                         </div>
@@ -291,7 +212,7 @@ export default function JwtDecoder() {
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">Smart Timestamp Parsing</h2>
                 <p>
-                    Common JWT claims like <code>exp</code>, <code>iat</code>, and <code>nbf</code> are Unix timestamps — raw numbers that are hard to read at a glance. Our decoder automatically converts them to human-readable dates in both UTC and your local timezone, plus a relative description such as &quot;3 hours ago&quot; or &quot;expired 2 days ago&quot;.
+                    Common JWT claims like <code>exp</code>, <code>iat</code>, and <code>nbf</code> are Unix timestamps — raw numbers that are hard to read at a glance. Our decoder automatically converts them to human-readable dates in both UTC and your local timezone, plus a relative description such as &quot;3 hours ago&quot; or &quot;in 2 days&quot;. Each claim is read by its own meaning: only an <code>exp</code> in the past is shown as expired, an <code>nbf</code> in the future is shown as not yet valid, and <code>iat</code> and <code>auth_time</code> are displayed as times only (a time in the future is flagged as possible clock skew). Values outside the range a JavaScript date can represent are shown as-is and marked out of range.
                 </p>
 
                 <div className="bg-amber-500/5 border-l-4 border-amber-500 p-8 my-16 rounded-r-2xl">
@@ -308,8 +229,9 @@ export default function JwtDecoder() {
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">Security Analysis</h2>
                 <p>
-                    This decoder flags unsigned <code>alg: none</code> headers, expired <code>exp</code>
-                    values, and missing timestamp claims as review signals. It does not verify a
+                    This decoder flags unsigned <code>alg: none</code> headers, HMAC tokens whose signature
+                    cannot be checked offline, expired <code>exp</code> values, <code>nbf</code> values
+                    that are still in the future, and missing timestamp claims as review signals. It does not verify a
                     signature, establish that a claim is trustworthy, test server configuration, or
                     prove that a token is safe to accept.
                 </p>
@@ -334,7 +256,7 @@ export default function JwtDecoder() {
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">What timestamps are automatically converted?</h4>
-                        <p className="text-slate-400 mb-0">The decoder recognizes <code>exp</code> (expiration), <code>iat</code> (issued at), <code>nbf</code> (not before), and <code>auth_time</code> (authentication time) claims and displays them as human-readable dates.</p>
+                        <p className="text-slate-400 mb-0">The decoder recognizes <code>exp</code> (expiration), <code>iat</code> (issued at), <code>nbf</code> (not before), and <code>auth_time</code> (authentication time) claims and displays them as human-readable dates. Only <code>exp</code> can mark a token as expired; the others are shown as times, with a note when <code>nbf</code> has not been reached or <code>iat</code> lies in the future.</p>
                     </div>
                 </div>
             </article>
