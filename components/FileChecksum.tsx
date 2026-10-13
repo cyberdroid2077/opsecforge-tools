@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { compareDigest, digestFile, type FileHashAlgorithm } from '../lib/file-checksum';
+import { checksumExample, EXAMPLE_CHECKSUMS, mismatchingExample } from '../lib/file-checksum-example';
 
 const field = 'w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 p-3 text-slate-100 focus-visible:outline-2 focus-visible:outline-emerald-400';
 
@@ -14,6 +15,7 @@ export default function FileChecksum() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [example, setExample] = useState(false);
   const generation = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -26,14 +28,15 @@ export default function FileChecksum() {
   }
 
   async function calculate() {
-    if (!file) return;
+    const source = example ? checksumExample() : file;
+    if (!source) return;
     const run = ++generation.current;
     setBusy(true);
     setDigest('');
     setError('');
     setCopied(false);
     try {
-      const value = await digestFile(file, algorithm);
+      const value = await digestFile(source, algorithm);
       if (run === generation.current) setDigest(value);
     } catch {
       if (run === generation.current) setError('Could not read or hash this file. Use a file up to 32 MiB in a browser with Web Crypto support.');
@@ -55,21 +58,38 @@ export default function FileChecksum() {
     <section id="file-checksum" aria-labelledby="file-checksum-title" className="mb-10 scroll-mt-24 rounded-2xl border border-emerald-500/30 bg-slate-900 p-4 text-slate-200 sm:p-6">
       <h2 id="file-checksum-title" className="mb-2 text-xl font-bold">Check a file without uploading it</h2>
       <p className="mb-5 text-sm text-slate-400">Select a local file, calculate its SHA-256 or SHA-512 checksum, and compare it with a trusted digest. File bytes stay in this page. Up to 32 MiB per file.</p>
+      <div className="mb-5 rounded-lg border border-slate-700 p-3 text-sm">
+        {!example ? <>
+          <button type="button" disabled={!!file || !!expected} onClick={() => {
+            if (file || expected) return;
+            invalidate(); setExample(true); setExpected(EXAMPLE_CHECKSUMS[algorithm]);
+          }} className="rounded-lg border border-emerald-500/60 px-3 py-2 font-semibold disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Try a synthetic example</button>
+          <p className="mt-2 text-slate-400">No file needed. Try a match, then a mismatch. Clear your file and expected checksum first; the example will not replace them.</p>
+        </> : <>
+          <p className="font-semibold text-emerald-300">Synthetic example active — not your file</p>
+          <p className="mt-2 text-slate-300">Exactly three ASCII bytes: <code>abc</code>, without a newline. Click Calculate file checksum to try a match. Then change the expected value below to see a mismatch. This is a public test vector, not a trusted download.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={() => setExpected(EXAMPLE_CHECKSUMS[algorithm])} className="rounded-lg border border-slate-600 px-3 py-2 focus-visible:outline-2 focus-visible:outline-emerald-400">Use matching example checksum</button>
+            <button type="button" onClick={() => setExpected(mismatchingExample(algorithm))} className="rounded-lg border border-slate-600 px-3 py-2 focus-visible:outline-2 focus-visible:outline-amber-300">Try a mismatching checksum</button>
+          </div>
+          <p className="mt-2 text-slate-400">Clear file and results to exit, or select your own file. Selecting a file removes the example checksum.</p>
+        </>}
+      </div>
       <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_150px]">
         <div className="min-w-0">
           <label htmlFor="checksum-file" className="mb-2 block text-sm">Local file</label>
-          <input ref={fileInput} id="checksum-file" type="file" className={field} onChange={(e) => { invalidate(); setFile(e.target.files?.[0] ?? null); }} />
+          <input ref={fileInput} id="checksum-file" type="file" className={field} onChange={(e) => { invalidate(); if (example) setExpected(''); setExample(false); setFile(e.target.files?.[0] ?? null); }} />
         </div>
         <div>
           <label htmlFor="checksum-algorithm" className="mb-2 block text-sm">Algorithm</label>
-          <select id="checksum-algorithm" className={field} value={algorithm} onChange={(e) => { invalidate(); setAlgorithm(e.target.value as FileHashAlgorithm); }}>
+          <select id="checksum-algorithm" className={field} value={algorithm} onChange={(e) => { invalidate(); const next = e.target.value as FileHashAlgorithm; setAlgorithm(next); if (example) setExpected(EXAMPLE_CHECKSUMS[next]); }}>
             <option>SHA-256</option><option>SHA-512</option>
           </select>
         </div>
       </div>
       <div className="my-5 flex flex-wrap gap-3">
-        <button type="button" onClick={calculate} disabled={!file || busy} className="rounded-lg bg-emerald-400 px-4 py-3 font-bold text-slate-950 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">{busy ? 'Calculating…' : 'Calculate file checksum'}</button>
-        <button type="button" onClick={() => { invalidate(); setFile(null); setExpected(''); if (fileInput.current) fileInput.current.value = ''; }} className="rounded-lg border border-slate-600 px-4 py-3">Clear file and results</button>
+        <button type="button" onClick={calculate} disabled={(!file && !example) || busy} className="rounded-lg bg-emerald-400 px-4 py-3 font-bold text-slate-950 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">{busy ? 'Calculating…' : 'Calculate file checksum'}</button>
+        <button type="button" onClick={() => { invalidate(); setFile(null); setExample(false); setExpected(''); if (fileInput.current) fileInput.current.value = ''; }} className="rounded-lg border border-slate-600 px-4 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400">Clear file and results</button>
       </div>
       {error && <p role="alert" className="mb-4 text-amber-300">{error}</p>}
       <label htmlFor="checksum-result" className="mb-2 block text-sm">Calculated checksum</label>
