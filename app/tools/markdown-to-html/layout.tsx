@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: ['Markdown to HTML', 'MD to HTML', 'Markdown converter', 'Markdown parser', 'Markdown preview'],
   openGraph: {
     title: 'Markdown to HTML Converter | OpsecForge',
-    description: 'Free Markdown to HTML converter. 100% browser-side.',
+    description: 'Free Markdown to HTML converter. Runs in your browser.',
   },
 };
 

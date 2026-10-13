@@ -114,9 +114,10 @@ export default function JsonBeautifierTool({
           </h1>
 
           <p className="max-w-3xl text-lg leading-relaxed text-slate-400">
-            Paste raw API payloads, log fragments, or minified config blobs into a local-only
-            workspace. OpSecForge parses them client-side with native JSON APIs, so nothing is
-            transmitted to a server while you clean up the structure.
+            Paste raw API payloads, log fragments, or minified config blobs into a
+            browser-local workspace. OpSecForge parses them client-side with native JSON APIs and
+            does not send the pasted payload to a tool-processing backend. The page itself still
+            loads site resources and aggregate analytics.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -126,7 +127,7 @@ export default function JsonBeautifierTool({
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-xs font-bold text-emerald-400">
               <Network size={14} />
-              Zero Network Requests
+              No Tool-Input Upload
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-xs font-bold text-emerald-400">
               <FileJson size={14} />
@@ -261,7 +262,7 @@ export default function JsonBeautifierTool({
               </span>
               <span className="flex items-center gap-1.5">
                 <Lock size={14} className="text-cyan-500" />
-                No backend calls
+                Browser-local parsing
               </span>
             </div>
             <span>Strict syntax validation via native parser</span>

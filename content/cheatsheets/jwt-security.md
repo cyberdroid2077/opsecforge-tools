@@ -25,4 +25,4 @@ Even with short expiry, a compromised token can be used until it expires. Implem
 Never embed your signing secret in client-side code. The secret must live only on the server that verifies signatures. If you're using a symmetric algorithm (HS256), the secret is particularly dangerous — treat it like a password.
 
 ## Use the OpsecForge JWT Decoder
-Inspect JWTs safely at opsecforge.com/tools/jwt-decoder — 100% client-side, zero data transmission.
+Inspect JWTs safely at opsecforge.com/tools/jwt-decoder — the pasted token is decoded in your browser and is not sent to OpsecForge for processing.

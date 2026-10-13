@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   keywords: ['word counter', 'character counter', 'count words', 'text statistics', 'line counter'],
   openGraph: {
     title: 'Word Counter - Count Words, Characters, Lines | OpsecForge',
-    description: 'Free word counter with real-time stats. 100% browser-side.',
+    description: 'Free word counter with real-time stats. Runs in your browser.',
   },
 };
 

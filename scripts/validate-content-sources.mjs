@@ -61,7 +61,10 @@ for (const file of files) {
   }
 
   const content = readFileSync(file, "utf8");
-  const cves = [...new Set((content.match(CVE_PATTERN) ?? []).map((id) => id.toUpperCase()))];
+  // An internal link whose slug contains a CVE id points at an article that
+  // carries its own source review; it is not a CVE claim made on this page.
+  const contentWithoutInternalBlogLinks = content.replace(/\]\(\/blog\/[^)\s]*\)/g, "]()");
+  const cves = [...new Set((contentWithoutInternalBlogLinks.match(CVE_PATTERN) ?? []).map((id) => id.toUpperCase()))];
 
   for (const claim of unsupportedProductClaims) {
     if (claim.pattern.test(content)) {

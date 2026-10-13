@@ -1,30 +1,51 @@
-# OpsecForge - Privacy-First Developer Tools
+# OpsecForge
 
-OpsecForge is a collection of 21 free developer tools that run entirely in your browser.
-Core tool transformations are performed locally in the browser; tool input is not submitted
-to OpsecForge for processing unless a page explicitly states otherwise.
+> OpsecForge offers 12 free browser-local developer tools for inspecting, sanitizing, and verifying sensitive technical data, plus source-reviewed security guides. No account is required.
 
-The website uses privacy-respecting, aggregate Vercel Web Analytics for page views and may
-load advertising. Analytics must never include the JWTs, secrets, source text, or other
-content entered into tools.
+Tool input is processed by JavaScript in the loaded browser page. OpsecForge does not send what you paste into a tool to a tool-processing backend. This is not the same as the site being network-free: pages still load site resources, and the site uses aggregate analytics and may load advertising. Browser-local processing reduces an upload path; it does not make a workflow safe, compliant, or authentic. Heuristic tools can miss data and require human review.
 
-## Core Tools
-- JWT Decoder / Encoder — Decode and sign JSON Web Tokens locally
-- Hash Generator — SHA-256, SHA-512, MD5, Bcrypt hashes in-browser
-- Env Sanitizer — Auto-detect and redact API keys, passwords, secrets from .env files
-- Password Generator — Cryptographically secure random passwords
-- UUID Generator — RFC-compliant v4 UUIDs using Web Crypto API
-- Base64 Converter, URL Encoder, QR Generator, SQL Formatter, JSON Formatter, and more
+## Tools
 
-## Key Differentiators
-- 100% client-side execution
-- Browser-local processing for sensitive tool input
-- No account required
-- Aggregate, cookie-free page-view analytics
-- Open source verifiable
+- [Safe-to-Share Sanitizer](https://www.opsecforge.com/tools/env-sanitizer): Heuristically masks likely credentials in .env, JSON, YAML, logs, headers, URLs, and cURL text before you share it. It can miss custom formats and flag benign values, so review the output; the redaction is not reversible.
+- [Webhook Signature Verifier](https://www.opsecforge.com/tools/webhook-debugger): Checks whether a supplied raw body, secret, and signature match for GitHub, Stripe, or generic HMAC formats. A match does not prove who sent a request, secret custody, or that a delivery was not replayed.
+- [File Checksum & Hash Generator](https://www.opsecforge.com/tools/hash-generator): Compares a local file (up to 32 MiB) against a trusted SHA-256 or SHA-512 checksum without uploading it, and hashes text. A matching digest only shows the bytes match the digest you supplied.
+- [Base64 Converter](https://www.opsecforge.com/tools/base64-converter): Encodes and decodes UTF-8 text as standard Base64 or Base64URL. Encoding is not encryption.
+- [JWT Decoder](https://www.opsecforge.com/tools/jwt-decoder): Decodes a JWT's header and payload and shows time claims. Decoding does not verify the signature or authorize anything.
+- [JWT Encoder](https://www.opsecforge.com/tools/jwt-encoder): Creates signed HS256 or HS512 test tokens from invented claims. Use throwaway test keys only, never production signing keys or real identity data.
+- [Password Generator](https://www.opsecforge.com/tools/password-generator): Generates random passwords with the browser's cryptographic random source. It does not store or manage passwords.
+- [UUID Generator](https://www.opsecforge.com/tools/uuid-generator): Generates RFC 4122 version 4 UUIDs with the browser crypto API. A UUID is an identifier, not a secret.
+- [JSON Beautifier](https://www.opsecforge.com/tools/json-beautifier): Formats, minifies, and validates JSON with the browser's native parser. It does not redact sensitive fields.
+- [SQL Formatter & Minifier](https://www.opsecforge.com/tools/sql-formatter): Formats and minifies MySQL, PostgreSQL, and standard SQL text. It does not execute queries or make them safe from injection.
+- [Unix Timestamp Converter](https://www.opsecforge.com/tools/unix-timestamp): Converts Unix seconds or milliseconds to local and UTC dates and back.
+- [Hex RGB Converter](https://www.opsecforge.com/tools/hex-rgb-converter): Converts colors between hex, RGB, and HSL.
 
-## Blog Topics
-Security best practices, API security, JWT安全, secrets management, privacy-first development workflows.
+The tools index is at https://www.opsecforge.com/tools
 
-Website and tools: https://www.opsecforge.com/
-Blog: https://www.opsecforge.com/blog
+## Guides
+
+- [Webhook signature validation best practices](https://www.opsecforge.com/blog/webhook-signature-validation-hmac-sha256-best-practices-2026): Raw-body HMAC checks, constant-time comparison, secrets, and replay defenses.
+- [CVE-2026-33143: webhook signature verification](https://www.opsecforge.com/blog/cve-2026-33143-webhook-signature-verification-bypass-2026): A documented OneUptime case where a handler skipped signature checks.
+- [Base64 vs Base64URL](https://www.opsecforge.com/blog/base64-vs-base64url): Alphabet and padding differences, and which one a protocol expects.
+- [Hash generator guide](https://www.opsecforge.com/blog/hash-generator-tools-data-integrity-security): Algorithm choice and verifying downloads.
+- [Hash collision attacks](https://www.opsecforge.com/blog/hash-collision-attacks-data-integrity): What MD5, SHA-1, and SHA-256 matches do and do not prove.
+- [How to sanitize .env files before sharing](https://www.opsecforge.com/blog/how-to-sanitize-env-files-before-sharing): A review workflow for redacted drafts.
+- [API key leaks](https://www.opsecforge.com/blog/api-key-leaks-credential-security): Detection, response, and prevention.
+- [Are environment variables secure?](https://www.opsecforge.com/blog/environment-variable-security-secrets-management): Secrets-management patterns.
+- [JWT vulnerabilities and safe validation](https://www.opsecforge.com/blog/jwt-token-vulnerabilities-authentication-security): Algorithm confusion, weak secrets, and what a verifier must check.
+- [JWT signing best practices](https://www.opsecforge.com/blog/jwt-encoder-security-token-generation-best-practices): Safe token issuance and validation.
+- [How to generate a UUID v4 in your browser](https://www.opsecforge.com/blog/how-to-generate-uuids-in-browser): Web Crypto usage and collision odds.
+- [Password security best practices](https://www.opsecforge.com/blog/password-security-vulnerabilities-best-practices): Length, uniqueness, and storage.
+
+All guides: https://www.opsecforge.com/blog
+
+## Site information
+
+- About: https://www.opsecforge.com/about
+- FAQ (privacy and offline behavior): https://www.opsecforge.com/faq
+- Privacy: https://www.opsecforge.com/privacy
+- Source code (public repository): https://github.com/cyberdroid2077/opsecforge-tools
+- Sitemap: https://www.opsecforge.com/sitemap.xml
+
+## Analytics and advertising
+
+The site uses Vercel Web Analytics for aggregate page views and coarse tool-usage events (which tool page was used, not what was entered). Analytics must never receive tool input, secrets, tokens, or output. The site may load advertising. Neither is tied to the content you paste into a tool.

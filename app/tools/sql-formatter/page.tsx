@@ -418,7 +418,7 @@ export default function SQLFormatterPage() {
         <div className="mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mb-6 shadow-sm">
             <Shield size={14} />
-            <span className="text-xs font-bold tracking-wider uppercase">Secure Execution • 100% Local</span>
+            <span className="text-xs font-bold tracking-wider uppercase">Local Processing • No Tool-Input Upload</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-100 mb-6 leading-tight">
             PostgreSQL & MySQL Formatter <br/>
