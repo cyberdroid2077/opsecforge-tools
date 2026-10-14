@@ -54,9 +54,11 @@ Optional hardening afterwards: package **Settings -> Publishing access -> "Requi
 
    ```bash
    git switch main && git pull --ff-only
-   git tag mcp-v0.1.1
-   git push origin mcp-v0.1.1
+   git tag -a mcp-v0.1.1 -m "opsecforge-mcp 0.1.1"
+   git push origin main --follow-tags
    ```
+
+   Use an **annotated** tag (`-a`): `--follow-tags` only pushes annotated tags that are reachable from the pushed commits, and a lightweight tag would silently stay local. The operator agent is only permitted to push with exactly `git push origin main --follow-tags`, so this is the release path.
 
    The tag must be exactly `mcp-v` + the version, plain `MAJOR.MINOR.PATCH` (pre-release suffixes are rejected on purpose, because they would be published under the `latest` dist-tag).
 6. **Watch the run** in the Actions tab ("Release MCP"). Three jobs run in order:
