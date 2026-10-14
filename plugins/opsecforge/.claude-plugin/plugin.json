@@ -1,0 +1,13 @@
+{
+  "name": "opsecforge",
+  "version": "0.1.0",
+  "description": "Keeps secrets out of the model context: blocks direct reads of .env/key files, and gives the agent local tools to redact files, scan before commit, verify webhooks and inspect JWTs.",
+  "author": {
+    "name": "OpsecForge",
+    "url": "https://www.opsecforge.com"
+  },
+  "homepage": "https://www.opsecforge.com",
+  "repository": "https://github.com/cyberdroid2077/opsecforge-tools",
+  "license": "MIT",
+  "keywords": ["security", "secrets", "redaction", "mcp", "webhook", "jwt"]
+}

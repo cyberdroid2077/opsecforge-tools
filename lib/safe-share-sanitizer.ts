@@ -3,7 +3,12 @@ export const REDACTION_MARKER = '[REDACTED]';
 export type SanitizerFinding = {
   kind: string;
   count: number;
+  /** Set on findings whose source block had no matching END line and was masked to end of input. */
+  unterminated?: true;
 };
+
+/** `kind` of the finding emitted for a private key block that has a BEGIN line but no END line. */
+export const UNTERMINATED_PRIVATE_KEY_KIND = 'Private key block (unterminated)';
 
 export type SanitizerResult = {
   output: string;
@@ -88,6 +93,14 @@ const NAMED_LINE = /^(\s*(?:-\s+)*(?:export\s+)?)(["']?)([A-Za-z_][A-Za-z0-9_.-]
 const PRIVATE_KEY_BLOCK =
   /-----BEGIN ((?:[A-Z0-9]+ )*)PRIVATE KEY( BLOCK)?-----[\s\S]*?-----END \1PRIVATE KEY\2-----/g;
 
+/**
+ * A BEGIN line with no matching END line (same key type) anywhere after it: a truncated paste, a
+ * clipped log line or a cut-off file. Everything from BEGIN to the end of the text is either key
+ * material or unknowable, so all of it is masked.
+ */
+const UNTERMINATED_PRIVATE_KEY_BLOCK =
+  /-----BEGIN ((?:[A-Z0-9]+ )*)PRIVATE KEY( BLOCK)?-----(?:(?!-----END \1PRIVATE KEY\2-----)[\s\S])*$/;
+
 const isRedactedPrivateKeyBody = (block: string) => {
   const body = block
     .replace(/^-----BEGIN [^\n-]*-----/, '')
@@ -110,6 +123,15 @@ export function sanitizeForSharing(input: string): SanitizerResult {
     record('Private key block');
     return `-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}\n-----END PRIVATE KEY-----`;
   });
+
+  // A BEGIN line without an END line: mask from BEGIN to the end of the text.
+  let unterminatedCount = 0;
+  output = output.replace(UNTERMINATED_PRIVATE_KEY_BLOCK, (match) => {
+    if (isRedactedPrivateKeyBody(match)) return match;
+    unterminatedCount += 1;
+    return `-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}`;
+  });
+  if (unterminatedCount > 0) counts.set(UNTERMINATED_PRIVATE_KEY_KIND, unterminatedCount);
 
   output = output.replace(
     /(["'])([A-Za-z_][A-Za-z0-9_.-]*)\1(\s*:\s*)(["'])((?:\\.|[^\\])*?)\4/g,
@@ -233,7 +255,11 @@ export function sanitizeForSharing(input: string): SanitizerResult {
 
   return {
     output,
-    findings: Array.from(counts, ([kind, count]) => ({ kind, count })),
+    findings: Array.from(counts, ([kind, count]) =>
+      kind === UNTERMINATED_PRIVATE_KEY_KIND
+        ? { kind, count, unterminated: true as const }
+        : { kind, count },
+    ),
   };
 }
 

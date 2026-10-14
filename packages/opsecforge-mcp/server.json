@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.cyberdroid2077/opsecforge",
+  "title": "OpsecForge",
+  "description": "Local MCP tools that keep secrets out of agent context: redact files, scan commits, verify webhooks.",
+  "version": "0.1.0",
+  "websiteUrl": "https://www.opsecforge.com",
+  "repository": {
+    "url": "https://github.com/cyberdroid2077/opsecforge-tools",
+    "source": "github",
+    "subfolder": "packages/opsecforge-mcp"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "opsecforge-mcp",
+      "version": "0.1.0",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
