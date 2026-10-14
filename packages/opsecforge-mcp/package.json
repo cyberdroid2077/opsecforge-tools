@@ -1,6 +1,6 @@
 {
   "name": "opsecforge-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Local MCP server for AI coding agents: redact secrets from files, scan before commit, verify webhook signatures and inspect JWTs without sending anything off your machine.",
   "license": "MIT",
   "mcpName": "io.github.cyberdroid2077/opsecforge",
