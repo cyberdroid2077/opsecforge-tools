@@ -1,0 +1,317 @@
+# Release pipeline for the `opsecforge-mcp` package (packages/opsecforge-mcp).
+#
+#   push tag mcp-vX.Y.Z  ->  verify (tests, pack checks, server.json check)
+#                        ->  npm-publish (npm Trusted Publishing / OIDC + provenance)
+#                        ->  mcp-registry (official MCP Registry, GitHub OIDC)
+#
+# No long-lived token is used anywhere: npm and the MCP Registry both accept the
+# short-lived GitHub OIDC token of this workflow run. Only the two jobs that
+# publish get `id-token: write`; the job that runs dependency code and tests
+# (`verify`) cannot mint an OIDC token.
+#
+# One-time setup on npmjs.com (Trusted Publisher) is described in
+# packages/opsecforge-mcp/RELEASING.md. The workflow FILE NAME below
+# (release-mcp.yml) is part of that registration - do not rename it
+# without updating npm.
+name: Release MCP
+
+on:
+  push:
+    tags:
+      - 'mcp-v*'
+
+permissions:
+  contents: read
+
+# One release run per tag; a second run for the same tag waits instead of
+# racing the first one. Never cancel a run that may be half-way through a publish.
+concurrency:
+  group: release-mcp-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    # bash -eo pipefail: any failing command (also inside a pipe) fails the step.
+    shell: bash
+
+env:
+  PKG_DIR: packages/opsecforge-mcp
+  PKG_NAME: opsecforge-mcp
+  # npm Trusted Publishing needs npm >= 11.5.1 and Node >= 22.14.0
+  # (https://docs.npmjs.com/trusted-publishers). Node 22 ships npm 10, so the
+  # publish job installs this exact npm version when the bundled one is too old.
+  NPM_MIN_VERSION: '11.5.1'
+  NPM_PINNED_VERSION: '11.21.0'
+  NODE_MIN_VERSION: '22.14.0'
+  # mcp-publisher is pinned to one release and verified against this SHA-256
+  # (asset: mcp-publisher_linux_amd64.tar.gz of the release below).
+  MCP_PUBLISHER_VERSION: 'v1.8.1'
+  MCP_PUBLISHER_SHA256: 'a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc'
+
+jobs:
+  verify:
+    name: Verify, test and pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read # no id-token here: this job runs dependency and test code
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tarball: ${{ steps.pack.outputs.tarball }}
+      sha256: ${{ steps.pack.outputs.sha256 }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require the tagged commit to be on main
+        # fetch-depth 0 above fetched every branch, so origin/main is available
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag ${GITHUB_REF_NAME} points at ${GITHUB_SHA}, which is not on main. Merge to main first, then tag."
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Install dependencies
+        # The bundle is built from ../../lib, but those files import nothing outside
+        # the repo, so the repository root does not need `npm ci`.
+        working-directory: ${{ env.PKG_DIR }}
+        run: npm ci --no-audit --no-fund
+
+      - name: Check tag, package.json and server.json agree on the version
+        id: version
+        working-directory: ${{ env.PKG_DIR }}
+        run: |
+          pattern='^mcp-v((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$'
+          if [[ ! "$GITHUB_REF_NAME" =~ $pattern ]]; then
+            echo "::error::Tag '${GITHUB_REF_NAME}' must look like mcp-vX.Y.Z (plain MAJOR.MINOR.PATCH, no pre-release suffix)."
+            exit 1
+          fi
+          export TAG_VERSION="${BASH_REMATCH[1]}"
+          node <<'JS'
+          const fs = require('node:fs');
+          const tag = process.env.TAG_VERSION;
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const srv = JSON.parse(fs.readFileSync('server.json', 'utf8'));
+          const npmPkgs = (srv.packages || []).filter((p) => p.registryType === 'npm');
+          const checks = [
+            ['package.json "version"', pkg.version, tag],
+            ['server.json "version"', srv.version, tag],
+            ['server.json npm package "version"', npmPkgs[0] && npmPkgs[0].version, tag],
+            ['server.json npm package "identifier"', npmPkgs[0] && npmPkgs[0].identifier, pkg.name],
+            ['package.json "mcpName"', pkg.mcpName, srv.name],
+          ];
+          let failed = false;
+          if (npmPkgs.length !== 1) {
+            console.log(`::error::server.json must list exactly one npm package, found ${npmPkgs.length}`);
+            failed = true;
+          }
+          for (const [label, actual, expected] of checks) {
+            if (actual !== expected) {
+              console.log(`::error::${label} is ${JSON.stringify(actual)}, expected ${JSON.stringify(expected)}`);
+              failed = true;
+            }
+          }
+          if (pkg.name !== process.env.PKG_NAME) {
+            console.log(`::error::package.json name is ${JSON.stringify(pkg.name)}, expected ${process.env.PKG_NAME}`);
+            failed = true;
+          }
+          if (failed) process.exit(1);
+          console.log(`OK: tag, package.json and server.json all say ${tag}`);
+          JS
+          echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Install mcp-publisher (pinned, checksum-verified)
+        run: |
+          archive="mcp-publisher_linux_amd64.tar.gz"
+          curl -fsSL --retry 3 -o "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/${archive}"
+          echo "${MCP_PUBLISHER_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum --check --strict -
+          mkdir -p "${RUNNER_TEMP}/bin"
+          tar -xzf "${RUNNER_TEMP}/${archive}" -C "${RUNNER_TEMP}/bin" mcp-publisher
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+
+      - name: Validate server.json with mcp-publisher (before anything is published)
+        working-directory: ${{ env.PKG_DIR }}
+        run: mcp-publisher validate server.json
+
+      - name: Type check
+        working-directory: ${{ env.PKG_DIR }}
+        run: npm run typecheck
+
+      - name: Run package tests
+        working-directory: ${{ env.PKG_DIR }}
+        run: npm test
+
+      - name: Check package contents (npm pack --dry-run)
+        working-directory: ${{ env.PKG_DIR }}
+        run: |
+          npm pack --dry-run --json --ignore-scripts > "${RUNNER_TEMP}/pack-dry-run.json"
+          node <<'JS'
+          const fs = require('node:fs');
+          const out = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + '/pack-dry-run.json', 'utf8'));
+          const files = out[0].files.map((f) => f.path).sort();
+          const expected = ['LICENSE', 'README.md', 'dist/index.cjs', 'package.json'];
+          console.log('Files that would be published:\n  ' + files.join('\n  '));
+          if (JSON.stringify(files) !== JSON.stringify(expected)) {
+            console.log(`::error::Package must contain exactly ${expected.join(', ')}`);
+            process.exit(1);
+          }
+          JS
+
+      - name: Build the tarball that will be published
+        id: pack
+        working-directory: ${{ env.PKG_DIR }}
+        run: |
+          mkdir -p "${RUNNER_TEMP}/pack"
+          npm pack --pack-destination "${RUNNER_TEMP}/pack"
+          shopt -s nullglob
+          tarballs=("${RUNNER_TEMP}"/pack/*.tgz)
+          if [ "${#tarballs[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one tarball, found ${#tarballs[@]}"
+            exit 1
+          fi
+          tarball="$(basename "${tarballs[0]}")"
+          listing="$(tar -tzf "${tarballs[0]}" | sed 's#^package/##' | LC_ALL=C sort | tr '\n' ' ')"
+          expected='LICENSE README.md dist/index.cjs package.json '
+          if [ "$listing" != "$expected" ]; then
+            echo "::error::Tarball contents are '${listing}', expected '${expected}'"
+            exit 1
+          fi
+          sha256="$(sha256sum "${tarballs[0]}" | cut -d' ' -f1)"
+          echo "tarball=${tarball}" >> "$GITHUB_OUTPUT"
+          echo "sha256=${sha256}" >> "$GITHUB_OUTPUT"
+          echo "${tarball} sha256=${sha256}"
+
+      - name: Upload tarball for the publish job
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mcp-tarball
+          path: ${{ runner.temp }}/pack/${{ steps.pack.outputs.tarball }}
+          if-no-files-found: error
+          retention-days: 7
+
+  npm-publish:
+    name: Publish to npm (Trusted Publishing)
+    needs: verify
+    runs-on: ubuntu-latest # Trusted Publishing does not support self-hosted runners
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write # lets npm exchange this run's OIDC token for a publish credential
+    steps:
+      # No checkout and no `npm ci`: this job only publishes the tarball that
+      # `verify` built and tested, so no repository or dependency code runs here.
+      - name: Set up Node.js
+        # Deliberately no `registry-url` and no NODE_AUTH_TOKEN: npm must fall
+        # back to OIDC, and a placeholder token would only get in the way.
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Make sure Node and npm are new enough for Trusted Publishing
+        run: |
+          version_ge() { printf '%s\n%s\n' "$2" "$1" | sort -V -C; }  # true if $1 >= $2
+          node_v="$(node -p 'process.versions.node')"
+          if ! version_ge "$node_v" "$NODE_MIN_VERSION"; then
+            echo "::error::Node ${node_v} is older than ${NODE_MIN_VERSION}"
+            exit 1
+          fi
+          if ! version_ge "$(npm -v)" "$NPM_MIN_VERSION"; then
+            echo "npm $(npm -v) is too old for Trusted Publishing, installing npm@${NPM_PINNED_VERSION}"
+            npm install -g "npm@${NPM_PINNED_VERSION}"
+          fi
+          if ! version_ge "$(npm -v)" "$NPM_MIN_VERSION"; then
+            echo "::error::npm $(npm -v) is still older than ${NPM_MIN_VERSION}"
+            exit 1
+          fi
+          echo "node ${node_v}, npm $(npm -v)"
+
+      - name: Download the tarball built by the verify job
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: mcp-tarball
+          path: ${{ runner.temp }}/pack
+
+      - name: Check the tarball is byte-identical to the one that was tested
+        env:
+          TARBALL: ${{ needs.verify.outputs.tarball }}
+          EXPECTED_SHA256: ${{ needs.verify.outputs.sha256 }}
+        run: |
+          echo "${EXPECTED_SHA256}  ${RUNNER_TEMP}/pack/${TARBALL}" | sha256sum --check --strict -
+
+      - name: Publish to npm
+        # Authentication is the OIDC token (no secret). On GitHub Actions npm adds
+        # provenance automatically for public repo + public package; --provenance
+        # makes the publish fail loudly instead of silently shipping without it.
+        env:
+          TARBALL: ${{ needs.verify.outputs.tarball }}
+        run: npm publish "${RUNNER_TEMP}/pack/${TARBALL}" --provenance
+
+  mcp-registry:
+    name: Publish to the MCP Registry
+    needs: [verify, npm-publish]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # `mcp-publisher login github-oidc` needs it
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          package-manager-cache: false
+
+      - name: Install mcp-publisher (pinned, checksum-verified)
+        run: |
+          archive="mcp-publisher_linux_amd64.tar.gz"
+          curl -fsSL --retry 3 -o "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/${archive}"
+          echo "${MCP_PUBLISHER_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum --check --strict -
+          mkdir -p "${RUNNER_TEMP}/bin"
+          tar -xzf "${RUNNER_TEMP}/${archive}" -C "${RUNNER_TEMP}/bin" mcp-publisher
+          echo "${RUNNER_TEMP}/bin" >> "$GITHUB_PATH"
+
+      - name: Wait until the new version is visible on npm and carries mcpName
+        # The Registry checks the npm package (mcpName) while publishing, so the
+        # version must be readable from npm first. Fails after ~5 minutes.
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          expected_name="$(node -p "require('./${PKG_DIR}/server.json').name")"
+          for attempt in $(seq 1 20); do
+            if found="$(npm view "${PKG_NAME}@${VERSION}" mcpName 2>/dev/null)" && [ -n "$found" ]; then
+              if [ "$found" != "$expected_name" ]; then
+                echo "::error::npm says mcpName is '${found}', server.json says '${expected_name}'"
+                exit 1
+              fi
+              echo "${PKG_NAME}@${VERSION} is on npm with mcpName ${found}"
+              exit 0
+            fi
+            echo "attempt ${attempt}/20: ${PKG_NAME}@${VERSION} not visible on npm yet"
+            sleep 15
+          done
+          echo "::error::${PKG_NAME}@${VERSION} did not appear on npm (or has no mcpName) within 5 minutes"
+          exit 1
+
+      - name: Log in to the MCP Registry (GitHub OIDC)
+        run: mcp-publisher login github-oidc
+
+      - name: Publish server.json to the MCP Registry
+        working-directory: ${{ env.PKG_DIR }}
+        run: mcp-publisher publish server.json
