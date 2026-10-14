@@ -78,7 +78,7 @@ export default function AgentsPage() {
             <code>opsecforge-mcp</code> is a local MCP server (stdio) for AI coding agents such as Claude Code, Codex and Cursor. The agent passes a file path or an environment variable name, the work happens on your machine, and only redacted or derived results come back. It makes no network requests, needs no account or API key, and has no telemetry. Redaction is heuristic, so read the limitations below before relying on it.
           </p>
           <p>
-            It is MIT-licensed, published on npm (version 0.1.1) and listed in the official MCP Registry as <code>io.github.cyberdroid2077/opsecforge</code>. It reuses the code that powers the browser tools on this site. Requires Node.js 20 or newer.
+            It is MIT-licensed, published on npm and listed in the official MCP Registry as <code>io.github.cyberdroid2077/opsecforge</code>. It reuses the code that powers the browser tools on this site. Requires Node.js 20 or newer.
           </p>
 
           <h2 className="text-slate-100">Tools</h2>
