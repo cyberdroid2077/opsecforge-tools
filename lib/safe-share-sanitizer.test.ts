@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { REDACTION_MARKER, sanitizeForSharing } from './safe-share-sanitizer';
+import {
+  REDACTION_MARKER,
+  UNTERMINATED_PRIVATE_KEY_KIND,
+  sanitizeForSharing,
+} from './safe-share-sanitizer';
 
 describe('sanitizeForSharing', () => {
   it('matches the published synthetic sharing walkthrough and exposes review limits', () => {
@@ -463,9 +467,85 @@ describe('vendor token detection', () => {
     expect(sanitizeForSharing(block)).toEqual({ output: block, findings: [] });
   });
 
-  it('does not pair mismatched BEGIN/END private key types', () => {
+  it('does not pair mismatched BEGIN/END private key types (the BEGIN is treated as unterminated)', () => {
     const input =
       '-----BEGIN RSA PRIVATE KEY-----\nmaterial-one\n-----END EC PRIVATE KEY-----\nplain text';
-    expect(sanitizeForSharing(input).output).toContain('material-one');
+    const result = sanitizeForSharing(input);
+    // Previously this input leaked "material-one": the mismatched END was not a valid terminator.
+    expect(result.output).not.toContain('material-one');
+    expect(result.output).toBe(`-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}`);
+    expect(result.findings).toEqual([
+      { kind: UNTERMINATED_PRIVATE_KEY_KIND, count: 1, unterminated: true },
+    ]);
+  });
+});
+
+describe('unterminated private key blocks', () => {
+  it('masks from BEGIN to the end of the text and flags the finding as unterminated', () => {
+    const input =
+      'before\n-----BEGIN RSA PRIVATE KEY-----\nc3ludGhldGljLW1hdGVyaWFs\nbW9yZS1zeW50aGV0aWM=\ntrailing line';
+    const result = sanitizeForSharing(input);
+    expect(result.output).toBe(`before\n-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}`);
+    expect(result.output).not.toContain('c3ludGhldGlj');
+    expect(result.output).not.toContain('trailing line');
+    expect(result.findings).toEqual([
+      { kind: UNTERMINATED_PRIVATE_KEY_KIND, count: 1, unterminated: true },
+    ]);
+  });
+
+  it.each(['OPENSSH PRIVATE KEY', 'EC PRIVATE KEY', 'ENCRYPTED PRIVATE KEY', 'PRIVATE KEY', 'PGP PRIVATE KEY BLOCK'])(
+    'handles a truncated %s',
+    (label) => {
+      const result = sanitizeForSharing(`-----BEGIN ${label}-----\nc3ludGhldGlj`);
+      expect(result.output).toBe(`-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}`);
+      expect(result.findings[0]).toMatchObject({ unterminated: true });
+    },
+  );
+
+  it('handles a BEGIN line with nothing after it', () => {
+    const result = sanitizeForSharing('x\n-----BEGIN OPENSSH PRIVATE KEY-----');
+    expect(result.output).toBe(`x\n-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}`);
+  });
+
+  it('keeps a terminated block terminated and does not flag it', () => {
+    const input = '-----BEGIN PRIVATE KEY-----\nc3ludGhldGlj\n-----END PRIVATE KEY-----\nafter';
+    const result = sanitizeForSharing(input);
+    expect(result.output).toBe(`-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}\n-----END PRIVATE KEY-----\nafter`);
+    expect(result.findings).toEqual([{ kind: 'Private key block', count: 1 }]);
+  });
+
+  it('redacts a terminated block and a later unterminated block separately', () => {
+    const input =
+      '-----BEGIN PRIVATE KEY-----\nfirst-material\n-----END PRIVATE KEY-----\nmiddle\n-----BEGIN EC PRIVATE KEY-----\nsecond-material';
+    const result = sanitizeForSharing(input);
+    expect(result.output).not.toContain('first-material');
+    expect(result.output).not.toContain('second-material');
+    expect(result.output).toContain('middle');
+    expect(result.findings).toEqual(
+      expect.arrayContaining([
+        { kind: 'Private key block', count: 1 },
+        { kind: UNTERMINATED_PRIVATE_KEY_KIND, count: 1, unterminated: true },
+      ]),
+    );
+  });
+
+  it('masks an unterminated block that precedes a block of a different type', () => {
+    const input =
+      '-----BEGIN RSA PRIVATE KEY-----\nleaky-material\n-----BEGIN EC PRIVATE KEY-----\nother\n-----END EC PRIVATE KEY-----';
+    const result = sanitizeForSharing(input);
+    expect(result.output).not.toContain('leaky-material');
+    expect(result.output).not.toContain('other');
+  });
+
+  it('is idempotent: re-running over its own output is a no-op without findings', () => {
+    const first = sanitizeForSharing('-----BEGIN RSA PRIVATE KEY-----\nc3ludGhldGlj');
+    const second = sanitizeForSharing(first.output);
+    expect(second.output).toBe(first.output);
+    expect(second.findings).toEqual([]);
+  });
+
+  it('leaves public key blocks without END alone', () => {
+    const input = '-----BEGIN PUBLIC KEY-----\nc3ludGhldGlj';
+    expect(sanitizeForSharing(input)).toEqual({ output: input, findings: [] });
   });
 });

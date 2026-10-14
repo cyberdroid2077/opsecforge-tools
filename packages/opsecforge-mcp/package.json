@@ -1,0 +1,51 @@
+{
+  "name": "opsecforge-mcp",
+  "version": "0.1.0",
+  "description": "Local MCP server for AI coding agents: redact secrets from files, scan before commit, verify webhook signatures and inspect JWTs without sending anything off your machine.",
+  "license": "MIT",
+  "mcpName": "io.github.cyberdroid2077/opsecforge",
+  "author": "OpsecForge",
+  "homepage": "https://www.opsecforge.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyberdroid2077/opsecforge-tools.git",
+    "directory": "packages/opsecforge-mcp"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "secrets",
+    "redaction",
+    "security",
+    "webhook",
+    "jwt",
+    "claude-code",
+    "codex",
+    "cursor"
+  ],
+  "bin": {
+    "opsecforge-mcp": "dist/index.cjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && vitest run",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.1",
+    "zod": "^4.0.0"
+  }
+}

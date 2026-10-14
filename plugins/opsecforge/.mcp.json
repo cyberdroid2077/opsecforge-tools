@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "opsecforge": {
+      "command": "npx",
+      "args": ["-y", "opsecforge-mcp@0.1"]
+    }
+  }
+}

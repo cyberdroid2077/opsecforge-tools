@@ -1,0 +1,22 @@
+{
+  "name": "opsecforge",
+  "owner": {
+    "name": "OpsecForge",
+    "url": "https://www.opsecforge.com"
+  },
+  "metadata": {
+    "description": "Local-first security tools for AI coding agents."
+  },
+  "plugins": [
+    {
+      "name": "opsecforge",
+      "source": "./plugins/opsecforge",
+      "description": "Blocks direct reads of .env and key files and gives the agent local tools to redact files, scan before commit, verify webhooks and inspect JWTs. Everything runs on your machine.",
+      "version": "0.1.0",
+      "category": "security",
+      "license": "MIT",
+      "homepage": "https://www.opsecforge.com",
+      "keywords": ["security", "secrets", "redaction", "mcp", "webhook", "jwt"]
+    }
+  ]
+}

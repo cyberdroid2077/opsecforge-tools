@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 
@@ -12,6 +12,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     include: ['app/**/*.{test,spec}.{ts,tsx}', 'lib/**/*.{test,spec}.{ts,tsx}'],
+    // packages/ and plugins/ have their own test setup (packages/opsecforge-mcp: npm test).
+    exclude: [...configDefaults.exclude, 'packages/**', 'plugins/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

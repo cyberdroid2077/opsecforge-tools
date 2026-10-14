@@ -21,6 +21,9 @@ const eslintConfig = defineConfig([
     "next.config.js",                    // require() for next-pwa (no ESM equivalent)
     // Scripts (not part of the Next.js app)
     "scripts/**",
+    // Separately built/published artifacts (opsecforge-mcp npm package, Claude Code plugin)
+    "packages/**",
+    "plugins/**",
   ]),
 ]);
 
