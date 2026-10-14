@@ -85,6 +85,7 @@ export default function RootLayout({
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-6 gap-y-3">
             {[
               ['About', '/about'],
+              ['Agents', '/agents'],
               ['Case Studies', '/case-studies'],
               ['Glossary', '/glossary'],
               ['FAQ', '/faq'],
