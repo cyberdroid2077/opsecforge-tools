@@ -17,6 +17,10 @@ describe('sitemap', () => {
     expect(first.find((entry) => entry.url.endsWith('/tools/sql-formatter'))?.lastModified).toBeUndefined();
   });
 
+  it('publishes the agents landing page', () => {
+    expect(sitemap().map((entry) => entry.url)).toContain('https://www.opsecforge.com/agents');
+  });
+
   it('publishes only the canonical JSON formatter URL', () => {
     const urls = sitemap().map((entry) => entry.url);
 

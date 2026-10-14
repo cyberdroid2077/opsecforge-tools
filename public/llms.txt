@@ -41,6 +41,7 @@ All guides: https://www.opsecforge.com/blog
 ## Site information
 
 - About: https://www.opsecforge.com/about
+- opsecforge-mcp (local MCP server and Claude Code plugin that redacts secrets before they reach an AI agent; heuristic, hook is best-effort): https://www.opsecforge.com/agents
 - FAQ (privacy and offline behavior): https://www.opsecforge.com/faq
 - Privacy: https://www.opsecforge.com/privacy
 - Source code (public repository): https://github.com/cyberdroid2077/opsecforge-tools
