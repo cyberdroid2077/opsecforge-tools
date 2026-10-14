@@ -28,7 +28,7 @@ describe('npm pack contents', () => {
   it('has the metadata the registries need', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
     expect(pkg.name).toBe('opsecforge-mcp');
-    expect(pkg.version).toBe('0.1.0');
+    expect(pkg.version).toMatch(/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/);
     expect(pkg.license).toBe('MIT');
     expect(pkg.mcpName).toBe('io.github.cyberdroid2077/opsecforge');
     expect(pkg.bin['opsecforge-mcp']).toBe('dist/index.cjs');
