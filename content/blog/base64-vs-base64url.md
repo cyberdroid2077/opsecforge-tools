@@ -1,15 +1,32 @@
 ---
-title: "Base64 vs Base64URL: When URL Safety Matters"
+title: "Base64 vs Base64URL: Differences, Padding and Use Cases"
 date: "2026-03-22"
-updated: "2026-09-08"
-description: "A practical guide to understanding Base64 and Base64URL encoding differences, common bug patterns, and secure implementation across JavaScript, Python, Go, and Java."
+updated: "2026-10-14"
+description: "Base64URL swaps + and / for - and _ so data fits in URLs, and often drops = padding. RFC 4648 differences, JWT use and when to pick each."
 category: "Web Development"
 tags: ["base64", "base64url", "jwt", "encoding", "url-encoding", "security", "web-development"]
-source_reviewed: "2026-09-08"
+source_reviewed: "2026-10-14"
 primary_source: "https://www.rfc-editor.org/rfc/rfc4648"
 ---
 
-# Base64 vs Base64URL: When URL Safety Matters
+# Base64 vs Base64URL: Differences, Padding and Use Cases
+
+**Base64URL is Base64 with a URL-safe alphabet.** Both encode bytes in 6-bit groups, but Base64URL uses `-` and `_` in place of `+` and `/` (RFC 4648 section 5), so the output can sit in URLs and file names without escaping. Standard Base64 pads output with `=`; Base64URL specifications such as JWS often omit that padding, though RFC 4648 says padding stays unless the referring specification says otherwise.
+
+| | Standard Base64 (RFC 4648 §4) | Base64URL (RFC 4648 §5) |
+| :-- | :-- | :-- |
+| Characters 0-61 | `A-Z`, `a-z`, `0-9` | `A-Z`, `a-z`, `0-9` |
+| Character 62 | `+` | `-` |
+| Character 63 | `/` | `_` |
+| Padding | `=` | `=` by default; omitted where the protocol says so |
+| Typical use | MIME email, data URIs, config files | JWT/JWS segments ([RFC 7515](https://www.rfc-editor.org/rfc/rfc7515)), URL parameters |
+
+<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Try it locally</p>
+  <h2 class="mt-0 text-2xl font-bold text-slate-100">Try standard Base64 and Base64URL on a sample</h2>
+  <p class="text-slate-300">The converter handles UTF-8 text only, in the loaded browser page. It encodes to unpadded Base64URL and does not decode arbitrary binary data or verify JWTs.</p>
+  <a href="/tools/base64-converter" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Base64 Converter →</a>
+</div>
 
 <div class="my-6 flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3">
   <svg class="h-6 w-6 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -20,13 +37,6 @@ primary_source: "https://www.rfc-editor.org/rfc/rfc4648"
 </div>
 
 If you've ever debugged a JWT that works in one context but fails in another, or wondered why your URL parameters get corrupted after Base64 encoding, you've likely encountered the subtle but critical differences between **Base64** and **Base64URL** encoding. These two encoding schemes are nearly identical—until they're not, and that difference breaks production systems.
-
-<div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
-  <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Try it locally</p>
-  <h2 class="mt-0 text-2xl font-bold text-slate-100">Convert Base64 or Base64URL in your browser</h2>
-  <p class="text-slate-300">Encode or decode a sample without sending its contents to OpsecForge.</p>
-  <a href="/tools/base64-converter" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Base64 Converter →</a>
-</div>
 
 <div class="my-8 flex items-center gap-3 border-b border-slate-700 pb-3">
   <svg class="h-6 w-6 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -327,5 +337,5 @@ Understanding the difference between Base64 and Base64URL helps prevent avoidabl
 
 ## Primary references
 
-- [RFC 4648: Base-N Encodings](https://www.rfc-editor.org/rfc/rfc4648)
+- [RFC 4648: The Base16, Base32, and Base64 Data Encodings](https://www.rfc-editor.org/rfc/rfc4648)
 - [RFC 7515: JSON Web Signature](https://www.rfc-editor.org/rfc/rfc7515)
