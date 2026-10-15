@@ -2,6 +2,24 @@
 
 [OpsecForge](https://www.opsecforge.com) is a Next.js site for privacy-first developer and security utilities. Its core product boundary is simple: values pasted into a tool are processed in the loaded browser page, not sent to an OpsecForge tool-processing backend.
 
+## MCP server for coding agents: `opsecforge-mcp`
+
+This repository also contains a local **Model Context Protocol (MCP) server** in [`packages/opsecforge-mcp`](packages/opsecforge-mcp). It runs over **stdio**, is built with the official MCP TypeScript SDK (`@modelcontextprotocol/sdk`), and reuses the same tested code in `lib/` that powers the browser tools. It makes no network requests.
+
+The agent passes a file path or an environment variable name; the work happens on your machine and only redacted or derived results reach the model. MCP tools:
+
+- `redact_file`: read a local text file and return it with secrets replaced by `[REDACTED]`, plus a findings summary.
+- `scan_secrets`: pre-commit check of files, directories or staged changes; returns `file:line` and the secret type, never the value.
+- `redact_text`, `verify_webhook`, `inspect_jwt`, `file_checksum`.
+
+Install from npm ([`opsecforge-mcp`](https://www.npmjs.com/package/opsecforge-mcp), MIT; official MCP Registry name `io.github.cyberdroid2077/opsecforge`):
+
+```bash
+claude mcp add opsecforge -- npx -y opsecforge-mcp
+```
+
+Redaction is heuristic. Setup for Codex, Cursor and the Claude Code plugin (with a guard hook), plus the full limitations, is in the [package README](packages/opsecforge-mcp/README.md) and at [opsecforge.com/agents](https://www.opsecforge.com/agents).
+
 ## Privacy and analytics boundary
 
 - Tool inputs and generated outputs are not sent to OpsecForge analytics.
