@@ -1,0 +1,77 @@
+{
+  "_comment": "Retired legacy URLs (AdSense readiness item 1). redirects = permanent 301 to a retained page on the same topic; gone = HTTP 410. Consumed by next.config.js; checked by lib/retired-urls.test.ts. Every destination must be a retained, sitemap-listed page, and never a page listed in gone or a redirect source.",
+  "redirects": [
+    {
+      "source": "/blog/jwt-none-algorithm-dangers",
+      "destination": "/blog/jwt-token-vulnerabilities-authentication-security"
+    },
+    {
+      "source": "/blog/how-to-decode-jwt-tokens-client-side",
+      "destination": "/tools/jwt-decoder"
+    },
+    {
+      "source": "/blog/how-to-generate-secure-passwords-offline",
+      "destination": "/tools/password-generator"
+    },
+    {
+      "source": "/blog/secrets-sprawl-2026-ai-accelerating-disaster",
+      "destination": "/blog/secrets-sprawl-credential-leak-epidemic-2026"
+    },
+    {
+      "source": "/blog/api-credential-leakage-2026-trends",
+      "destination": "/blog/api-key-leaks-credential-security"
+    },
+    {
+      "source": "/blog/api-gateway-security-supply-chain-2026",
+      "destination": "/blog/ai-native-api-gateway-security-for-enterprise-2026"
+    },
+    {
+      "source": "/blog/jwt-none-algorithm-security-risk",
+      "destination": "/blog/jwt-token-vulnerabilities-authentication-security"
+    },
+    {
+      "source": "/blog/jwt-none-algorithm-security-risks",
+      "destination": "/blog/jwt-token-vulnerabilities-authentication-security"
+    },
+    {
+      "source": "/blog/jwt-algorithm-bypass",
+      "destination": "/blog/jwt-token-vulnerabilities-authentication-security"
+    }
+  ],
+  "gone": [
+    "/blog/20260321-938dbbbc",
+    "/blog/ai-agent-api-security-bedrock-attack-vectors-2026",
+    "/blog/ai-agent-security-threats-agentic-enterprise-2026",
+    "/blog/ai-anomaly-detection-api-security-2026",
+    "/blog/ai-driven-dynamic-rate-limiting-strategies-for-enterprise-apis",
+    "/blog/ai-enhanced-xss-detection-and-prevention-techniques-2026",
+    "/blog/api-credential-sprawl-container-images-2026",
+    "/blog/api-error-responses-information-disclosure-reconnaissance-2026",
+    "/blog/api-scraping-attacks-mass-surveillance-2026",
+    "/blog/building-production-rag-systems-enterprise-lessons-2026",
+    "/blog/ci-cd-credential-leaks-2026",
+    "/blog/ci-cd-supply-chain-attack-teampcp-2026",
+    "/blog/cors-misconfiguration-security-risks-and-fixes-for-modern-web-apis",
+    "/blog/cve-2026-10520-ivanti-sentry-rce-auth-bypass-2026",
+    "/blog/cve-2026-33504-pagination-token-sql-injection-2026",
+    "/blog/cve-2026-40490-asynchttpclient-redirect-credential-leak",
+    "/blog/dynamic-ephemeral-secret-management-for-cloud-native-ci-cd-pipelines",
+    "/blog/dynamic-oauth-token-revocation",
+    "/blog/graphql-introspection-schema-exposure-security-2026",
+    "/blog/hardware-ai-security-edge-computing-2026",
+    "/blog/mongobleed-cve-2025-14847-memory-leak-api-security",
+    "/blog/oauth-token-theft-why-sso-mfa-fail-2026",
+    "/blog/owasp-api-security-top-10-vulnerabilities-and-remediation-strategies-2026",
+    "/blog/react2shell-nextjs-credential-harvesting-cve-2025-55182-2026",
+    "/blog/serverless-api-security-2026",
+    "/blog/source-map-leaks-frontend-security",
+    "/blog/zero-trust-api-security-architecture-for-2026",
+    "/tools/lorem-ipsum",
+    "/tools/markdown-to-html",
+    "/tools/qr-generator",
+    "/tools/text-case",
+    "/tools/text-diff",
+    "/tools/url-encoder",
+    "/tools/word-counter"
+  ]
+}

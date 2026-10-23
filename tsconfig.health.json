@@ -5,7 +5,6 @@
     "node_modules",
     ".next",
     "app/tools/jwt-encoder",
-    "components/TextDiffTool.tsx",
     "lib/blog.test.ts"
   ]
 }

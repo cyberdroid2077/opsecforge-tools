@@ -5,26 +5,16 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   skipWaiting: true,
 });
 
+// Legacy URLs retired in the AdSense readiness clean-up: 301 to a same-topic page, or 410 Gone.
+// Single source of truth, shared with lib/retired-urls.test.ts.
+const retired = require('./config/retired-urls.json');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
   async redirects() {
     return [
-      {
-        source: '/blog/jwt-none-algorithm-security-risk',
-        destination: '/blog/jwt-none-algorithm-dangers',
-        permanent: true,
-      },
-      {
-        source: '/blog/jwt-none-algorithm-security-risks',
-        destination: '/blog/jwt-none-algorithm-dangers',
-        permanent: true,
-      },
-      {
-        source: '/blog/jwt-algorithm-bypass',
-        destination: '/blog/jwt-none-algorithm-dangers',
-        permanent: true,
-      },
+      ...retired.redirects.map(({ source, destination }) => ({ source, destination, statusCode: 301 })),
       {
         source: '/blog/base64-vs-base64url-a-developer-s-guide-to-secure-encoding',
         destination: '/blog/base64-vs-base64url',
@@ -113,13 +103,12 @@ const nextConfig = {
     ];
   },
 
-  async headers() {
-    return [
-      {
-        source: '/tools/:path(lorem-ipsum|markdown-to-html|qr-generator|text-case|text-diff|url-encoder|word-counter)',
-        headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
-      },
-    ];
+  // HTTP 410 for retired URLs: rewritten (before the filesystem/dynamic routes) to a route handler
+  // that answers 410. Only the listed paths are matched, so no other request is affected.
+  async rewrites() {
+    return {
+      beforeFiles: retired.gone.map((source) => ({ source, destination: '/api/gone' })),
+    };
   },
 
   typescript: {
