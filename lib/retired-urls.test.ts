@@ -54,6 +54,29 @@ const LEGACY_40 = [
   '/tools/word-counter',
 ];
 
+// Second batch (AdSense readiness item 2): thin or duplicate articles merged into a retained article
+// (301, one hop), plus pages with no same-topic replacement (410).
+const MERGED_301: Record<string, string> = {
+  '/blog/env-files-destroy-companies': '/blog/environment-variable-leaks-security-risks',
+  '/blog/jwt-token-leak-apr-2026-analysis': '/blog/jwt-token-vulnerabilities-authentication-security',
+  '/blog/secrets-sprawl-credential-leak-epidemic-2026': '/blog/api-key-leaks-credential-security',
+  '/blog/ai-native-api-gateway-security-for-enterprise-2026': '/blog/shadow-apis-the-invisible-threat-2026',
+  '/blog/when-security-scanners-become-weapons-devsecops-supply-chain-march-2026': '/blog/oauth-token-leakage-ci-cd-2026',
+  '/blog/ai-bubble-burst-api-security-post-hype-era': '/blog/ai-api-provider-exit-planning',
+};
+
+const GONE_2 = [
+  '/blog/ai-sycophancy-security-chatbot-bias-2026',
+  '/blog/global-privacy-compliance-guide-2026',
+  '/blog/why-client-side-execution-is-the-future-of-developer-utilities',
+  '/blog/why-soc2-compliance-means-you-should-stop-using-cloud-formatters',
+  '/tools/hex-rgb-converter',
+  '/case-studies',
+];
+
+// Every URL retired by either mechanism: none may be a redirect target or an internal link.
+const RETIRED_ALL = [...LEGACY_40, ...Object.keys(MERGED_301), ...GONE_2];
+
 const redirectSources = retired.redirects.map((entry) => entry.source);
 const goneSet = new Set<string>(retired.gone);
 const sitemapPaths = new Set(sitemap().map((entry) => entry.url.replace(SITE, '') || '/'));
@@ -97,25 +120,45 @@ describe('retired legacy URLs: tables', () => {
     }
   });
 
-  it('contains nothing beyond the 40 plus the three older JWT redirects it retargets', () => {
+  it('contains nothing beyond the 40, the three older JWT redirects, and the second batch', () => {
     const extras = redirectSources.filter((source) => !LEGACY_40.includes(source));
 
-    expect([...extras].sort()).toEqual([
-      '/blog/jwt-algorithm-bypass',
-      '/blog/jwt-none-algorithm-security-risk',
-      '/blog/jwt-none-algorithm-security-risks',
-    ]);
-    expect(retired.gone.every((url) => LEGACY_40.includes(url))).toBe(true);
+    expect([...extras].sort()).toEqual(
+      [
+        '/blog/jwt-algorithm-bypass',
+        '/blog/jwt-none-algorithm-security-risk',
+        '/blog/jwt-none-algorithm-security-risks',
+        ...Object.keys(MERGED_301),
+      ].sort(),
+    );
+    expect(retired.gone.every((url) => LEGACY_40.includes(url) || GONE_2.includes(url))).toBe(true);
     expect(new Set(retired.gone).size).toBe(retired.gone.length);
     expect(new Set(redirectSources).size).toBe(redirectSources.length);
-    expect(retired.gone).toHaveLength(34);
+    expect(retired.gone).toHaveLength(34 + GONE_2.length);
+    expect([...retired.gone].sort()).toEqual(expect.arrayContaining([...GONE_2].sort()));
+  });
+
+  it('sends each merged article to its single retained target in one hop', () => {
+    for (const [source, destination] of Object.entries(MERGED_301)) {
+      const entry = retired.redirects.find((candidate) => candidate.source === source);
+
+      expect(entry?.destination, source).toBe(destination);
+      expect(routeExists(destination), destination).toBe(true);
+    }
+  });
+
+  it('retargets the two older redirects whose destination was merged away', () => {
+    const byOrigin = Object.fromEntries(retired.redirects.map((entry) => [entry.source, entry.destination]));
+
+    expect(byOrigin['/blog/secrets-sprawl-2026-ai-accelerating-disaster']).toBe('/blog/api-key-leaks-credential-security');
+    expect(byOrigin['/blog/api-gateway-security-supply-chain-2026']).toBe('/blog/shadow-apis-the-invisible-threat-2026');
   });
 
   it('sends every redirect to a retained, sitemap-listed page (never a 410, never a chain)', () => {
     for (const { source, destination } of retired.redirects) {
       expect(goneSet.has(destination), `${source} -> 410 ${destination}`).toBe(false);
       expect(redirectSources.includes(destination), `${source} -> chain via ${destination}`).toBe(false);
-      expect(LEGACY_40.includes(destination), `${source} -> legacy ${destination}`).toBe(false);
+      expect(RETIRED_ALL.includes(destination), `${source} -> retired ${destination}`).toBe(false);
       expect(sitemapPaths.has(destination), `${source} -> ${destination} is not in the sitemap`).toBe(true);
       expect(routeExists(destination), `${source} -> ${destination} does not exist`).toBe(true);
     }
@@ -148,7 +191,7 @@ describe('retired legacy URLs: next.config.js as served', () => {
     for (const entry of all) {
       expect(sources.has(entry.destination), `chain: ${entry.source} -> ${entry.destination}`).toBe(false);
       expect(goneSet.has(entry.destination), `410 target: ${entry.source} -> ${entry.destination}`).toBe(false);
-      expect(LEGACY_40.includes(entry.destination), `retired target: ${entry.source}`).toBe(false);
+      expect(RETIRED_ALL.includes(entry.destination), `retired target: ${entry.source}`).toBe(false);
       expect(routeExists(entry.destination), `${entry.source} -> ${entry.destination} missing`).toBe(true);
     }
   });
@@ -180,7 +223,15 @@ describe('retired legacy URLs: next.config.js as served', () => {
 });
 
 describe('retired legacy URLs: content is gone, retained pages are untouched', () => {
-  it('has no source file, tool directory or tool-only component left for any of the 40', () => {
+  it('has no source file, tool directory or page left for any retired URL', () => {
+    for (const url of [...GONE_2, ...Object.keys(MERGED_301)]) {
+      if (url.startsWith('/blog/')) {
+        expect(fs.existsSync(path.join(root, 'content/blog', `${url.slice('/blog/'.length)}.md`)), url).toBe(false);
+      } else {
+        expect(fs.existsSync(path.join(root, 'app', url.slice(1))), url).toBe(false);
+      }
+    }
+
     for (const url of LEGACY_40) {
       if (url.startsWith('/blog/')) {
         expect(fs.existsSync(path.join(root, 'content/blog', `${url.slice('/blog/'.length)}.md`)), url).toBe(false);
@@ -220,8 +271,8 @@ describe('retired legacy URLs: content is gone, retained pages are untouched', (
       .map((entry) => entry.name)
       .filter((name) => !['json-formatter', 'sha256-hash'].includes(name));
 
-    expect(articles).toHaveLength(37);
-    expect(tools).toHaveLength(12);
+    expect(articles).toHaveLength(31);
+    expect(tools).toHaveLength(11);
 
     const retainedRoutes = [
       ...articles.map((name) => `/blog/${name.replace(/\.md$/, '')}`),
@@ -239,7 +290,7 @@ describe('retired legacy URLs: content is gone, retained pages are untouched', (
 
   it('has no internal link, navigation entry or llms.txt line pointing at a retired URL', () => {
     const skipDirectories = new Set(['node_modules', '.next', '.git', 'ai-seo', 'bizdev-pipeline', 'config', 'docs', 'coverage', 'tts']);
-    const pattern = new RegExp(`(${LEGACY_40.map(escapeRegExp).join('|')})(?![a-z0-9-])`);
+    const pattern = new RegExp(`(${RETIRED_ALL.map(escapeRegExp).join('|')})(?![a-z0-9-])`);
     const offenders: string[] = [];
 
     function walk(directory: string) {
@@ -253,7 +304,15 @@ describe('retired legacy URLs: content is gone, retained pages are untouched', (
         }
 
         const scanned = /\.(tsx?|mjs|js|json|md|txt|xml)$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name);
-        const exempt = relative === 'next.config.js' || relative === 'package-lock.json' || entry.name.startsWith('.');
+        // TODO(coordinator): scripts/monitor/health-check.js still lists hex-rgb-converter as a required tool
+        // directory and eslint.config.mjs still ignores app/case-studies/**. Both are outside this change's
+        // file list; delete these two exemptions once those lines are removed.
+        const exempt =
+          relative === 'next.config.js' ||
+          relative === 'package-lock.json' ||
+          relative === 'scripts/monitor/health-check.js' ||
+          relative === 'eslint.config.mjs' ||
+          entry.name.startsWith('.');
 
         if (scanned && !exempt) {
           const match = pattern.exec(fs.readFileSync(full, 'utf8'));

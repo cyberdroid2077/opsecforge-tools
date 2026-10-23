@@ -1,5 +1,5 @@
 {
-  "_comment": "Retired legacy URLs (AdSense readiness item 1). redirects = permanent 301 to a retained page on the same topic; gone = HTTP 410. Consumed by next.config.js; checked by lib/retired-urls.test.ts. Every destination must be a retained, sitemap-listed page, and never a page listed in gone or a redirect source.",
+  "_comment": "Retired URLs (AdSense readiness items 1 and 2). redirects = permanent 301 to a retained page on the same topic; gone = HTTP 410. Consumed by next.config.js; checked by lib/retired-urls.test.ts. Every destination must be a retained, sitemap-listed page, and never a page listed in gone or a redirect source.",
   "redirects": [
     {
       "source": "/blog/jwt-none-algorithm-dangers",
@@ -15,7 +15,7 @@
     },
     {
       "source": "/blog/secrets-sprawl-2026-ai-accelerating-disaster",
-      "destination": "/blog/secrets-sprawl-credential-leak-epidemic-2026"
+      "destination": "/blog/api-key-leaks-credential-security"
     },
     {
       "source": "/blog/api-credential-leakage-2026-trends",
@@ -23,7 +23,7 @@
     },
     {
       "source": "/blog/api-gateway-security-supply-chain-2026",
-      "destination": "/blog/ai-native-api-gateway-security-for-enterprise-2026"
+      "destination": "/blog/shadow-apis-the-invisible-threat-2026"
     },
     {
       "source": "/blog/jwt-none-algorithm-security-risk",
@@ -36,6 +36,30 @@
     {
       "source": "/blog/jwt-algorithm-bypass",
       "destination": "/blog/jwt-token-vulnerabilities-authentication-security"
+    },
+    {
+      "source": "/blog/env-files-destroy-companies",
+      "destination": "/blog/environment-variable-leaks-security-risks"
+    },
+    {
+      "source": "/blog/jwt-token-leak-apr-2026-analysis",
+      "destination": "/blog/jwt-token-vulnerabilities-authentication-security"
+    },
+    {
+      "source": "/blog/secrets-sprawl-credential-leak-epidemic-2026",
+      "destination": "/blog/api-key-leaks-credential-security"
+    },
+    {
+      "source": "/blog/ai-native-api-gateway-security-for-enterprise-2026",
+      "destination": "/blog/shadow-apis-the-invisible-threat-2026"
+    },
+    {
+      "source": "/blog/when-security-scanners-become-weapons-devsecops-supply-chain-march-2026",
+      "destination": "/blog/oauth-token-leakage-ci-cd-2026"
+    },
+    {
+      "source": "/blog/ai-bubble-burst-api-security-post-hype-era",
+      "destination": "/blog/ai-api-provider-exit-planning"
     }
   ],
   "gone": [
@@ -45,6 +69,7 @@
     "/blog/ai-anomaly-detection-api-security-2026",
     "/blog/ai-driven-dynamic-rate-limiting-strategies-for-enterprise-apis",
     "/blog/ai-enhanced-xss-detection-and-prevention-techniques-2026",
+    "/blog/ai-sycophancy-security-chatbot-bias-2026",
     "/blog/api-credential-sprawl-container-images-2026",
     "/blog/api-error-responses-information-disclosure-reconnaissance-2026",
     "/blog/api-scraping-attacks-mass-surveillance-2026",
@@ -57,6 +82,7 @@
     "/blog/cve-2026-40490-asynchttpclient-redirect-credential-leak",
     "/blog/dynamic-ephemeral-secret-management-for-cloud-native-ci-cd-pipelines",
     "/blog/dynamic-oauth-token-revocation",
+    "/blog/global-privacy-compliance-guide-2026",
     "/blog/graphql-introspection-schema-exposure-security-2026",
     "/blog/hardware-ai-security-edge-computing-2026",
     "/blog/mongobleed-cve-2025-14847-memory-leak-api-security",
@@ -65,7 +91,11 @@
     "/blog/react2shell-nextjs-credential-harvesting-cve-2025-55182-2026",
     "/blog/serverless-api-security-2026",
     "/blog/source-map-leaks-frontend-security",
+    "/blog/why-client-side-execution-is-the-future-of-developer-utilities",
+    "/blog/why-soc2-compliance-means-you-should-stop-using-cloud-formatters",
     "/blog/zero-trust-api-security-architecture-for-2026",
+    "/case-studies",
+    "/tools/hex-rgb-converter",
     "/tools/lorem-ipsum",
     "/tools/markdown-to-html",
     "/tools/qr-generator",

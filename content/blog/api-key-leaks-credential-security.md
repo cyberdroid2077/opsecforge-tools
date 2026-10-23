@@ -1,12 +1,12 @@
 ---
 title: "API Key Leaks: Detection, Response, and Prevention"
 date: "2026-04-01"
-updated: "2026-07-29"
+updated: "2026-10-23"
 description: "Learn where API keys leak, how to respond without delaying revocation, and how restrictions, secret scanning, short-lived credentials, and least privilege reduce risk."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["api-keys", "secrets-management", "credential-leaks", "devsecops", "incident-response"]
-source_reviewed: "2026-07-29"
+source_reviewed: "2026-10-23"
 primary_source: "https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository"
 ---
 
@@ -28,6 +28,8 @@ This guide covers the practical questions: where keys escape, what to do first, 
 </div>
 
 ## Where API keys leak
+
+Credentials for AI services are one of the fastest-growing categories. GitGuardian's [State of Secrets Sprawl 2026 report](https://www.gitguardian.com/state-of-secrets-sprawl-report-2026) counts 1,275,105 exposed AI-service secrets in its 2025 data, 81% more than the year before. That figure comes from the vendor's own detection data, not from a census of every repository or organization, so read it as the direction of travel rather than a measure of how many teams are affected.
 
 ### Source control and build artifacts
 
@@ -77,6 +79,16 @@ History cleanup is a separate decision. Rewriting Git history changes commit has
 
 Identify why the credential reached the exposed location. A complete fix may require a secret store, log filtering, build-secret mounts, narrower CI permissions, push protection, or a support-sharing checklist. Add a regression check for the actual failure mode.
 
+## A documented case: Toyota T-Connect
+
+Toyota's [notice of 7 October 2022](https://global.toyota/jp/newsroom/corporate/38095972.html) (in Japanese) is a useful example because it separates three things that are easy to conflate. According to the notice, a contractor uploaded part of the T-Connect user-site source code to GitHub in December 2017 with a public visibility setting, and the code contained an access key for a data server. Toyota found the exposure on 15 September 2022, made the repository private the same day, and changed the server's access key on 17 September. It reported that 296,019 email addresses and customer management numbers might have been leaked, that its investigation found no access by a third party in the server's access history, and that it could not completely rule out such access.
+
+What this case shows for key handling, as engineering guidance rather than something Toyota's notice states:
+
+- **Making the repository private is not revocation.** The key kept working until it was changed two days later.
+- **An exposure can sit unnoticed for years.** Here the window ran from late 2017 to September 2022, so the audit logs you can review may not cover the whole window. That limits what you can conclude: "no access found" is weaker than "no access".
+- **Ownership gaps matter.** The exposure came from a contractor's account, which is why the inventory of who holds and publishes credentials has to include third parties.
+
 ## What secret scanning can and cannot tell you
 
 [GitHub secret scanning](https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning) detects supported credential patterns across repository history. Push protection can block supported patterns before they reach the repository. Custom patterns can cover organization-specific formats.
@@ -99,7 +111,7 @@ When a platform supports workload identity, OIDC federation, or dynamically issu
 
 ### Store and deliver secrets deliberately
 
-Use the platform's secret store or a dedicated secrets-management system. Limit who and what can read each secret, keep production values out of developer laptops where practical, and prevent untrusted pull requests from receiving privileged CI credentials.
+Use the platform's secret store or a dedicated secrets-management system. Limit who and what can read each secret, keep production values out of developer laptops where practical, and prevent untrusted pull requests from receiving privileged CI credentials. Keep production credentials out of examples, tests, demos, and the context you give an AI coding assistant.
 
 Environment variables can transport a secret into a process, but they are not a complete secret-management system. See [Are Environment Variables Secure?](/blog/environment-variable-security-secrets-management) for the runtime and operational tradeoffs.
 
@@ -142,3 +154,5 @@ Use editor, pre-commit, CI, repository, and provider-side detection where approp
 - [GitHub: Secret scanning](https://docs.github.com/en/code-security/concepts/secret-security/secret-scanning)
 - [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
 - [Google Cloud: API key best practices](https://cloud.google.com/docs/authentication/api-keys-best-practices)
+- [GitGuardian: The State of Secrets Sprawl 2026](https://www.gitguardian.com/state-of-secrets-sprawl-report-2026)
+- [Toyota: Notice on possible leakage of customer email addresses (Japanese)](https://global.toyota/jp/newsroom/corporate/38095972.html)

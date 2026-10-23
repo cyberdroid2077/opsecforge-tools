@@ -1,7 +1,7 @@
 ---
 title: "Environment Variable Leaks: How Secrets Escape and What to Do"
 date: "2026-04-03"
-updated: "2026-07-29"
+updated: "2026-10-23"
 description: "Exposed a .env file or environment variable? Revoke real credentials first, investigate where they escaped, remove reachable copies, and fix the leak path."
 author: "OpsecForge Security Team"
 category: "Application Security"
@@ -121,6 +121,8 @@ Treat the credential as compromised. Removing the visible text is not containmen
 
 Disable the exposed credential or rotate it through the provider. If immediate revocation would break production, use the provider's incident procedure to replace it safely and shorten the overlap window.
 
+A credential stays usable until its issuer rejects it. Until you have revoked it, the repository, file, or log that exposed it is only one of the places where a copy may exist. Before you replace it, also check what the old credential was allowed to do; if it was broader than the workload needed, issue the replacement with narrower permissions rather than copying the old ones.
+
 GitHub's [leaked-secret remediation guide](https://docs.github.com/en/code-security/tutorials/remediate-leaked-secrets/remediating-a-leaked-secret) explicitly notes that deleting the current file, adding a new commit, or recreating a repository does not prevent use of a credential that has already escaped.
 
 ### 2. Determine scope
@@ -131,7 +133,8 @@ Record:
 - the systems and environments where it was accepted;
 - when and where it became visible;
 - who or what could access that location;
-- relevant provider and application audit events.
+- relevant provider and application audit events;
+- who owns the credential and each system that accepted it, so they can be told through your normal incident process.
 
 Do not paste the secret itself into the incident record.
 

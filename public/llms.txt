@@ -1,6 +1,6 @@
 # OpsecForge
 
-> OpsecForge offers 12 free browser-local developer tools for inspecting, sanitizing, and verifying sensitive technical data, plus source-reviewed security guides. No account is required.
+> OpsecForge offers 11 free browser-local developer tools for inspecting, sanitizing, and verifying sensitive technical data, plus source-reviewed security guides. No account is required.
 
 Tool input is processed by JavaScript in the loaded browser page. OpsecForge does not send what you paste into a tool to a tool-processing backend. This is not the same as the site being network-free: pages still load site resources, and the site uses aggregate analytics and may load advertising. Browser-local processing reduces an upload path; it does not make a workflow safe, compliant, or authentic. Heuristic tools can miss data and require human review.
 
@@ -17,7 +17,6 @@ Tool input is processed by JavaScript in the loaded browser page. OpsecForge doe
 - [JSON Beautifier](https://www.opsecforge.com/tools/json-beautifier): Formats, minifies, and validates JSON with the browser's native parser. It does not redact sensitive fields.
 - [SQL Formatter & Minifier](https://www.opsecforge.com/tools/sql-formatter): Formats and minifies MySQL, PostgreSQL, and standard SQL text. It does not execute queries or make them safe from injection.
 - [Unix Timestamp Converter](https://www.opsecforge.com/tools/unix-timestamp): Converts Unix seconds or milliseconds to local and UTC dates and back.
-- [Hex RGB Converter](https://www.opsecforge.com/tools/hex-rgb-converter): Converts colors between hex, RGB, and HSL.
 
 The tools index is at https://www.opsecforge.com/tools
 

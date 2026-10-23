@@ -168,7 +168,7 @@
 .directoryColumn li a:hover { color: var(--home-green); }
 .directoryColumn li svg { flex: 0 0 auto; color: var(--home-soft); }
 
-.guidesGrid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--home-line); border-bottom: 1px solid var(--home-line); }
+.guidesGrid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--home-line); border-bottom: 1px solid var(--home-line); }
 .guideCard { position: relative; min-height: 310px; padding: 25px; border-right: 1px solid var(--home-line); }
 .guideCard:last-child { border-right: 0; }
 .guideCard:hover { background: color-mix(in srgb, var(--home-green) 3.5%, transparent); }

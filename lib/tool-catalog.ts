@@ -23,11 +23,11 @@ export const primaryToolHrefs = [
 ] as const;
 
 /*
- * Only indexable tools are listed here. Seven thin generic tools (Lorem Ipsum,
- * Markdown to HTML, QR, Text Case, Text Diff, URL Encoder, Word Counter) still
- * work at their URLs but are noindexed (see next.config.js and app/sitemap.ts),
- * so the homepage and /tools do not link to them. Keep this list aligned with
- * the sitemap; lib/tool-catalog.test.ts enforces that.
+ * Only live, indexable tools are listed here. The generic tools that have no
+ * security-related article or purpose (Lorem Ipsum, Markdown to HTML, QR, Text
+ * Case, Text Diff, URL Encoder, Word Counter, Hex RGB Converter) were retired and
+ * answer HTTP 410 (see config/retired-urls.json). Keep this list aligned with the
+ * sitemap; lib/tool-catalog.test.ts enforces that.
  */
 export const toolGroups: ToolGroup[] = [
   {
@@ -62,11 +62,6 @@ export const toolGroups: ToolGroup[] = [
           title: 'SQL injection and parameterized queries',
           href: '/blog/sql-injection-modern-apis-parameterized-queries-2026',
         },
-      },
-      {
-        name: 'Hex RGB Converter',
-        href: '/tools/hex-rgb-converter',
-        description: 'Convert color values between hex, RGB, and HSL formats.',
       },
     ],
   },

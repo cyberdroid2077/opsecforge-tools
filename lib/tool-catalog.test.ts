@@ -3,7 +3,7 @@ import { allTools, primaryToolHrefs, primaryTools, toolGroups } from './tool-cat
 
 describe('tool catalog', () => {
   it('lists only the indexable tools, each exactly once', () => {
-    expect(allTools).toHaveLength(12);
+    expect(allTools).toHaveLength(11);
     expect(
       allTools.some((tool) =>
         [
@@ -14,6 +14,7 @@ describe('tool catalog', () => {
           '/tools/text-diff',
           '/tools/url-encoder',
           '/tools/word-counter',
+          '/tools/hex-rgb-converter',
         ].includes(tool.href),
       ),
     ).toBe(false);

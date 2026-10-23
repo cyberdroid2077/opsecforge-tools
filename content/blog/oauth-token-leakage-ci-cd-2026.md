@@ -1,12 +1,12 @@
 ---
 title: "OAuth Token Leakage in CI/CD: Prevention and Response"
 date: "2026-05-30"
-updated: "2026-08-10"
+updated: "2026-10-23"
 description: "Reduce CI/CD token exposure with short-lived workload identity, least privilege, safe logs, pinned actions, and a tested revocation plan."
 author: "OpsecForge Security Team"
 category: "DevSecOps"
 tags: ["OAuth", "CI/CD", "Token Leakage", "Workload Identity", "DevSecOps"]
-source_reviewed: "2026-08-10"
+source_reviewed: "2026-10-23"
 primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
 ---
 
@@ -67,7 +67,19 @@ OWASP's Secrets Management Cheat Sheet recommends least privilege, short-lived C
 
 GitHub notes that a compromised action can access secrets available to its job and may be able to use the job's `GITHUB_TOKEN`. Review an action's source and required permissions before adoption. Pinning to a full-length commit SHA makes the selected revision immutable; a movable tag alone does not provide that property.
 
-Set an explicit `permissions` block instead of relying on defaults. Separate build and deployment jobs so untrusted build steps do not automatically inherit deployment credentials. Use protected environments and required reviewers where the deployment risk justifies them.
+This includes security scanners and other tools you add because they improve your posture: a scanning action runs with the permissions of the job that calls it, so it deserves the same review and pinning as any other dependency. Set an explicit `permissions` block instead of relying on defaults. Separate build and deployment jobs so untrusted build steps do not automatically inherit deployment credentials. Use protected environments and required reviewers where the deployment risk justifies them.
+
+## Keep untrusted pull requests away from privileged triggers
+
+Some workflow triggers run with more authority than a normal pull-request build. GitHub's [secure use reference](https://docs.github.com/en/actions/reference/security/secure-use) says that `pull_request_target` and `workflow_run`, when combined with a checkout of untrusted pull-request code, can expose a repository to compromise: these workflows are privileged, share the main branch's cache with other privileged triggers, and may have repository write access and access to referenced secrets. Its good-practice guidance is to avoid those triggers unless the workflow needs the privileged context, and never to explicitly check out untrusted code, including from forks, in a workflow that uses them.
+
+In practice, keep the job that runs code from a pull request unprivileged (no secrets, read-only token), and move any step that needs a secret into a separate workflow that does not execute that code. If you need `pull_request_target`, read GitHub's [Securely using pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target) guidance on hardening before enabling it.
+
+## Make build outputs verifiable
+
+Limiting what a compromised step can reach is half the problem; the other half is being able to tell afterward which artifacts it touched. Record the source revision, the dependency lockfile, and the digest of each artifact you publish, and prefer signed provenance over a note in a README.
+
+GitHub's [artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations) create cryptographically signed claims that link an artifact to the workflow, repository, commit SHA, and triggering event that built it, using information from the job's OIDC token. GitHub states that attestations by themselves provide SLSA v1.0 Build Level 2, and that building in a reusable workflow with vetted build instructions goes further. An attestation does not show that the source code was free of malicious changes; it shows where and how the artifact was built, which narrows the investigation when a build step is suspected. Verify the attestation (or an equivalent signature) in the deployment step, not only at publish time.
 
 ## Incident response for a suspected leak
 
@@ -78,6 +90,8 @@ Set an explicit `permissions` block instead of relying on defaults. Separate bui
 5. **Remove exposed copies.** Clean logs, artifacts, caches, runner workspaces, and source history using procedures that preserve necessary forensic evidence.
 6. **Replace the authentication design.** Narrow permissions, split shared identities, add expiry, or migrate the workflow to workload identity federation.
 7. **Test revocation and redeployment.** Confirm the old credential fails and the least-privileged replacement succeeds only in its intended workflow.
+
+Include every machine user, bot account, and service account reachable from the affected workflow in the revocation list, not only a maintainer's personal credential; rotating one identity can leave another access path active. This is why the inventory of CI tokens, with an owner and a revocation path for each, has to exist before an incident.
 
 Rotation without revocation can leave an exposed token usable. Revocation without reviewing its actual use can miss follow-on changes made before containment.
 
@@ -98,5 +112,6 @@ Do not paste a real CI token into a decoder to decide whether it is safe. If a c
 - [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)
 - [OWASP CI/CD Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/CI_CD_Security_Cheat_Sheet.html)
 - [GitHub Actions: Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)
+- [GitHub Actions: Artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations)
 - [GitHub Actions: OpenID Connect reference](https://docs.github.com/en/actions/reference/security/oidc)
 - [Google Cloud: Workload Identity Federation with deployment pipelines](https://cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines)

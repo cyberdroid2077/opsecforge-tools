@@ -1,12 +1,12 @@
 ---
 title: "JWT Vulnerabilities: Algorithm Confusion, Weak Secrets, and Safe Validation"
 date: "2026-04-02"
-updated: "2026-07-29"
+updated: "2026-10-23"
 description: "Understand HS256 JWT vulnerabilities, algorithm confusion, weak signing secrets, missing claim checks, token disclosure, and the validation rules that prevent them."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["jwt", "hs256", "algorithm-confusion", "authentication", "token-security", "vulnerabilities"]
-source_reviewed: "2026-07-29"
+source_reviewed: "2026-10-23"
 primary_source: "https://www.rfc-editor.org/rfc/rfc8725.html"
 ---
 
@@ -112,6 +112,27 @@ The correct choice depends on how quickly access must end after logout, account 
 
 For standards-based revocation and introspection, see [RFC 7009 (OAuth 2.0 Token Revocation)](https://www.rfc-editor.org/rfc/rfc7009) and [RFC 7662 (OAuth 2.0 Token Introspection)](https://www.rfc-editor.org/rfc/rfc7662).
 
+## If a token or signing key is exposed
+
+The response depends on what escaped. Do not paste the raw token or key into the incident record while you work.
+
+**An access or refresh token was exposed**
+
+1. Close the exposure path, such as public storage or verbose logging, and remove the token from logs, tickets, repositories, and cached artifacts.
+2. Revoke it where the issuer supports revocation, then test that the revoked token is actually rejected. RFC 7009's [implementation note](https://www.rfc-editor.org/rfc/rfc7009#section-3) explains why this is not automatic: if resource servers validate self-contained access tokens locally, a revocation at the authorization server does not reach them without additional backend interaction. Short-lived access tokens, refreshed on demand, are one of the designs it describes for limiting how long a revoked token keeps working.
+3. Review issuer and application audit logs for use of the token during the exposure window.
+4. Shorten token lifetimes or require re-authentication where the risk justifies it.
+
+**A signing key was exposed**
+
+Anyone who holds the key can create tokens that your verifiers accept, so individual tokens cannot be repaired. With HS256, every verifier that holds the secret can also sign; with an asymmetric algorithm only the issuer needs the private key, but a leaked private key has the same effect.
+
+1. Create a new key with a new key ID and start signing with it.
+2. Remove the compromised key from the accepted key set of every service that trusts the issuer, after the transition your token lifetimes require. Until the old key is removed, tokens forged with it still verify; rotating only one consumer leaves the others exposed.
+3. Treat tokens signed with the old key as untrusted and require the affected users or clients to authenticate again.
+4. Review issuance and access logs for tokens your issuer did not create.
+5. Fix how the key reached the exposed location, using the [leak response workflow](/blog/environment-variable-leaks-security-risks).
+
 ## JWT validation checklist
 
 - [ ] The expected issuer, audience, token type, algorithm, and trusted key source are configured outside the token.
@@ -134,4 +155,5 @@ The safest mental model is simple: **a decoded JWT is untrusted data; a correctl
 - [RFC 8725: JSON Web Token Best Current Practices](https://www.rfc-editor.org/rfc/rfc8725.html)
 - [RFC 7518: JSON Web Algorithms](https://www.rfc-editor.org/rfc/rfc7518.html)
 - [RFC 9700: Best Current Practice for OAuth 2.0 Security](https://www.rfc-editor.org/rfc/rfc9700.html)
-- [OWASP JSON Web Token Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html)
+- [RFC 7009: OAuth 2.0 Token Revocation](https://www.rfc-editor.org/rfc/rfc7009)
+- [OWASP JSON Web Token Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_Cheat_Sheet.html)

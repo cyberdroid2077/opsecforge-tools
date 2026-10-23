@@ -212,10 +212,6 @@ export const toolDiscovery: Record<string, ToolDiscovery> = {
       },
     ],
   },
-  'hex-rgb-converter': {
-    guides: [],
-    tools: [],
-  },
 };
 
 export function getToolSlug(pathname: string | null | undefined): string | null {
