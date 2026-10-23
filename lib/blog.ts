@@ -3,6 +3,7 @@ import path from 'node:path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
+import remarkGfm from 'remark-gfm';
 
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
@@ -81,7 +82,9 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
   const contentWithoutDuplicateTitle = content.replace(/^\s*#\s+.+\r?\n/, '');
+  // remark-gfm: GitHub-flavored Markdown, so pipe tables and strikethrough render as HTML.
   const processedContent = await remark()
+    .use(remarkGfm)
     .use(html, { sanitize: false })
     .process(contentWithoutDuplicateTitle);
   const contentHtml = processedContent

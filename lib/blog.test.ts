@@ -143,3 +143,30 @@ describe('blog utilities', () => {
     });
   });
 });
+
+describe("markdown rendering (GFM)", () => {
+  it("renders pipe tables as HTML tables and keeps ordered lists ordered", async () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true as any);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      [
+        "---",
+        "title: Synthetic",
+        "date: 2026-01-01",
+        "---",
+        "",
+        "| Variant | Alphabet |",
+        "|---|---|",
+        "| Base64 | + and / |",
+        "",
+        "1. first",
+        "2. second",
+      ].join("\n") as any,
+    );
+    const post = await getPostBySlug("synthetic");
+    expect(post).not.toBeNull();
+    expect(post!.contentHtml).toContain("<table>");
+    expect(post!.contentHtml).toContain("<td>Base64</td>");
+    expect(post!.contentHtml).not.toMatch(/\|\s*-{3,}\s*\|/);
+    expect(post!.contentHtml).toContain("<ol>");
+  });
+});
