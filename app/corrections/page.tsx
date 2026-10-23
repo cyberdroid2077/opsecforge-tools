@@ -20,11 +20,28 @@ type Entry = {
 
 const entries: Entry[] = [
   {
-    date: '2026-10',
+    date: '2026-10-23',
+    title: 'Tool fixes: Password Generator bias, SQL Formatter joins, article tables',
+    body: (
+      <>
+        <p>
+          The Password Generator picked characters with a plain modulo of a 32-bit random value, so with 70 characters, 46 of them were slightly more likely than the other 24 (by about 1.6 in 100 million). It now uses rejection sampling, which makes every character equally likely, and its strength display shows the entropy formula it uses instead of an unexplained label.
+        </p>
+        <p>
+          The SQL Formatter split multi-word clauses such as <code>LEFT JOIN</code> across two lines. Multi-word keywords are now kept together, with tests covering the join types, <code>GROUP BY</code>, <code>ORDER BY</code> and <code>UNION ALL</code>.
+        </p>
+        <p>
+          Tables in nine articles were displayed as raw Markdown text because the article renderer did not support table syntax. They now render as tables.
+        </p>
+      </>
+    ),
+  },
+  {
+    date: '2026-10-23',
     title: 'Overlapping and thin articles merged',
     body: (
       <p>
-        Several short articles that overlapped on the same topic were merged into fewer, longer pages or removed. A retired URL redirects to the page that now covers its topic, or returns 410 Gone when no suitable replacement exists.
+        Five short articles that overlapped with longer ones were merged into them, and their URLs now redirect to the article that covers the topic. One off-topic article, the Hex/RGB color converter and a two-item case-studies page were removed and return 410 Gone. The shadow-API article was rewritten as a longer guide to API inventory and gateway boundaries. Three old redirects that pointed at unrelated pages now return 410 Gone instead.
       </p>
     ),
   },

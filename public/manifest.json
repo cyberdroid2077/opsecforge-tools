@@ -1,6 +1,6 @@
 {
-  "name": "OpSecForge",
-  "short_name": "OpSecForge",
+  "name": "OpsecForge",
+  "short_name": "OpsecForge",
   "description": "Zero-Trust Local Developer Suite",
   "start_url": "/",
   "display": "standalone",

@@ -25,12 +25,12 @@ export async function POST(request: Request) {
 
     // Email content
     const mailOptions = {
-      from: `"OpSecForge System" <${process.env.ZOHO_EMAIL}>`, // Must send FROM your Zoho email to avoid spam blocks
+      from: `"OpsecForge System" <${process.env.ZOHO_EMAIL}>`, // Must send FROM your Zoho email to avoid spam blocks
       to: process.env.ZOHO_EMAIL, // Send TO yourself (the admin inbox)
       replyTo: email, // 💡 MAGIC TRICK: When you click "Reply" in Zoho, it goes directly to the user!
       subject: `[New Ticket] ${subject || 'Bug Report'} - ${toolName || 'General'}`,
       text: `
-New Support Ticket Submitted via OpSecForge:
+New Support Ticket Submitted via OpsecForge:
 
 From (User): ${email}
 Tool Context: ${toolName || 'N/A'}

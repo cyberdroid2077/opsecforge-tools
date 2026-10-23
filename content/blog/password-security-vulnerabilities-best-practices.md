@@ -47,13 +47,13 @@ Worked examples:
 
 ## The OpsecForge Password Generator, as reviewed
 
-We read `components/PasswordGeneratorTool.tsx` at commit `fe82b42` on 2026-10-23 and copied its generation functions into a Node script to check the behaviour. If the tool changes, this section needs revisiting.
+We read the generator (`lib/password.ts`, used by `components/PasswordGeneratorTool.tsx`) as of commit `577c102` on 2026-10-23 and checked its behaviour with the repository's tests. If the tool changes, this section needs revisiting.
 
 - **Random source.** `window.crypto.getRandomValues`, the Web Crypto API. [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues) describes it as returning cryptographically strong values, using a browser-specific generator seeded with enough entropy. The Web Crypto specification mandates no minimum entropy level, so quality depends on the browser and operating system.
 - **Character sets.** Uppercase (26), lowercase (26), digits (10) and the eight symbols `!@#$%^&*`, giving 70 characters when all are enabled. Length runs from 8 to 128, default 16. There is no passphrase or word-list mode.
 - **Forced coverage.** It always places one character from each enabled set, then fills the rest and shuffles. In 20,000 trial passwords of length 16 every one contained all four kinds. That removes some strings from the space and makes balanced mixes slightly likelier than lopsided ones. By our calculation the Shannon entropy at length 16 is about 97.6 bits, against the 98.1-bit upper bound.
-- **Modulo bias.** Random indexes come from `array[0] % max` on a 32-bit value. Because 2^32 is not a multiple of 70 (`2^32 mod 70 = 46`), 46 of the 70 characters each map from 61,356,676 source values and the other 24 from 61,356,675. That is a relative difference of about 1.6 in 100 million, and at most about 3 in 100 million for any index size the tool uses. It is far too small to help a guesser in our assessment, but it means the generator is not exactly uniform, so we do not call it unbiased.
-- **Strength label.** The Weak/Medium/Strong/Hacker-Proof label comes from length and how many sets are enabled. It is not measured entropy. Use the formula above.
+- **Uniform index selection.** Each random index is drawn with rejection sampling: a 32-bit value at or above the largest multiple of the set size below 2^32 is discarded and redrawn, so every character in the set is equally likely. Before 2026-10-23 the tool used a plain `value % max`, which, because `2^32 mod 70 = 46`, made 46 of the 70 characters more likely than the other 24 by about 1.6 in 100 million. That difference was far too small to help a guesser, but the generator was not exactly uniform; the fix and a regression test are in the repository, and the change is listed on the [corrections page](/corrections).
+- **Strength label.** The tool now shows the upper-bound entropy it is calculating, `length × log2(pool size)` (about 98 bits for the default 16 characters from 70), and the word label next to it is the tool's own threshold on that number, not a NIST category. The forced-coverage step above means the true figure is slightly lower than the bound.
 
 ## Practical checklist
 

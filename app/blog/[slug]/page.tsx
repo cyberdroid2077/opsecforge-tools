@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   if (!post) {
     return {
-      title: 'Post Not Found | OpSecForge Blog',
+      title: 'Post Not Found | OpsecForge Blog',
     };
   }
 

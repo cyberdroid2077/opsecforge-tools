@@ -167,7 +167,7 @@ export default function WebhookDebugger() {
     <main className="flex min-h-screen flex-col items-center justify-start bg-slate-950 p-6 font-sans selection:bg-emerald-500/30 lg:p-24">
       <div className="z-10 w-full max-w-6xl font-sans text-slate-300">
         <div className="mb-12 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
-          <Link href="/" className="transition-colors hover:text-emerald-400">OpSecForge Hub</Link>
+          <Link href="/" className="transition-colors hover:text-emerald-400">OpsecForge Hub</Link>
           <span>/</span>
           <span className="text-slate-300">Webhook Verifier</span>
         </div>

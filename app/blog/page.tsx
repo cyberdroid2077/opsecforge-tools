@@ -17,7 +17,7 @@ export default function BlogIndex() {
     <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 text-slate-300">
       <div className="z-10 w-full max-w-5xl">
         <div className="mb-12 text-slate-500 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-          <Link href="/" className="hover:text-emerald-400 transition-colors">OpSecForge Hub</Link>
+          <Link href="/" className="hover:text-emerald-400 transition-colors">OpsecForge Hub</Link>
           <span>/</span>
           <span className="text-slate-300">Blog</span>
         </div>
