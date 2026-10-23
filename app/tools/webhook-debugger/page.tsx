@@ -9,6 +9,8 @@ import {
   verifyStripeWebhook,
 } from '@/lib/webhook-verifier';
 import type { HmacAlgorithm } from '@/lib/webhook-verifier';
+import { WEBHOOK_GITHUB_VECTOR } from '@/lib/tool-guide-examples';
+import WebhookDebuggerGuide from '@/components/tool-content/WebhookDebuggerGuide';
 
 type Provider = 'generic' | 'github' | 'stripe';
 
@@ -46,6 +48,14 @@ export default function WebhookDebugger() {
   const selectProvider = (nextProvider: Provider) => {
     setProvider(nextProvider);
     setSignature('');
+    setResult(null);
+  };
+
+  const loadGithubVector = () => {
+    setProvider('github');
+    setPayload(WEBHOOK_GITHUB_VECTOR.payload);
+    setSecret(WEBHOOK_GITHUB_VECTOR.secret);
+    setSignature(WEBHOOK_GITHUB_VECTOR.header);
     setResult(null);
   };
 
@@ -198,6 +208,17 @@ export default function WebhookDebugger() {
             </button>
           ))}
         </section>
+
+        <div className="mb-8 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+          <button
+            type="button"
+            onClick={loadGithubVector}
+            className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 font-bold text-slate-200 transition-all hover:border-emerald-500/30 hover:text-emerald-300"
+          >
+            Load GitHub test vector
+          </button>
+          <span>Fills in the public secret, payload and signature from GitHub&apos;s documentation.</span>
+        </div>
 
         <div className="mb-16 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="flex flex-col gap-4 lg:col-span-2">
@@ -367,6 +388,8 @@ export default function WebhookDebugger() {
             Back to Hub <ArrowRight size={16} />
           </Link>
         </section>
+
+        <WebhookDebuggerGuide />
       </div>
     </main>
   );

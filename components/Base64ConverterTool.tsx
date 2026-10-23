@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeftRight, Check, Copy, Lock, ShieldCheck, Trash2, Type } from 'lucide-react';
 import { type Base64Variant, decodeBase64Text, encodeBase64Text } from '@/lib/base64-codec';
 
 type Mode = 'encode' | 'decode';
 
-export default function Base64ConverterTool() {
+export default function Base64ConverterTool({ children }: { children?: ReactNode }) {
   const [mode, setMode] = useState<Mode>('encode');
   const [variant, setVariant] = useState<Base64Variant>('standard');
   const [input, setInput] = useState('');
@@ -247,6 +247,8 @@ export default function Base64ConverterTool() {
             <span>No tool-input upload</span>
           </div>
         </section>
+
+        {children}
       </div>
     </main>
   );

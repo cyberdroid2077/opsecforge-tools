@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Lock, Copy, Check, Trash2, ShieldAlert, ScanFace, EyeOff } from 'lucide-react';
+import { Lock, Copy, Check, Trash2, ScanFace, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { sanitizeForSharing } from '@/lib/safe-share-sanitizer';
 
@@ -123,18 +123,11 @@ export default function EnvSanitizer() {
                     the pasted text to OpsecForge, store it in local storage, or include it in
                     analytics events. Closing or refreshing the page clears the current React state.
                 </p>
-
-                <div className="bg-amber-500/5 border-l-4 border-amber-500 p-8 my-16 rounded-r-2xl">
-                    <h3 className="text-amber-400 mt-0 flex items-center gap-2">
-                        <ShieldAlert size={24} /> The Danger of &quot;Beautifiers&quot;
-                    </h3>
-                    <p className="text-slate-300">
-                        Detection is not exhaustive and a clean-looking result is not proof that all
-                        sensitive data was removed. Review every output before sharing. If a real
-                        credential was exposed, rotate or revoke it; redaction does not undo an
-                        earlier leak.
-                    </p>
-                </div>
+                <p>
+                    Detection is not exhaustive, and a clean-looking result is not proof that all sensitive
+                    data was removed. Review every output before sharing. If a real credential was exposed,
+                    rotate or revoke it; redaction does not undo an earlier leak.
+                </p>
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">FAQ</h2>
                 <div className="space-y-8 mt-8">
