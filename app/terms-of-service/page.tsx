@@ -2,13 +2,13 @@ import React from 'react';
 import { Scale, Shield, AlertCircle, FileText, Mail } from 'lucide-react';
 
 export const metadata = {
-  title: 'Terms of Service - OpSecForge',
-  description: 'Terms of Service for OpSecForge - Free online developer security tools',
+  title: 'Terms of Service - OpsecForge',
+  description: 'Terms of Service for OpsecForge - Free online developer security tools',
   alternates: { canonical: '/terms-of-service' },
 };
 
 export default function TermsOfService() {
-  const lastUpdated = 'March 15, 2026';
+  const lastUpdated = 'October 23, 2026';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -37,9 +37,9 @@ export default function TermsOfService() {
                 <FileText className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-slate-300 leading-relaxed">
-                    Welcome to <strong className="text-white">OpSecForge</strong>. These Terms of Service 
+                    Welcome to <strong className="text-white">OpsecForge</strong>. These Terms of Service 
                     (&quot;Terms&quot;) govern your access to and use of our free online developer tools and 
-                    services. By accessing or using OpSecForge, you agree to be bound by these Terms. 
+                    services. By accessing or using OpsecForge, you agree to be bound by these Terms. 
                     If you disagree with any part of the terms, you may not access the service.
                   </p>
                 </div>
@@ -55,7 +55,7 @@ export default function TermsOfService() {
             </h2>
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
               <p>
-                OpSecForge provides free online security tools for developers and security professionals. 
+                OpsecForge provides free online security tools for developers and security professionals. 
                 Our services are provided &quot;as is&quot; and &quot;as available&quot; for your personal, 
                 non-commercial, or commercial use.
               </p>
@@ -70,17 +70,19 @@ export default function TermsOfService() {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
               <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 text-sm font-bold">2</span>
-              No Data Storage Policy
+              Browser-Local Processing
             </h2>
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
               <p>
-                <strong className="text-white">All processing is done client-side.</strong> OpSecForge does 
-                not store, transmit, or retain any data you process using our tools. Your data never leaves 
-                your browser unless you explicitly choose to use features that require server communication.
+                <strong className="text-white">Core tool processing runs in your browser.</strong> OpsecForge does 
+                not send what you paste into a tool to a tool-processing backend or include it in analytics 
+                events. The site does load its own resources and aggregate page-view analytics, and features 
+                that submit information to us, such as the bug-report form, send only what you enter into them. 
+                See the <a href="/privacy" className="underline">Privacy Policy</a> for details.
               </p>
               <p>
-                We have no ability to recover or access any data processed through our tools. You are 
-                responsible for saving and securing your own work.
+                Because core processing happens in your browser, OpsecForge normally has no copy of what you 
+                process and cannot recover it. You are responsible for saving and securing your own work.
               </p>
             </div>
           </section>
@@ -93,8 +95,8 @@ export default function TermsOfService() {
             </h2>
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
               <p>
-                OpSecForge and its original content, features, and functionality are and will remain the 
-                exclusive property of OpSecForge and its licensors. The service is protected by copyright, 
+                OpsecForge and its original content, features, and functionality are and will remain the 
+                exclusive property of OpsecForge and its licensors. The service is protected by copyright, 
                 trademark, and other laws.
               </p>
               <p>
@@ -137,7 +139,7 @@ export default function TermsOfService() {
             </h2>
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
               <p>
-                In no event shall OpSecForge, nor its directors, employees, partners, agents, suppliers, 
+                In no event shall OpsecForge, nor its operator, contributors, suppliers, 
                 or affiliates, be liable for any indirect, incidental, special, consequential, or punitive 
                 damages, including without limitation, loss of profits, data, use, goodwill, or other 
                 intangible losses.
@@ -157,7 +159,7 @@ export default function TermsOfService() {
               Prohibited Uses
             </h2>
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
-              <p>You agree not to use OpSecForge to:</p>
+              <p>You agree not to use OpsecForge to:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Violate any applicable laws or regulations</li>
                 <li>Infringe upon or violate our intellectual property rights or the rights of others</li>
@@ -178,8 +180,14 @@ export default function TermsOfService() {
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
               <p>
                 Our service may contain links to third-party websites or services that are not owned or 
-                controlled by OpSecForge. We have no control over, and assume no responsibility for, the 
+                controlled by OpsecForge. We have no control over, and assume no responsibility for, the 
                 content, privacy policies, or practices of any third-party websites or services.
+              </p>
+              <p>
+                Third-party services used by the site, such as analytics and any advertising services that 
+                may be added in the future, are provided under their own terms and privacy policies, which 
+                apply to your use of them. Where such services are in use, the{' '}
+                <a href="/privacy" className="underline">Privacy Policy</a> says so.
               </p>
             </div>
           </section>
@@ -200,6 +208,9 @@ export default function TermsOfService() {
                 What constitutes a material change will be determined at our sole discretion. By continuing 
                 to access or use our service after those revisions become effective, you agree to be bound 
                 by the revised terms.
+              </p>
+              <p>
+                These Terms describe how the site is offered. They are not legal advice.
               </p>
             </div>
           </section>
@@ -231,11 +242,12 @@ export default function TermsOfService() {
             </h2>
             <div className="text-slate-300 space-y-4 leading-relaxed pl-10">
               <p>
-                If you have any questions about these Terms, please contact us:
+                If you have any questions about these Terms, please use the{' '}
+                <a href="/contact" className="underline">contact page</a> or write to:
               </p>
               <div className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors">
                 <Mail className="w-4 h-4" />
-                <a href="mailto:legal@opsecforge.com" className="underline">legal@opsecforge.com</a>
+                <a href="mailto:admin@opsecforge.com" className="underline">admin@opsecforge.com</a>
               </div>
             </div>
           </section>
@@ -245,7 +257,7 @@ export default function TermsOfService() {
             <div className="flex items-start gap-3 text-slate-400 text-sm">
               <Shield className="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" />
               <p>
-                By using OpSecForge, you acknowledge that you have read, understood, and agree to be 
+                By using OpsecForge, you acknowledge that you have read, understood, and agree to be 
                 bound by these Terms of Service. Thank you for using our tools responsibly.
               </p>
             </div>

@@ -95,7 +95,7 @@ export default function UnixTimestampTool() {
       <div className="mx-auto max-w-6xl px-6 py-12 lg:px-24">
         <div className="mb-12 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
           <Link href="/" className="transition-colors hover:text-emerald-400">
-            OpSecForge Hub
+            OpsecForge Hub
           </Link>
           <span>/</span>
           <span className="text-slate-300">Unix Timestamp</span>

@@ -77,6 +77,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/about',
     '/agents',
     '/contact',
+    '/editorial-policy',
+    '/corrections',
     '/faq',
     '/glossary',
     '/case-studies',

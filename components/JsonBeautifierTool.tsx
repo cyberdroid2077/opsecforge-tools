@@ -92,7 +92,7 @@ export default function JsonBeautifierTool({
       <div className="mx-auto max-w-6xl px-6 py-12 lg:px-24">
         <div className="mb-12 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
           <Link href="/" className="transition-colors hover:text-emerald-400">
-            OpSecForge Hub
+            OpsecForge Hub
           </Link>
           <span>/</span>
           <span className="text-slate-300">{breadcrumbLabel}</span>
@@ -115,7 +115,7 @@ export default function JsonBeautifierTool({
 
           <p className="max-w-3xl text-lg leading-relaxed text-slate-400">
             Paste raw API payloads, log fragments, or minified config blobs into a
-            browser-local workspace. OpSecForge parses them client-side with native JSON APIs and
+            browser-local workspace. OpsecForge parses them client-side with native JSON APIs and
             does not send the pasted payload to a tool-processing backend. The page itself still
             loads site resources and aggregate analytics.
           </p>

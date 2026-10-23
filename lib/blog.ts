@@ -6,6 +6,11 @@ import html from 'remark-html';
 
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
+// Every article is credited to the same editorial process, not to a person or a team.
+// Front matter `author` values are ignored on purpose; see /editorial-policy.
+export const EDITORIAL_AUTHOR_NAME = 'OpsecForge Editorial';
+export const EDITORIAL_AUTHOR_PATH = '/editorial-policy';
+
 export type FaqItem = {
   question: string;
   answer: string;
@@ -18,6 +23,7 @@ export type BlogPostMetadata = {
   updated?: string;
   description: string;
   author: string;
+  authorUrl: string;
   category: string;
   sourceReviewed?: string;
   qualityReviewed?: string;
@@ -50,7 +56,8 @@ export function getAllPosts(): BlogPostMetadata[] {
         date: String(data.date ?? ''),
         updated: data.updated ? String(data.updated) : undefined,
         description: String(data.description ?? ''),
-        author: String(data.author ?? 'OpsecForge Security Team'),
+        author: EDITORIAL_AUTHOR_NAME,
+    authorUrl: EDITORIAL_AUTHOR_PATH,
         category: String(data.category ?? 'Developer Security'),
         sourceReviewed: data.source_reviewed ? String(data.source_reviewed) : undefined,
         qualityReviewed: data.reviewed ? String(data.reviewed) : undefined,
@@ -88,7 +95,8 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     date: String(data.date ?? ''),
     updated: data.updated ? String(data.updated) : undefined,
     description: String(data.description ?? ''),
-    author: String(data.author ?? 'OpsecForge Security Team'),
+    author: EDITORIAL_AUTHOR_NAME,
+    authorUrl: EDITORIAL_AUTHOR_PATH,
     category: String(data.category ?? 'Developer Security'),
     sourceReviewed: data.source_reviewed ? String(data.source_reviewed) : undefined,
     qualityReviewed: data.reviewed ? String(data.reviewed) : undefined,
