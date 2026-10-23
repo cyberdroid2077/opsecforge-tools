@@ -59,14 +59,14 @@ check('package.json is valid', () => {
   return `${pkg.name}@${pkg.version}`;
 });
 
-// 3. All 20 tool directories present
-check('All 20 tool directories exist', () => {
+// 3. All remaining tool directories present (7 retired tools return 410, see config/retired-urls.json)
+check('All 13 tool directories exist', () => {
   const expected = [
     'base64-converter','env-sanitizer','hash-generator','hex-rgb-converter',
-    'json-beautifier','json-formatter','jwt-decoder','lorem-ipsum',
-    'markdown-to-html','password-generator','qr-generator','sha256-hash',
-    'sql-formatter','text-case','text-diff','unix-timestamp',
-    'url-encoder','uuid-generator','webhook-debugger','word-counter',
+    'json-beautifier','json-formatter','jwt-decoder',
+    'password-generator','sha256-hash',
+    'sql-formatter','unix-timestamp',
+    'uuid-generator','webhook-debugger',
   ];
   const toolsDir = path.join(ROOT, 'app/tools');
   const missing = expected.filter(t => !fs.existsSync(path.join(toolsDir, t)));
@@ -97,14 +97,14 @@ check('vitest.config.ts exists', () => {
 // Health check reports type errors but does not fail on known pre-existing issues.
 check('TypeScript type-check (skipLibCheck)', () => {
   const result = run('npx', ['tsc', '--noEmit', '--skipLibCheck', '--pretty']);
-  // Filter known pre-existing errors (jwt-encoder Web Crypto types, TextDiffTool, WordCounterTool)
+  // Filter known pre-existing errors (jwt-encoder Web Crypto types)
   const output = (result.stdout + result.stderr);
-  const knownIssueCount = (output.match(/jwt-encoder|TextDiffTool|diffWords|WordCounterTool/g) || []).length;
+  const knownIssueCount = (output.match(/jwt-encoder/g) || []).length;
   if (result.status !== 0 && knownIssueCount === 0) {
     throw new Error(output.slice(0, 500));
   }
   if (knownIssueCount > 0) {
-    return `OK — ${knownIssueCount} known pre-existing type issues in jwt-encoder/TextDiffTool`;
+    return `OK — ${knownIssueCount} known pre-existing type issues in jwt-encoder`;
   }
   return 'OK';
 });

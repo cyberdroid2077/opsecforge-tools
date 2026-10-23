@@ -5,14 +5,7 @@ import path from 'node:path';
 const baseUrl = 'https://www.opsecforge.com';
 const nonIndexableToolRoutes = new Set([
   '/tools/json-formatter',
-  '/tools/lorem-ipsum',
-  '/tools/markdown-to-html',
-  '/tools/qr-generator',
   '/tools/sha256-hash',
-  '/tools/text-case',
-  '/tools/text-diff',
-  '/tools/url-encoder',
-  '/tools/word-counter',
 ]);
 
 type SitemapRoute = {

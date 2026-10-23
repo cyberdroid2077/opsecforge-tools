@@ -125,7 +125,7 @@ Browser-local versions of these checks and the background behind them, all at [o
 
 - [Env file sanitizer](https://www.opsecforge.com/tools/env-sanitizer) and [How to sanitize .env files before sharing](https://www.opsecforge.com/blog/how-to-sanitize-env-files-before-sharing)
 - [Webhook debugger](https://www.opsecforge.com/tools/webhook-debugger) and [Webhook signature validation with HMAC-SHA256](https://www.opsecforge.com/blog/webhook-signature-validation-hmac-sha256-best-practices-2026)
-- [JWT decoder](https://www.opsecforge.com/tools/jwt-decoder) and [How to decode JWTs client-side](https://www.opsecforge.com/blog/how-to-decode-jwt-tokens-client-side)
+- [JWT decoder](https://www.opsecforge.com/tools/jwt-decoder) and [JWT vulnerabilities and safe validation](https://www.opsecforge.com/blog/jwt-token-vulnerabilities-authentication-security)
 - [Hash and file checksum generator](https://www.opsecforge.com/tools/hash-generator) and [Hash generators and data integrity](https://www.opsecforge.com/blog/hash-generator-tools-data-integrity-security)
 - [Environment variable security and secrets management](https://www.opsecforge.com/blog/environment-variable-security-secrets-management)
 - [AI agent credential security](https://www.opsecforge.com/blog/ai-agent-credential-security-nhi-governance-2026)
