@@ -105,7 +105,19 @@ describe('blog utilities', () => {
       expect(post!.slug).toBe('test-post');
       expect(post!.contentHtml).not.toContain('<h1>');
       expect(post!.contentHtml).toContain('<p>World</p>');
-      expect(post!.author).toBe('OpsecForge Security Team');
+      expect(post!.author).toBe('OpsecForge Editorial');
+      expect(post!.authorUrl).toBe('/editorial-policy');
+    });
+
+    it('ignores a front matter author and credits the editorial process', async () => {
+      vi.mocked(fs.existsSync).mockReturnValue(true as any);
+      vi.mocked(fs.readFileSync).mockImplementation((() =>
+        '---\ntitle: Signed Post\ndate: "2026-03-22"\ndescription: A test\nauthor: Someone Else\n---\nBody'
+      ) as any);
+
+      const post = await getPostBySlug('signed-post');
+      expect(post!.author).toBe('OpsecForge Editorial');
+      expect(post!.authorUrl).toBe('/editorial-policy');
     });
 
     it('demotes embedded HTML H1 headings and exposes review provenance', async () => {

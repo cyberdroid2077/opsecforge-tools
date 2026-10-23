@@ -18,13 +18,13 @@ export default function Navbar() {
       <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-1.5 px-3 sm:gap-4 sm:px-4">
         <Link
           href="/"
-          aria-label="OpSecForge home"
+          aria-label="OpsecForge home"
           className="group mr-auto flex shrink-0 items-center gap-2 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
         >
           <span className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-1.5 transition-colors group-hover:border-emerald-500/40">
             <ShieldCheck className="text-emerald-500" size={20} />
           </span>
-          <span className="font-bold tracking-tight text-slate-100">OpSecForge</span>
+          <span className="font-bold tracking-tight text-slate-100">OpsecForge</span>
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2">

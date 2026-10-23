@@ -38,7 +38,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.opsecforge.com"),
   title: {
-    default: "OpSecForge Hub | Privacy-First Developer Tools",
+    default: "OpsecForge Hub | Privacy-First Developer Tools",
     template: "%s | OpsecForge",
   },
   description: "Browser-local developer tools and source-reviewed guidance for formatting, inspecting, and sanitizing sensitive technical data.",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "OpsecForge",
     url: "https://www.opsecforge.com",
-    title: "OpSecForge Hub | Privacy-First Developer Tools",
+    title: "OpsecForge Hub | Privacy-First Developer Tools",
     description: "Browser-local tools for JWTs, environment files, hashes, JSON, SQL, and other sensitive developer data.",
   },
 };
@@ -92,6 +92,8 @@ export default function RootLayout({
               ['Privacy', '/privacy'],
               ['Terms', '/terms-of-service'],
               ['Contact', '/contact'],
+              ['Editorial policy', '/editorial-policy'],
+              ['Corrections', '/corrections'],
             ].map(([label, href]) => (
               <Link
                 key={href}

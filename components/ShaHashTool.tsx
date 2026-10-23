@@ -76,7 +76,7 @@ export default function ShaHashTool() {
     <main className="min-h-screen bg-slate-950 text-slate-100 selection:bg-emerald-500/30">
       <div className="mx-auto max-w-6xl px-6 py-12 lg:px-24">
         <div className="mb-12 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
-          <Link href="/" className="transition-colors hover:text-emerald-400">OpSecForge Hub</Link>
+          <Link href="/" className="transition-colors hover:text-emerald-400">OpsecForge Hub</Link>
           <span>/</span>
           <span className="text-slate-300">SHA Hash</span>
         </div>

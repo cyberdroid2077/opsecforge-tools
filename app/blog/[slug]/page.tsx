@@ -79,6 +79,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     author: {
       '@type': 'Organization',
       name: post.author,
+      url: `https://www.opsecforge.com${post.authorUrl}`,
     },
     publisher: {
       '@type': 'Organization',
@@ -145,7 +146,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </span>
             <span className="flex items-center gap-2">
               <UserRound size={16} />
-              {post.author}
+              <Link href={post.authorUrl} className="underline underline-offset-4 hover:text-emerald-400">
+                {post.author}
+              </Link>
             </span>
             <span>{post.category}</span>
             {post.sourceReviewed && (
