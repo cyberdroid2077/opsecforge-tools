@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Check, Copy, Hash, Lock, RefreshCw, ShieldCheck } from 'lucide-react';
 import { createUuidV4, normalizeUuidCount } from '@/lib/uuid';
 
-export default function UuidGeneratorTool() {
+export default function UuidGeneratorTool({ children }: { children?: ReactNode }) {
   const [count, setCount] = useState(1);
   const [uppercase, setUppercase] = useState(false);
   const [removeHyphens, setRemoveHyphens] = useState(false);
@@ -173,6 +173,8 @@ export default function UuidGeneratorTool() {
             <span>Uses crypto.randomUUID() or crypto.getRandomValues()</span>
           </div>
         </section>
+
+        {children}
       </div>
     </main>
   );

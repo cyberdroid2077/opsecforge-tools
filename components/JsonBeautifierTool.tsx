@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
   Check,
@@ -16,13 +16,17 @@ import {
   Wand2,
   Zap,
 } from 'lucide-react';
+import { beautifyJson, findUnsafeIntegers, minifyJson as minifyJsonText } from '@/lib/json-format';
 
 type JsonBeautifierToolProps = {
   breadcrumbLabel?: string;
+  /** Page-specific guide content. When omitted, the three short feature cards are shown instead. */
+  children?: ReactNode;
 };
 
 export default function JsonBeautifierTool({
   breadcrumbLabel = 'JSON Beautifier',
+  children,
 }: JsonBeautifierToolProps) {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -30,40 +34,29 @@ export default function JsonBeautifierTool({
   const [copied, setCopied] = useState(false);
   const [indentation, setIndentation] = useState<2 | 4>(2);
 
-  const parseJson = () => {
-    if (!input.trim()) {
-      throw new Error('Paste JSON into the input panel before running a transform.');
-    }
+  const [unsafeIntegers, setUnsafeIntegers] = useState<string[]>([]);
 
-    return JSON.parse(input);
-  };
-
-  const formatJson = () => {
+  const runTransform = (transform: (text: string) => string) => {
     try {
-      const data = parseJson();
-      setOutput(JSON.stringify(data, null, indentation));
+      setOutput(transform(input));
+      setUnsafeIntegers(findUnsafeIntegers(input));
       setError('');
     } catch (err) {
       setOutput('');
+      setUnsafeIntegers([]);
       setError(`Invalid JSON: ${err instanceof Error ? err.message : 'Unable to parse input.'}`);
     }
   };
 
-  const minifyJson = () => {
-    try {
-      const data = parseJson();
-      setOutput(JSON.stringify(data));
-      setError('');
-    } catch (err) {
-      setOutput('');
-      setError(`Invalid JSON: ${err instanceof Error ? err.message : 'Unable to parse input.'}`);
-    }
-  };
+  const formatJson = () => runTransform((text) => beautifyJson(text, indentation));
+
+  const minifyJson = () => runTransform(minifyJsonText);
 
   const clearAll = () => {
     setInput('');
     setOutput('');
     setError('');
+    setUnsafeIntegers([]);
     setCopied(false);
   };
 
@@ -213,6 +206,20 @@ export default function JsonBeautifierTool({
             </div>
           ) : null}
 
+          {unsafeIntegers.length > 0 ? (
+            <div role="status" className="mb-6 rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-200">
+              <div className="mb-1 text-xs font-bold uppercase tracking-[0.22em] text-amber-300">
+                Number precision
+              </div>
+              <p>
+                {unsafeIntegers.length === 1 ? 'An integer in the input is' : `${unsafeIntegers.length} integers in the input are`} larger than
+                2<sup>53</sup> − 1 (9007199254740991). JSON.parse rounds such values to the nearest double, so the output
+                differs from the input: {unsafeIntegers.slice(0, 3).join(', ')}{unsafeIntegers.length > 3 ? ', …' : ''}.
+                Keep these values as strings if the exact digits matter.
+              </p>
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between px-1">
@@ -269,37 +276,39 @@ export default function JsonBeautifierTool({
           </div>
         </section>
 
-        <section className="mx-auto max-w-4xl border-t border-slate-900 pt-20 pb-40">
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
-              <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-400">
-                Beautify
+        {children ?? (
+          <section className="mx-auto max-w-4xl border-t border-slate-900 pt-20 pb-40">
+            <div className="grid gap-6 md:grid-cols-3">
+              <div className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
+                <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-emerald-400">
+                  Beautify
+                </div>
+                <p className="text-sm leading-7 text-slate-400">
+                  Normalize nested payloads with either 2-space or 4-space indentation for easier
+                  debugging, diffing, and incident review.
+                </p>
               </div>
-              <p className="text-sm leading-7 text-slate-400">
-                Normalize nested payloads with either 2-space or 4-space indentation for easier
-                debugging, diffing, and incident review.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
-              <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cyan-400">
-                Validate
+              <div className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
+                <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-cyan-400">
+                  Validate
+                </div>
+                <p className="text-sm leading-7 text-slate-400">
+                  Catch malformed commas, unexpected tokens, and broken quotes instantly with the same
+                  parser your JavaScript runtime uses.
+                </p>
               </div>
-              <p className="text-sm leading-7 text-slate-400">
-                Catch malformed commas, unexpected tokens, and broken quotes instantly with the same
-                parser your JavaScript runtime uses.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
-              <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-400">
-                Minify
+              <div className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6">
+                <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-amber-400">
+                  Minify
+                </div>
+                <p className="text-sm leading-7 text-slate-400">
+                  Collapse valid JSON into a single-line payload when you need compact fixtures,
+                  compact logs, or quick copy-paste into headers and requests.
+                </p>
               </div>
-              <p className="text-sm leading-7 text-slate-400">
-                Collapse valid JSON into a single-line payload when you need compact fixtures,
-                compact logs, or quick copy-paste into headers and requests.
-              </p>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
       </div>
     </main>
   );

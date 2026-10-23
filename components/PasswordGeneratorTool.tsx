@@ -1,45 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Check, Copy, Lock, RefreshCw, ShieldCheck } from 'lucide-react';
+import {
+  PASSWORD_CHARSETS,
+  classifyEntropy,
+  estimateEntropyBits,
+  generatePassword,
+} from '@/lib/password';
 
-const CHARSETS = {
-  uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-  lowercase: 'abcdefghijklmnopqrstuvwxyz',
-  numbers: '0123456789',
-  symbols: '!@#$%^&*',
-};
-
-function randomIndex(max: number) {
-  const array = new Uint32Array(1);
-  window.crypto.getRandomValues(array);
-  return array[0] % max;
-}
-
-function generatePassword(length: number, pools: string[]) {
-  const merged = pools.join('');
-
-  if (!merged) {
-    return '';
-  }
-
-  const required = pools.map((pool) => pool[randomIndex(pool.length)]);
-  const generated = [...required];
-
-  while (generated.length < length) {
-    generated.push(merged[randomIndex(merged.length)]);
-  }
-
-  for (let index = generated.length - 1; index > 0; index -= 1) {
-    const swapIndex = randomIndex(index + 1);
-    [generated[index], generated[swapIndex]] = [generated[swapIndex], generated[index]];
-  }
-
-  return generated.join('').slice(0, length);
-}
-
-export default function PasswordGeneratorTool() {
+export default function PasswordGeneratorTool({ children }: { children?: ReactNode }) {
   const [length, setLength] = useState(16);
   const [options, setOptions] = useState({
     uppercase: true,
@@ -51,24 +22,13 @@ export default function PasswordGeneratorTool() {
   const [copied, setCopied] = useState(false);
 
   const activePools = useMemo(
-    () => Object.entries(options).filter(([, enabled]) => enabled).map(([key]) => CHARSETS[key as keyof typeof CHARSETS]),
+    () => Object.entries(options).filter(([, enabled]) => enabled).map(([key]) => PASSWORD_CHARSETS[key as keyof typeof PASSWORD_CHARSETS]),
     [options]
   );
 
-  const strength = useMemo(() => {
-    const variety = activePools.length;
-
-    if (length >= 24 && variety === 4) {
-      return { label: 'Hacker-Proof', tone: 'text-emerald-400', bar: 'bg-emerald-500' };
-    }
-    if (length >= 16 && variety >= 3) {
-      return { label: 'Strong', tone: 'text-cyan-400', bar: 'bg-cyan-500' };
-    }
-    if (length >= 12 && variety >= 2) {
-      return { label: 'Medium', tone: 'text-amber-400', bar: 'bg-amber-500' };
-    }
-    return { label: 'Weak', tone: 'text-rose-400', bar: 'bg-rose-500' };
-  }, [activePools.length, length]);
+  const poolSize = useMemo(() => activePools.reduce((sum, pool) => sum + pool.length, 0), [activePools]);
+  const entropyBits = useMemo(() => estimateEntropyBits(length, poolSize), [length, poolSize]);
+  const strength = useMemo(() => classifyEntropy(entropyBits), [entropyBits]);
 
   const buildPassword = () => {
     setPassword(generatePassword(length, activePools));
@@ -97,12 +57,12 @@ export default function PasswordGeneratorTool() {
         <section className="mb-16">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-emerald-400 shadow-sm">
             <Lock size={14} />
-            <span className="text-xs font-bold uppercase tracking-wider">Crypto-Secure Generation</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Web Crypto Randomness</span>
           </div>
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
             Secure Password Generator
             <span className="mt-3 block text-3xl font-medium text-slate-400">
-              Generate hardened credentials locally with Web Crypto randomness
+              Random passwords generated in your browser with Web Crypto
             </span>
           </h1>
         </section>
@@ -121,7 +81,7 @@ export default function PasswordGeneratorTool() {
               </button>
             </div>
             <div className="break-all font-mono text-2xl leading-10 text-emerald-300 min-h-10">
-              {password || 'Press generate to mint a fresh password.'}
+              {password || 'Press Generate Password to create one.'}
             </div>
           </div>
 
@@ -147,12 +107,12 @@ export default function PasswordGeneratorTool() {
 
             <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-6">
               <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Password Strength</div>
-              <div className={`mb-3 text-2xl font-bold ${strength.tone}`}>{strength.label}</div>
+              <div className={`mb-1 text-2xl font-bold ${strength.tone}`}>{strength.label}</div>
+              <div className="mb-3 font-mono text-xs text-slate-500">
+                ≈ {Math.floor(entropyBits)} bits = {length} × log2({poolSize || 0})
+              </div>
               <div className="h-3 rounded-full bg-slate-800">
-                <div
-                  className={`h-3 rounded-full ${strength.bar}`}
-                  style={{ width: `${strength.label === 'Weak' ? 25 : strength.label === 'Medium' ? 50 : strength.label === 'Strong' ? 75 : 100}%` }}
-                />
+                <div className={`h-3 rounded-full ${strength.bar}`} style={{ width: `${strength.percent}%` }} />
               </div>
             </div>
           </div>
@@ -187,6 +147,8 @@ export default function PasswordGeneratorTool() {
             </div>
           </div>
         </section>
+
+        {children}
       </div>
     </main>
   );

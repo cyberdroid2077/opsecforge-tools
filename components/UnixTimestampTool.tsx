@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Check, Clock3, Copy, Lock, TimerReset } from 'lucide-react';
 import {
@@ -17,7 +17,7 @@ function formatDateTimeLocal(date: Date) {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
-export default function UnixTimestampTool() {
+export default function UnixTimestampTool({ children }: { children?: ReactNode }) {
   const [now, setNow] = useState(() => Date.now());
   const [epochInput, setEpochInput] = useState('');
   const [epochUnit, setEpochUnit] = useState<UnixTimestampUnit>('seconds');
@@ -304,6 +304,8 @@ export default function UnixTimestampTool() {
             )}
           </div>
         </section>
+
+        {children}
       </div>
     </main>
   );

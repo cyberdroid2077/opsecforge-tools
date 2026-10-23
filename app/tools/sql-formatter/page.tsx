@@ -11,364 +11,13 @@ import {
   ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
-
-// ============================================
-// SQL PARSER & FORMATTER - CLIENT-SIDE ONLY
-// ============================================
-
-export type SQLDialect = 'standard' | 'mysql' | 'postgresql';
-
-export interface FormatOptions {
-  indentSize: number;
-  uppercaseKeywords: boolean;
-  commaPosition: 'after' | 'before';
-  maxLineLength: number;
-}
-
-const KEYWORDS = new Set([
-  'SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP',
-  'ALTER', 'TABLE', 'INDEX', 'VIEW', 'TRIGGER', 'PROCEDURE', 'FUNCTION',
-  'JOIN', 'INNER', 'LEFT', 'RIGHT', 'FULL', 'OUTER', 'CROSS', 'ON', 'USING',
-  'AND', 'OR', 'NOT', 'NULL', 'IS', 'IN', 'EXISTS', 'BETWEEN', 'LIKE',
-  'ORDER', 'BY', 'GROUP', 'HAVING', 'LIMIT', 'OFFSET', 'UNION', 'ALL',
-  'DISTINCT', 'AS', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'IF', 'WHILE',
-  'VALUES', 'SET', 'INTO', 'DEFAULT', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES',
-  'UNIQUE', 'CHECK', 'CONSTRAINT', 'AUTO_INCREMENT', 'SERIAL', 'BIGINT',
-  'VARCHAR', 'CHAR', 'TEXT', 'INT', 'INTEGER', 'DECIMAL', 'NUMERIC',
-  'FLOAT', 'DOUBLE', 'DATE', 'TIME', 'DATETIME', 'TIMESTAMP', 'BOOLEAN',
-  'BEGIN', 'COMMIT', 'ROLLBACK', 'TRANSACTION'
-]);
-
-const MYSQL_KEYWORDS = new Set([
-  'ENGINE', 'CHARSET', 'COLLATE', 'AUTO_INCREMENT', 'UNSIGNED', 'ZEROFILL',
-  'COMMENT', 'DELIMITER', 'LIMIT', 'OFFSET'
-]);
-
-const PG_KEYWORDS = new Set([
-  'RETURNING', 'SERIAL', 'BIGSERIAL', 'SMALLSERIAL', 'UUID', 'JSON',
-  'JSONB', 'ARRAY', 'ILIKE', 'SIMILAR', 'TO', 'WINDOW', 'OVER',
-  'PARTITION', 'RANGE', 'ROWS', 'PRECEDING', 'FOLLOWING', 'UNBOUNDED',
-  'CURRENT', 'ROW'
-]);
-
-export class SQLFormatter {
-  private options: FormatOptions;
-  private dialect: SQLDialect;
-
-  constructor(options: FormatOptions, dialect: SQLDialect) {
-    this.options = options;
-    this.dialect = dialect;
-  }
-
-  private getAllKeywords(): Set<string> {
-    const keywords = new Set(KEYWORDS);
-    if (this.dialect === 'mysql') {
-      MYSQL_KEYWORDS.forEach(k => keywords.add(k));
-    } else if (this.dialect === 'postgresql') {
-      PG_KEYWORDS.forEach(k => keywords.add(k));
-    }
-    return keywords;
-  }
-
-  private tokenize(sql: string): string[] {
-    const tokens: string[] = [];
-    let current = '';
-    let inString = false;
-    let stringChar = '';
-    let inComment = false;
-    let commentType = '';
-
-    for (let i = 0; i < sql.length; i++) {
-      const char = sql[i];
-      const nextChar = sql[i + 1];
-
-      if (!inString && !inComment) {
-        if (char === '-' && nextChar === '-') {
-          if (current) tokens.push(current);
-          current = '--';
-          inComment = true;
-          commentType = 'line';
-          i++;
-          continue;
-        }
-        if (char === '/' && nextChar === '*') {
-          if (current) tokens.push(current);
-          current = '/*';
-          inComment = true;
-          commentType = 'block';
-          i++;
-          continue;
-        }
-      }
-
-      if (inComment) {
-        if (commentType === 'line' && char === '\n') {
-          tokens.push(current.trimEnd());
-          current = '';
-          inComment = false;
-        } else if (commentType === 'block' && char === '*' && nextChar === '/') {
-          current += '*/';
-          tokens.push(current.trim());
-          current = '';
-          inComment = false;
-          i++;
-        } else {
-          current += char;
-        }
-        continue;
-      }
-
-      if (!inString && this.dialect === 'postgresql' && char === '$') {
-        const delimiter = sql.slice(i).match(/^(\$\$|\$[A-Za-z_][A-Za-z0-9_]*\$)/)?.[0];
-        if (delimiter) {
-          if (current) tokens.push(current);
-          const end = sql.indexOf(delimiter, i + delimiter.length);
-          if (end === -1) {
-            tokens.push(sql.slice(i));
-            current = '';
-            break;
-          }
-          tokens.push(sql.slice(i, end + delimiter.length));
-          current = '';
-          i = end + delimiter.length - 1;
-          continue;
-        }
-      }
-
-      if (!inString && (char === "'" || char === '"' || char === '`')) {
-        if (current) tokens.push(current);
-        current = char;
-        inString = true;
-        stringChar = char;
-        continue;
-      }
-
-      if (inString) {
-        current += char;
-        if (char === stringChar && nextChar === stringChar) {
-          current += nextChar;
-          i++;
-          continue;
-        }
-
-        let precedingBackslashes = 0;
-        for (let j = i - 1; j >= 0 && sql[j] === '\\'; j--) precedingBackslashes++;
-        if (char === stringChar && precedingBackslashes % 2 === 0) {
-          tokens.push(current);
-          current = '';
-          inString = false;
-        }
-        continue;
-      }
-
-      const operator = [
-        '->>', '#>>', '!~~*', '~~*', '!~*', '::', '->', '#>', '||', '&&',
-        '<=', '>=', '!=', '<>', ':=', '=>', '<<', '>>', '@>', '<@', '?&',
-        '?|', '@@', '@?', '^@', '!~~', '~~', '!~', '~*'
-      ].find(candidate => sql.startsWith(candidate, i));
-      if (operator) {
-        if (current) tokens.push(current);
-        tokens.push(operator);
-        current = '';
-        i += operator.length - 1;
-        continue;
-      }
-
-      if (['(', ')', '[', ']', ',', ';', '+', '-', '*', '/', '%', '=', '<', '>', '!', '|', '&', '^', '~', '?'].includes(char)) {
-        if (current) tokens.push(current);
-        tokens.push(char);
-        current = '';
-        continue;
-      }
-
-      if (/\s/.test(char)) {
-        if (current) {
-          tokens.push(current);
-          current = '';
-        }
-        continue;
-      }
-
-      current += char;
-    }
-
-    if (current) tokens.push(current);
-    return tokens.filter(t => t.length > 0);
-  }
-
-  private isProtectedToken(token: string): boolean {
-    return token.startsWith('--') ||
-      token.startsWith('/*') ||
-      token.startsWith("'") ||
-      token.startsWith('"') ||
-      token.startsWith('`') ||
-      (this.dialect === 'postgresql' && /^(\$\$|\$[A-Za-z_][A-Za-z0-9_]*\$)/.test(token));
-  }
-
-  format(sql: string): string {
-    if (!sql.trim()) return '';
-
-    const tokens = this.tokenize(sql);
-    const keywords = this.getAllKeywords();
-    let result = '';
-    let indentLevel = 0;
-    let lineLength = 0;
-    const indent = ' '.repeat(this.options.indentSize);
-
-    const getIndent = () => indent.repeat(Math.max(0, indentLevel));
-
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-      const upperToken = token.toUpperCase();
-      const nextToken = tokens[i + 1];
-
-      if (token.startsWith('--') || token.startsWith('/*')) {
-        if (result && !result.endsWith('\n')) {
-          result += '\n';
-        }
-        result += getIndent() + token + '\n';
-        lineLength = 0;
-        continue;
-      }
-
-      if (this.isProtectedToken(token)) {
-        const previousToken = tokens[i - 1];
-        const isPrefixedString = token.startsWith("'") && previousToken && /^(E|N|X|B)$/i.test(previousToken);
-        if (result && !result.endsWith(' ') && !result.endsWith('\n') && !result.endsWith('(') && !result.endsWith('[') && !result.endsWith('.') && !isPrefixedString) {
-          result += ' ';
-          lineLength++;
-        }
-        result += token;
-        lineLength += token.length;
-        continue;
-      }
-
-      if (keywords.has(upperToken)) {
-        const formattedKeyword = this.options.uppercaseKeywords ? upperToken : token;
-        const clauseStarters = ['SELECT', 'FROM', 'WHERE', 'GROUP', 'HAVING', 'ORDER', 'LIMIT', 'UNION', 'INSERT', 'UPDATE', 'DELETE', 'VALUES', 'SET', 'JOIN', 'LEFT', 'RIGHT', 'INNER', 'OUTER', 'FULL', 'CROSS'];
-        
-        if (clauseStarters.includes(upperToken)) {
-          if (['LEFT', 'RIGHT', 'INNER', 'OUTER', 'FULL', 'CROSS'].includes(upperToken)) {
-            if (nextToken && ['JOIN', 'OUTER'].includes(nextToken.toUpperCase())) {
-              result += (result ? ' ' : '') + formattedKeyword;
-              lineLength += formattedKeyword.length + 1;
-              continue;
-            }
-          }
-
-          if (result && !result.endsWith('\n') && !result.endsWith(' ')) {
-            result += '\n';
-          }
-          if (result.endsWith('\n')) {
-            result += getIndent();
-          }
-          result += formattedKeyword;
-          lineLength = getIndent().length + formattedKeyword.length;
-        } else {
-          result += ' ' + formattedKeyword;
-          lineLength += formattedKeyword.length + 1;
-        }
-        continue;
-      }
-
-      if (token === '(') {
-        result += token;
-        indentLevel++;
-        lineLength++;
-        continue;
-      }
-
-      if (token === ')') {
-        indentLevel--;
-        if (result.endsWith(' ')) {
-          result = result.slice(0, -1);
-        }
-        result += token;
-        lineLength++;
-        continue;
-      }
-
-      if (token === '[') {
-        result += token;
-        lineLength++;
-        continue;
-      }
-
-      if (token === ']') {
-        if (result.endsWith(' ')) result = result.slice(0, -1);
-        result += token;
-        lineLength++;
-        continue;
-      }
-
-      if (token === ',') {
-        if (this.options.commaPosition === 'after') {
-          result += token;
-          lineLength++;
-          const prevTokens = tokens.slice(0, i).reverse();
-          const recentKeyword = prevTokens.find(t => keywords.has(t.toUpperCase()));
-          if (recentKeyword && recentKeyword.toUpperCase() === 'SELECT') {
-            result += '\n' + getIndent();
-            lineLength = getIndent().length;
-          }
-        } else {
-          result = result.trimEnd() + '\n' + getIndent() + token + ' ';
-          lineLength = getIndent().length + 2;
-        }
-        continue;
-      }
-
-      if (token === ';') {
-        result += token + '\n';
-        indentLevel = 0;
-        lineLength = 0;
-        continue;
-      }
-
-      if (result && !result.endsWith(' ') && !result.endsWith('\n') && !result.endsWith('(')) {
-        result += ' ';
-        lineLength++;
-      }
-      result += token;
-      lineLength += token.length;
-
-      if (this.options.maxLineLength > 0 && lineLength > this.options.maxLineLength) {
-        if (!result.endsWith('\n')) {
-          result += '\n' + getIndent();
-          lineLength = getIndent().length;
-        }
-      }
-    }
-
-    return result.trim();
-  }
-
-  minify(sql: string): string {
-    if (!sql.trim()) return '';
-    const tokens = this.tokenize(sql).filter(token => !token.startsWith('--') && !token.startsWith('/*'));
-    let result = '';
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-      const previousToken = tokens[i - 1];
-      const noSpaceBefore = [')', ']', ',', ';'].includes(token);
-      const noSpaceAfterPrevious = previousToken === '(' || previousToken === '[';
-      const prefixedString = token.startsWith("'") && previousToken && /^(E|N|X|B)$/i.test(previousToken);
-      if (result && !noSpaceBefore && !noSpaceAfterPrevious && !prefixedString) result += ' ';
-      result += token;
-    }
-    return result.trim();
-  }
-}
-
-const DEFAULT_SQL = `SELECT u.id, u.email, u.created_at, p.first_name, p.last_name, COUNT(o.id) as order_count, SUM(o.total) as lifetime_value
-FROM users u
-LEFT JOIN profiles p ON u.id = p.user_id
-LEFT JOIN orders o ON u.id = o.user_id
-WHERE u.status = 'active' AND u.created_at >= '2024-01-01'
-GROUP BY u.id, u.email, u.created_at, p.first_name, p.last_name
-HAVING COUNT(o.id) > 0
-ORDER BY lifetime_value DESC
-LIMIT 100;`;
+import {
+  DEFAULT_SQL,
+  SQLFormatter,
+  type FormatOptions,
+  type SQLDialect,
+} from '@/lib/sql-formatter';
+import { SQL_GUIDE_EXAMPLE } from '@/lib/tool-guide-examples';
 
 export default function SQLFormatterPage() {
   const [input, setInput] = useState(DEFAULT_SQL);
@@ -425,7 +74,7 @@ export default function SQLFormatterPage() {
             <span className="text-slate-400 font-medium text-3xl">Beautify Queries Without Data Exposure</span>
           </h1>
           <p className="text-slate-400 max-w-2xl text-lg mb-8 leading-relaxed">
-            Lexically format or compact Standard SQL, MySQL, and PostgreSQL queries entirely in your browser, with customizable indentation and keyword casing.
+            Lay out or compact SQL queries entirely in your browser: one column per line, joins and clauses on their own lines, adjustable indentation and keyword casing. It is a text formatter, not a SQL parser.
           </p>
         </div>
 
@@ -459,7 +108,7 @@ export default function SQLFormatterPage() {
             </div>
 
             <p className="mb-8 text-sm leading-relaxed text-amber-300/90">
-              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. Review vendor-specific syntax before running the result.
+              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. It lays out SELECT, INSERT, UPDATE and DELETE statements; other statements (for example CREATE TABLE) are mostly left on one line. Review vendor-specific syntax before running the result.
             </p>
 
             {showOptions && mode === 'format' && (
@@ -533,6 +182,38 @@ export default function SQLFormatterPage() {
                         OpsecForge formats the SQL in the loaded browser page and does not send the query to a formatting backend. This reduces one data-transfer path but does not by itself establish GDPR, SOC 2, HIPAA, or other compliance.
                     </p>
                 </div>
+
+                <h2 className="mt-16 text-3xl font-bold text-slate-100">A worked example</h2>
+                <p className="text-slate-400">
+                    Paste the single line below into the input box with Standard dialect and default options. Multi-word keywords such as{' '}
+                    <code>LEFT JOIN</code>, <code>GROUP BY</code>, <code>ORDER BY</code> and <code>UNION ALL</code> stay together on
+                    one line, and a SELECT list with more than one column puts each column on its own line.
+                </p>
+                <div className="not-prose grid min-w-0 gap-4 md:grid-cols-2">
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Input</figcaption>
+                        <pre tabIndex={0} aria-label="Example input (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-cyan-300">{SQL_GUIDE_EXAMPLE.input}</pre>
+                    </figure>
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Output</figcaption>
+                        <pre tabIndex={0} aria-label="Example output (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-emerald-300">{SQL_GUIDE_EXAMPLE.output}</pre>
+                    </figure>
+                </div>
+
+                <h2 className="mt-16 text-3xl font-bold text-slate-100">What the dialect setting changes</h2>
+                <p className="text-slate-400">
+                    The three settings share one layout engine. The dialect changes only two things: which extra words are treated as
+                    keywords (for example <code>ILIKE</code>, <code>JSONB</code> and <code>RETURNING</code> in PostgreSQL;{' '}
+                    <code>ENGINE</code>, <code>UNSIGNED</code> and <code>CHARSET</code> in MySQL) and whether PostgreSQL
+                    dollar-quoted strings such as <code>$$ ... $$</code> are kept as one token. Backtick-quoted identifiers and operators
+                    like <code>-&gt;&gt;</code> and <code>::</code> are recognised in every mode. No dialect-specific syntax is checked:
+                    the formatter will lay out invalid SQL without complaint.
+                </p>
+                <p className="text-slate-400">
+                    Concretely, <code>{SQL_GUIDE_EXAMPLE.returningInput}</code> puts <code>RETURNING id</code> on its own line in
+                    PostgreSQL mode. In Standard and MySQL modes <code>returning</code> is not a keyword, so it is left as typed on the{' '}
+                    <code>VALUES</code> line.
+                </p>
             </article>
         </section>
       </div>
