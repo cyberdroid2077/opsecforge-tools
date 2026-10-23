@@ -49,22 +49,16 @@ const featuredArticles = [
     href: '/blog/how-to-sanitize-env-files-before-sharing',
   },
   {
-    label: 'Webhook security',
-    title: 'Webhook Signature Validation: HMAC-SHA256 Best Practices',
-    description: 'Understand signature matching, timestamp checks, and replay defenses for production receivers.',
-    href: '/blog/webhook-signature-validation-hmac-sha256-best-practices-2026',
-  },
-  {
-    label: 'Cryptography',
-    title: 'Hash Generator Guide: SHA-256, Password Hashing, and Verification',
-    description: 'Choose an appropriate algorithm, verify a download against a trusted checksum, and know what a match proves.',
-    href: '/blog/hash-generator-tools-data-integrity-security',
-  },
-  {
     label: 'Encoding',
     title: 'Base64 vs Base64URL',
     description: 'See how the alphabets, padding, and URL-safe variants differ before converting data.',
     href: '/blog/base64-vs-base64url',
+  },
+  {
+    label: 'Vulnerability analysis',
+    title: 'CVE-2026-33143: OneUptime Webhook Signature Verification',
+    description: 'What the OneUptime advisory affected, how the fix changes the webhook trust boundary, and how to test signed webhook handlers safely.',
+    href: '/blog/cve-2026-33143-webhook-signature-verification-bypass-2026',
   },
 ];
 

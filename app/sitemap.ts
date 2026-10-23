@@ -81,7 +81,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/corrections',
     '/faq',
     '/glossary',
-    '/case-studies',
     '/privacy',
     '/terms-of-service',
     '/tools',

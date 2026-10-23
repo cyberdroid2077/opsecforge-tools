@@ -30,12 +30,14 @@ describe('tool discovery data', () => {
     }
   });
 
-  it('links every tool page except the colour converter to at least one guide', () => {
+  it('links every tool page to at least one guide', () => {
     for (const [slug, related] of Object.entries(toolDiscovery)) {
-      if (slug !== 'hex-rgb-converter') {
-        expect(related.guides.length, slug).toBeGreaterThan(0);
-      }
+      expect(related.guides.length, slug).toBeGreaterThan(0);
     }
+  });
+
+  it('has no entry for the retired colour converter', () => {
+    expect(toolDiscovery['hex-rgb-converter']).toBeUndefined();
   });
 
   it('ties the webhook verifier to both webhook articles', () => {

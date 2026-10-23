@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import ToolDiscovery from '../../components/tools/ToolDiscovery';
+import { toolDiscovery } from '../../lib/tool-discovery';
 
 afterEach(cleanup);
 
@@ -25,10 +26,18 @@ describe('ToolDiscovery', () => {
   });
 
   it('renders only structured data when a tool has nothing relevant to link', () => {
-    const { container } = render(<ToolDiscovery slug="hex-rgb-converter" />);
+    const original = toolDiscovery['unix-timestamp'];
 
-    expect(container.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
-    expect(container.querySelector('aside')).toBeNull();
+    toolDiscovery['unix-timestamp'] = { guides: [], tools: [] };
+
+    try {
+      const { container } = render(<ToolDiscovery slug="unix-timestamp" />);
+
+      expect(container.querySelectorAll('script[type="application/ld+json"]')).toHaveLength(2);
+      expect(container.querySelector('aside')).toBeNull();
+    } finally {
+      toolDiscovery['unix-timestamp'] = original;
+    }
   });
 
   it('renders nothing for noindexed or unknown tools', () => {

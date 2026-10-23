@@ -6,6 +6,8 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 });
 
 // Legacy URLs retired in the AdSense readiness clean-up: 301 to a same-topic page, or 410 Gone.
+// The redirects kept below point at a page on the same topic. An old article with no same-topic
+// replacement belongs in config/retired-urls.json under "gone" (410), not here.
 // Single source of truth, shared with lib/retired-urls.test.ts.
 const retired = require('./config/retired-urls.json');
 
@@ -28,11 +30,6 @@ const nextConfig = {
       {
         source: '/blog/ai-opsec-checklist-how-to-use-llms-safely',
         destination: '/blog/ai-agent-credential-security-nhi-governance-2026',
-        permanent: true,
-      },
-      {
-        source: '/blog/global-privacy-compliance-guide-2026',
-        destination: '/privacy',
         permanent: true,
       },
       {
@@ -78,16 +75,6 @@ const nextConfig = {
       {
         source: '/blog/what-is-a-webhook-signature-and-why-must-you-validate-it',
         destination: '/blog/webhook-signature-validation-hmac-sha256-best-practices-2026',
-        permanent: true,
-      },
-      {
-        source: '/blog/why-client-side-execution-is-the-future-of-developer-utilities',
-        destination: '/about',
-        permanent: true,
-      },
-      {
-        source: '/blog/why-soc2-compliance-means-you-should-stop-using-cloud-formatters',
-        destination: '/about',
         permanent: true,
       },
       {
