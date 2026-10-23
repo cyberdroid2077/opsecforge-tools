@@ -304,14 +304,9 @@ describe('retired legacy URLs: content is gone, retained pages are untouched', (
         }
 
         const scanned = /\.(tsx?|mjs|js|json|md|txt|xml)$/.test(entry.name) && !/\.test\.tsx?$/.test(entry.name);
-        // TODO(coordinator): scripts/monitor/health-check.js still lists hex-rgb-converter as a required tool
-        // directory and eslint.config.mjs still ignores app/case-studies/**. Both are outside this change's
-        // file list; delete these two exemptions once those lines are removed.
         const exempt =
           relative === 'next.config.js' ||
           relative === 'package-lock.json' ||
-          relative === 'scripts/monitor/health-check.js' ||
-          relative === 'eslint.config.mjs' ||
           entry.name.startsWith('.');
 
         if (scanned && !exempt) {

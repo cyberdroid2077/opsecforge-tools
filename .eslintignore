@@ -3,7 +3,6 @@
 # react/no-unescaped-entities errors. They are hand-authored blog posts,
 # not application code — fix manually when editing.
 app/blog/
-app/case-studies/
 app/contact/page.tsx
 app/faq/page.tsx
 app/glossary/page.tsx

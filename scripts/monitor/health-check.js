@@ -60,9 +60,9 @@ check('package.json is valid', () => {
 });
 
 // 3. All remaining tool directories present (7 retired tools return 410, see config/retired-urls.json)
-check('All 13 tool directories exist', () => {
+check('All 12 tool directories exist', () => {
   const expected = [
-    'base64-converter','env-sanitizer','hash-generator','hex-rgb-converter',
+    'base64-converter','env-sanitizer','hash-generator',
     'json-beautifier','json-formatter','jwt-decoder',
     'password-generator','sha256-hash',
     'sql-formatter','unix-timestamp',
