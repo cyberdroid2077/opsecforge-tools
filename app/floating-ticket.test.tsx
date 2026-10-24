@@ -25,4 +25,14 @@ describe('FloatingTicketButton', () => {
 
     expect(screen.getByRole('button', { name: 'Report a Bug' })).toBeTruthy();
   });
+
+  it('is not floating below the md breakpoint, only from md up', () => {
+    pathnameMock.mockReturnValue('/blog/some-post');
+
+    render(<FloatingTicketButton />);
+
+    const classes = screen.getByRole('button', { name: 'Report a Bug' }).className.split(/\s+/);
+    expect(classes).not.toContain('fixed');
+    expect(classes).toContain('md:fixed');
+  });
 });

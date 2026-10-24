@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, CalendarDays, UserRound } from 'lucide-react';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import SocialShare from '@/components/ui/SocialShare';
+import AdSlot from '@/components/AdSlot';
+import { countWordsInHtml } from '@/lib/ads';
 
 type BlogPostPageProps = {
   params: Promise<{
@@ -179,6 +181,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           className="space-y-6 leading-8 text-slate-300 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_a]:text-emerald-400 [&_a]:underline [&_a]:underline-offset-4 [&_h1]:mt-10 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-slate-100 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-slate-100 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-slate-100 [&_li]:ml-6 [&_ul>li]:list-disc [&_ol>li]:list-decimal [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-sm [&_th]:border [&_th]:border-slate-700 [&_th]:bg-slate-800/60 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-slate-100 [&_td]:border [&_td]:border-slate-700 [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_p]:text-slate-300 [&_strong]:text-slate-100 [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-500 [&_blockquote]:bg-slate-800/50 [&_blockquote]:p-6 [&_blockquote]:rounded-r-lg [&_blockquote_p]:m-0 [&_blockquote_strong]:text-emerald-400"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
+
+        <AdSlot wordCount={countWordsInHtml(post.contentHtml)} />
 
         <div className="mt-12 border-t border-slate-800 pt-8">
           <SocialShare />

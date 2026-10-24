@@ -2,6 +2,8 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import Script from "next/script";
+import { getAdsenseClient, getAdsenseScriptSrc } from "../lib/ads";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import FloatingTicketButton from "../components/FloatingTicketButton";
@@ -32,7 +34,6 @@ export const viewport: Viewport = {
   themeColor: "#10b981",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export const metadata: Metadata = {
@@ -60,6 +61,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Unset NEXT_PUBLIC_ADSENSE_CLIENT means no AdSense script anywhere on the site.
+  const adsenseClient = getAdsenseClient();
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -106,6 +109,14 @@ export default function RootLayout({
         </footer>
         <FloatingTicketButton />
         <Analytics />
+        {adsenseClient ? (
+          <Script
+            async
+            src={getAdsenseScriptSrc(adsenseClient)}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        ) : null}
       </body>
     </html>
   );
