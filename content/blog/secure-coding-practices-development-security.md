@@ -1,190 +1,122 @@
 ---
-title: "What Is Secure Coding? 12 Practices and a Developer Checklist"
+title: "Secure Coding Practices: What They Are and a Checklist by Development Stage"
 date: "2026-04-06"
-updated: "2026-07-28"
-description: "A practical secure coding guide covering input validation, authorization, secrets, dependencies, logging, testing, and a checklist for every release."
+updated: "2026-10-24"
+description: "Secure coding practices are the habits that keep code enforcing its security rules when input is hostile or a component fails. Nine practices with code patterns, sources, and a design-to-deploy checklist."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["secure-coding", "devsecops", "input-validation", "secrets-management", "vulnerability-prevention"]
-source_reviewed: "2026-07-28"
+source_reviewed: "2026-10-24"
 primary_source: "https://csrc.nist.gov/pubs/sp/800/218/final"
 ---
 
-# What Is Secure Coding? 12 Practices and a Developer Checklist
+# Secure Coding Practices: What They Are and a Checklist by Development Stage
 
-<div class="mb-8 inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-bold tracking-widest text-red-400 uppercase">
-  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-  DEVELOPMENT SECURITY
-</div>
+**Secure coding practices are the design and coding habits that keep software enforcing its security rules when input is hostile, a caller is untrusted, or a dependency fails.** They are not a final scan. Each one targets a specific class of flaw, which is why this page does not try to teach all of them: it names the flaw, shows what it looks like in code, and sends you to the page on this site (and the primary source) that goes deep.
 
-**Secure coding is the practice of designing and implementing software so that it continues to enforce its security requirements when it receives unexpected input, runs with limited trust, or a component fails.** It is not a final scan. It is a set of engineering decisions applied from design through deployment.
+[NIST's Secure Software Development Framework (SP 800-218)](https://csrc.nist.gov/pubs/sp/800/218/final) organizes this work into preparing the organization, protecting the software, producing well-secured software, and responding to vulnerabilities. The practices below cover the "producing well-secured software" part for web and API code. Use the [stage checklist](#checklist-by-development-stage) at the end if you want to jump straight to what to do when.
 
-[NIST's Secure Software Development Framework (SSDF)](https://csrc.nist.gov/pubs/sp/800/218/final) groups secure development work into preparing the organization, protecting software, producing well-secured software, and responding to vulnerabilities. The practices below turn that lifecycle guidance into checks a developer can use while writing and reviewing code.
+## 1. Check authorization on the object, not just the login
 
-## Secure coding at a glance
-
-1. Define security requirements and trust boundaries.
-2. Validate input against an allowlist.
-3. Keep data separate from executable instructions.
-4. Encode output for its destination context.
-5. Use proven authentication and session components.
-6. Enforce authorization on every protected operation.
-7. Keep secrets out of code, builds, and logs.
-8. Minimize and continuously review dependencies.
-9. Fail safely without exposing internals.
-10. Log security events without logging sensitive data.
-11. Review and test the highest-risk paths.
-12. Ship fixes through a repeatable vulnerability-response process.
-
-## 1. Define security requirements and trust boundaries
-
-Start with what the software must protect, who can perform each action, and where data crosses between trust levels. Mark boundaries such as:
-
-- Browser to API
-- Public API to an internal service
-- Application to database
-- Build system to deployment platform
-- First-party code to a third-party package or webhook
-
-Turn those boundaries into testable requirements. “Only an account owner can download this invoice” is testable. “Use best-practice security” is not.
-
-## 2. Validate input against an allowlist
-
-Validate untrusted data on a trusted system before using it. Check expected type, length, range, format, and allowed values. Client-side validation can improve usability, but the server still needs to enforce the rule.
-
-Prefer an allowlist:
-
-```ts
-const allowedSortFields = new Set(["createdAt", "name", "status"]);
-
-if (!allowedSortFields.has(requestedSort)) {
-  throw new Error("Unsupported sort field");
-}
-```
-
-Do not treat “sanitization” as a universal operation. Validation decides whether data is acceptable; output encoding and safe APIs prevent that accepted data from becoming executable in a particular destination.
-
-## 3. Keep data separate from instructions
-
-Use parameterized database queries instead of constructing commands with user-controlled strings:
+The most common API flaw is a handler that confirms the caller is logged in and then loads whatever ID they sent. The fix is to put the owner in the query or to check it before returning the object:
 
 ```python
-# Unsafe: input becomes part of the SQL program
-cursor.execute(f"SELECT * FROM users WHERE id = '{user_id}'")
+# Any logged-in user can read any invoice by guessing or enumerating IDs
+invoice = db.get("SELECT * FROM invoices WHERE id = ?", (invoice_id,))
 
-# Safer: the driver sends code and data separately
-cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+# The caller must own the row; a miss is indistinguishable from "not found"
+invoice = db.get(
+    "SELECT * FROM invoices WHERE id = ? AND owner_id = ?",
+    (invoice_id, current_user.id),
+)
 ```
 
-Apply the same principle to operating-system commands, LDAP filters, template expressions, and other interpreters. Prefer a task-specific API that accepts structured arguments. If you are reviewing database code, the [OWASP SQL Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html) explains the limits of escaping and the role of prepared statements.
+Unpredictable IDs do not replace this check. Test it with two accounts: request A's object with B's token. Deep dive: [BOLA prevention and testing](/blog/bola-broken-object-level-authorization-api-2026). Sources: [OWASP API1:2023](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/), [CWE-639](https://cwe.mitre.org/data/definitions/639.html), [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html).
 
-## 4. Encode output for its destination context
+## 2. Bind only the fields a client may set
 
-Output encoding is context-specific. Data inserted into HTML text, an HTML attribute, a URL, CSS, or JavaScript does not share one safe encoding rule.
+Passing a request body straight into an ORM model lets a client set fields you never put on the form, such as `role` or `is_admin`. Name the writable fields explicitly, per operation:
 
-Use the framework's default escaping and avoid bypasses such as raw-HTML rendering unless the application genuinely needs them. When users may author HTML, use a maintained HTML sanitizer with an explicit policy. See the [OWASP Cross Site Scripting Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html) for context-specific guidance.
+```ts
+const { displayName, timezone } = parseProfileUpdate(req.body); // schema rejects extras
+await db.user.update({ where: { id: currentUser.id }, data: { displayName, timezone } });
+```
 
-## 5. Use proven authentication and session components
+Deep dive: [mass assignment and unsafe object binding](/blog/mass-assignment-api-vulnerability-orm-auto-binding-2026). Sources: [OWASP API3:2023](https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/), [CWE-915](https://cwe.mitre.org/data/definitions/915.html), [OWASP Mass Assignment Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html).
 
-Authentication answers who the subject is. Session management binds that authenticated state to later requests. Prefer mature framework or identity-provider components over a custom protocol.
+## 3. Keep data out of the query text
 
-For cookie-based web sessions:
+Parameters cover values. They do not cover table names, column names, or sort direction, and ORM "raw" escape hatches reintroduce string building. Anything that selects an identifier must come from a fixed list in your code. Deep dive, with tested examples for SQLite, Django, SQLAlchemy and Sequelize: [SQL injection in API code](/blog/sql-injection-modern-apis-parameterized-queries-2026). To read a messy query before reviewing it, use the [SQL Formatter](/tools/sql-formatter). Sources: [OWASP SQL Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html), [CWE-89](https://cwe.mitre.org/data/definitions/89.html).
 
-- Use HTTPS for the entire session.
-- Use `Secure` and `HttpOnly`; choose a `SameSite` policy for the application's flow.
-- Regenerate the session identifier after authentication or a privilege change.
-- Set idle and absolute timeouts appropriate to the risk.
-- Invalidate the server-side session when the user logs out.
+## 4. Validate input on the server and encode output for its destination
 
-The [OWASP Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html) provides the implementation details and tradeoffs.
+Validation answers "is this value acceptable?" with an allowlist of type, length, range, and format. Encoding answers "can this value become code where I am putting it?" and depends on the destination (HTML text, attribute, URL, script). Prefer APIs that do not parse markup at all:
 
-<div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
-  <h3 class="mb-3 text-2xl font-bold text-slate-100">Inspect a JWT without uploading it</h3>
-  <p class="mb-8 text-slate-400 text-lg">Decode a token locally to inspect its header, payload, and time claims. Decoding does not verify the signature or prove that the token is trustworthy.</p>
-  <a href="/tools/jwt-decoder" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-    Open JWT Decoder →
-  </a>
-</div>
+```js
+el.textContent = comment.body;  // rendered as text
+el.innerHTML = comment.body;    // parsed as HTML: stored XSS if body is attacker-controlled
+```
 
-## 6. Enforce authorization on every protected operation
+If users must supply HTML, run it through a maintained sanitizer with an explicit policy rather than a regular expression. This site has no dedicated article on cross-site scripting, so rely on the sources: [OWASP Input Validation Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html), [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html), [CWE-79](https://cwe.mitre.org/data/definitions/79.html).
 
-Authorization answers whether the authenticated subject can perform this action on this object. Enforce it server-side for every request, including background jobs and alternate API routes.
+## 5. Do not let user-supplied URLs reach internal networks
 
-Check the relationship between the caller, action, and target object. Do not assume that an authenticated user may access a record merely because they supplied a valid record ID. Deny access by default and grant only the permissions required.
+Any feature that fetches a URL for the user (link previews, image import, webhook targets) can be pointed at `localhost` or a cloud metadata address. A check on the hostname string is not enough, because the name can resolve differently when your HTTP client connects, and a redirect can lead somewhere the check never saw. The reliable shape is a host allowlist, a check of the IP address actually connected to, and redirects either disabled or validated hop by hop. Deep dive with code: [SSRF prevention for APIs](/blog/ssrf-api-security-guide-2026). Sources: [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html), [CWE-918](https://cwe.mitre.org/data/definitions/918.html).
 
-## 7. Keep secrets out of code, builds, and logs
+## 6. Use current password rules and validate tokens fully
 
-Do not hardcode credentials or commit `.env` files. Environment variables can keep configuration separate from code, but they are not automatically a secure secret store. Control who can inspect the runtime, keep secrets out of logs and error reports, scope each credential narrowly, and revoke exposed credentials before investigating cleanup.
+For passwords, NIST SP 800-63B-4 centers on length, screening against a blocklist of commonly used or compromised values, and not forcing arbitrary composition rules; see [what it requires and how to calculate entropy](/blog/password-security-vulnerabilities-best-practices) and try the [Password Generator](/tools/password-generator). Store passwords with a dedicated password hashing function, not a plain hash ([OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)).
 
-Use a managed secret store or workload identity when the platform supports it. For a deeper treatment, read [Are Environment Variables Secure?](/blog/environment-variable-security-secrets-management) and the [environment-variable leak response guide](/blog/environment-variable-leaks-security-risks).
+For JWTs, the verifier must fix the accepted algorithm itself instead of trusting the token's header, and must check the claims it relies on (issuer, audience, expiry). Decoding a token is not verifying it. Deep dives: [JWT vulnerabilities and safe validation](/blog/jwt-token-vulnerabilities-authentication-security) and [signing and issuing tokens](/blog/jwt-encoder-security-token-generation-best-practices); inspect a token locally with the [JWT Decoder](/tools/jwt-decoder), which parses but does not verify signatures. Sources: [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html), [RFC 8725 (JWT best current practices)](https://www.rfc-editor.org/rfc/rfc8725.html), [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html).
 
-## 8. Minimize and continuously review dependencies
+## 7. Verify webhook signatures over the raw body
 
-Maintain an inventory of direct and transitive dependencies. Remove packages you no longer need, monitor the advisories that apply to your versions, and test updates before release.
+A webhook endpoint is a public URL that anyone can POST to. Compute the HMAC over the exact bytes received (not re-serialized JSON) and compare in constant time:
 
-Automated dependency alerts are inputs to a decision, not proof that a build is safe or unsafe. Prioritize findings using reachability, exposure, available mitigations, and the application's threat model. Pin or lock resolved versions where the ecosystem supports it, and protect the account and workflow that publishes your own packages.
+```js
+const expected = "sha256=" + crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+const received = req.get("X-Hub-Signature-256") ?? "";
+const ok = received.length === expected.length &&
+  crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
+```
 
-## 9. Fail safely
+The length check comes first because `timingSafeEqual` throws on buffers of different lengths. Add a timestamp window and event-ID deduplication if the provider supports them. Deep dive with GitHub, Stripe and Slack examples: [verifying webhook signatures](/blog/webhook-signature-validation-hmac-sha256-best-practices-2026); try it in the [Webhook Signature Verifier](/tools/webhook-debugger). Sources: [GitHub: validating webhook deliveries](https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries), [CWE-347](https://cwe.mitre.org/data/definitions/347.html).
 
-Define the secure outcome for errors and partial failures. An authorization service timeout should not silently grant access. A failed validation step should not fall through to the protected operation.
+## 8. Keep secrets out of code, logs, and shared files
 
-Return useful but non-sensitive errors to users. Keep stack traces, filesystem paths, query text, and internal service details out of production responses. Record enough diagnostic context internally to investigate without recording credentials or tokens.
+A credential in source, a build log, a client bundle, or a pasted `.env` is exposed to everyone who can read those. Load secrets at runtime, scope each one narrowly, and when one leaks, revoke it before you start cleaning up. Deep dives: [are environment variables secure?](/blog/environment-variable-security-secrets-management), [what to do after an environment-variable leak](/blog/environment-variable-leaks-security-risks), [API key leaks](/blog/api-key-leaks-credential-security), and [token exposure in CI/CD](/blog/oauth-token-leakage-ci-cd-2026). Before sharing a config file for debugging, run it through the [Safe-to-Share Sanitizer](/tools/env-sanitizer); its detection is heuristic, so read the output before you send it. Sources: [OWASP Secrets Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html), [CWE-798](https://cwe.mitre.org/data/definitions/798.html).
 
-## 10. Log security events without logging sensitive data
+## 9. Limit resource use and know every endpoint you expose
 
-Log events that help detect and reconstruct abuse, such as:
+Endpoints without limits on request rate, payload size, query depth, or batch size invite denial of service and cost abuse, and a limit keyed only on IP address is easy to shift around. Separately, an endpoint you forgot (old versions, debug routes, paths that skip the gateway) has no controls at all. Deep dives: [rate limit design](/blog/api-rate-limiting-bypass-attacks-2026), [GraphQL batching and resource limits](/blog/graphql-batching-attacks-dos-resource-exhaustion-2026), [API inventory and gateway boundaries](/blog/shadow-apis-the-invisible-threat-2026), and [HTTP request smuggling at the gateway](/blog/http-request-smuggling-api-gateway-protocol-desync-2026). Sources: [OWASP API4:2023](https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/), [OWASP API9:2023](https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/).
 
-- Authentication successes and failures
-- Authorization denials
-- Administrative changes
-- Validation failures at important trust boundaries
-- Secret rotation and access-policy changes
+## Checklist by development stage
 
-Include a timestamp, event type, outcome, request or trace identifier, and the relevant subject or resource identifier. Avoid passwords, session identifiers, access tokens, raw secrets, and unnecessary personal data. Protect logs from tampering and restrict access.
+**Design**
+- [ ] Write down each trust boundary and who may do what to which object (practices 1, 9). Make each rule testable: "only the owner can download this invoice."
+- [ ] Decide where secrets live and how they rotate (practice 8: [environment variables](/blog/environment-variable-security-secrets-management)).
+- [ ] List every endpoint and its limits before launch (practice 9: [API inventory](/blog/shadow-apis-the-invisible-threat-2026)).
 
-## 11. Review and test the highest-risk paths
+**Coding**
+- [ ] Owner check in every object lookup ([BOLA](/blog/bola-broken-object-level-authorization-api-2026)); explicit writable fields ([mass assignment](/blog/mass-assignment-api-vulnerability-orm-auto-binding-2026)).
+- [ ] No string-built queries; identifiers from a fixed list ([SQL injection](/blog/sql-injection-modern-apis-parameterized-queries-2026)).
+- [ ] URL-fetching features use an allowlist and check the connected IP ([SSRF](/blog/ssrf-api-security-guide-2026)).
+- [ ] Webhooks verified over the raw body ([signature guide](/blog/webhook-signature-validation-hmac-sha256-best-practices-2026)); JWT algorithm and claims pinned ([JWT validation](/blog/jwt-token-vulnerabilities-authentication-security)).
 
-Automated tests should cover both allowed and denied behavior. Add tests for another user's object ID, a lower-privileged role, malformed input, boundary values, expired credentials, and dependency or network failures.
+**Review**
+- [ ] For every new route, ask who else's data it returns if the ID changes, and which request fields reach the database.
+- [ ] Add tests for the denied path: another user's ID, a lower role, an extra JSON field, an unsigned webhook.
+- [ ] Search the diff for secrets and for pasted config; sanitize shared files with the [Safe-to-Share Sanitizer](/tools/env-sanitizer).
 
-Use multiple techniques where they add evidence:
-
-- Peer review for authorization and trust-boundary changes
-- Static analysis for known code patterns
-- Dependency and secret scanning
-- Integration tests for access-control decisions
-- Dynamic testing in a controlled environment
-
-No single scanner establishes that an application is secure. Review results in the context of the code and its deployment.
-
-## 12. Prepare to respond to vulnerabilities
-
-A secure development process includes receiving vulnerability reports, assessing affected versions, creating and testing fixes, communicating mitigations, and learning from root causes. Keep release and rollback procedures repeatable so security fixes do not require improvisation.
-
-NIST SSDF practice RV.3 recommends analyzing vulnerabilities to identify their root causes. The useful output is not only a patch; it is also a test, coding rule, or design change that prevents the same class of flaw from returning.
-
-## Secure coding checklist
-
-Use this short list during review and before release:
-
-- [ ] Security requirements and trust boundaries are documented.
-- [ ] Untrusted input is validated server-side by type, length, range, and allowed value.
-- [ ] Database queries and commands keep instructions separate from data.
-- [ ] Output is encoded for the exact HTML, attribute, URL, CSS, or JavaScript context.
-- [ ] Authentication and session handling use maintained, tested components.
-- [ ] Every protected action checks authorization for the target object.
-- [ ] Secrets are absent from source, build output, client bundles, and logs.
-- [ ] Dependencies are inventoried, reviewed, and updated through a controlled process.
-- [ ] Failure paths deny access and do not expose internals.
-- [ ] Security events are logged without credentials, tokens, or unnecessary personal data.
-- [ ] Tests cover denied behavior and abuse cases, not only the happy path.
-- [ ] The team can receive, fix, release, and learn from vulnerability reports.
+**Deploy and operate**
+- [ ] CI credentials are short-lived and scoped ([CI/CD token exposure](/blog/oauth-token-leakage-ci-cd-2026)); leak response is rehearsed ([leak response](/blog/environment-variable-leaks-security-risks)).
+- [ ] Rate and size limits are active at the gateway and the application ([rate limits](/blog/api-rate-limiting-bypass-attacks-2026)).
+- [ ] Logs record authentication and authorization failures without tokens or passwords ([OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)).
+- [ ] You can receive a vulnerability report, ship a fix, and add a test or rule so the same flaw does not return (NIST SSDF group RV).
 
 ## Sources
 
-- [NIST SP 800-218, Secure Software Development Framework (SSDF) 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
-- [OWASP Secure Coding Practices Checklist](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/stable-en/02-checklist/05-checklist)
-- [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
-- [OWASP Authorization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html)
-- [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
-
-Secure coding is ordinary engineering performed with explicit trust boundaries, failure modes, and abuse cases in mind. Start with the checklist, adapt each control to the application's risk, and make the secure path the easiest path for developers to follow.
+- [NIST SP 800-218, Secure Software Development Framework 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
+- [OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/), a detailed requirements list to take this page's practices further
+- [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
+- [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
