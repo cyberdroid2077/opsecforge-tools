@@ -75,10 +75,12 @@ A webhook endpoint is a public URL that anyone can POST to. Compute the HMAC ove
 
 ```js
 const expected = "sha256=" + crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-const ok = a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+const received = req.get("X-Hub-Signature-256") ?? "";
+const ok = received.length === expected.length &&
+  crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
 ```
 
-Where `a` is the received signature header and `b` the value you computed. Add a timestamp window and event-ID deduplication if the provider supports them. Deep dive with GitHub, Stripe and Slack examples: [verifying webhook signatures](/blog/webhook-signature-validation-hmac-sha256-best-practices-2026); try it in the [Webhook Signature Verifier](/tools/webhook-debugger). Sources: [GitHub: validating webhook deliveries](https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries), [CWE-347](https://cwe.mitre.org/data/definitions/347.html).
+The length check comes first because `timingSafeEqual` throws on buffers of different lengths. Add a timestamp window and event-ID deduplication if the provider supports them. Deep dive with GitHub, Stripe and Slack examples: [verifying webhook signatures](/blog/webhook-signature-validation-hmac-sha256-best-practices-2026); try it in the [Webhook Signature Verifier](/tools/webhook-debugger). Sources: [GitHub: validating webhook deliveries](https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries), [CWE-347](https://cwe.mitre.org/data/definitions/347.html).
 
 ## 8. Keep secrets out of code, logs, and shared files
 
