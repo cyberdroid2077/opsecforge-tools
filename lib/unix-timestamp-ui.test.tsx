@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import UnixTimestampTool from '../components/UnixTimestampTool';
 
 afterEach(cleanup);
@@ -59,5 +59,24 @@ describe('Unix timestamp task interface', () => {
     const milliseconds = new Date('2024-03-13T12:34:56').getTime();
     expect(screen.getByText(String(milliseconds))).toBeInTheDocument();
     expect(screen.getByText(String(Math.floor(milliseconds / 1000)))).toBeInTheDocument();
+  });
+});
+
+describe("Unix timestamp SSR safety", () => {
+  it("does not render a current-time value during server rendering", async () => {
+    const { renderToString } = await import("react-dom/server");
+    const html = renderToString(<UnixTimestampTool />);
+    // The static placeholder example (1710352200) is allowed; anything else that
+    // looks like a current 10-digit epoch is not.
+    const withoutPlaceholder = html.replaceAll("1710352200", "");
+    expect(withoutPlaceholder).not.toMatch(/(?<![0-9])1[0-9]{9}(?![0-9])/);
+    expect(html).not.toMatch(/value="[0-9]{4}-[0-9]{2}-[0-9]{2}T/);
+    expect(html).toContain("Live Unix Epoch");
+  });
+
+  it("fills the live epoch after mount", async () => {
+    render(<UnixTimestampTool />);
+    const live = screen.getByText("Live Unix Epoch").nextElementSibling;
+    await waitFor(() => expect(live?.textContent).toMatch(/^[0-9]{10}$/));
   });
 });
