@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { Lock, Key, Play, Copy, Check, RefreshCw, ShieldCheck } from 'lucide-react';
+import JwtEncoderGuide from '@/components/tool-content/JwtEncoderGuide';
 import { generateJwtTestSecret } from '@/lib/jwt-test-secret';
 import { encodeJwt as buildJwt, validateJsonObject, type JwtHmacAlg, type JwtPart } from '@/lib/jwt';
 
@@ -317,6 +318,8 @@ export default function JwtEncoder() {
             ← Decode an existing JWT
           </a>
         </div>
+
+        <JwtEncoderGuide />
       </div>
     </div>
   );
