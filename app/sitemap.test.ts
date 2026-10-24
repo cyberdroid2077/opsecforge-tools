@@ -11,7 +11,7 @@ describe('sitemap', () => {
     expect(first.length).toBeGreaterThan(0);
     expect(dated.length).toBeGreaterThan(0);
     expect(dated.every((entry) => entry.url.startsWith('https://www.opsecforge.com/blog/'))).toBe(true);
-    expect(first.find((entry) => entry.url.endsWith('/blog/secure-coding-practices-development-security'))?.lastModified).toBe('2026-07-28');
+    expect(first.find((entry) => entry.url.endsWith('/blog/secure-coding-practices-development-security'))?.lastModified).toBe('2026-10-24');
     expect(first.find((entry) => entry.url.endsWith('/blog/how-to-generate-uuids-in-browser'))?.lastModified).toBe('2026-08-03');
     expect(first.find((entry) => entry.url === 'https://www.opsecforge.com')?.lastModified).toBeUndefined();
     expect(first.find((entry) => entry.url.endsWith('/tools/sql-formatter'))?.lastModified).toBeUndefined();
