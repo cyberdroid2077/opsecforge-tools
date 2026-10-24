@@ -18,19 +18,23 @@ function formatDateTimeLocal(date: Date) {
 }
 
 export default function UnixTimestampTool({ children }: { children?: ReactNode }) {
-  const [now, setNow] = useState(() => Date.now());
+  // null until mounted: SSR must not bake a build-time timestamp into the HTML.
+  const [now, setNow] = useState<number | null>(null);
   const [epochInput, setEpochInput] = useState('');
   const [epochUnit, setEpochUnit] = useState<UnixTimestampUnit>('seconds');
-  const [dateInput, setDateInput] = useState(() => formatDateTimeLocal(new Date()));
+  const [dateInput, setDateInput] = useState("");
   const [secondsInput, setSecondsInput] = useState('0');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
+    setDateInput((current) => current || formatDateTimeLocal(new Date()));
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
 
-  const currentEpochSeconds = Math.floor(now / 1000).toString();
+  // Placeholder has the same width as a 10-digit epoch to avoid layout shift.
+  const currentEpochSeconds = now === null ? "" : Math.floor(now / 1000).toString();
 
   const epochConversion = useMemo(() => {
     if (!epochInput.trim()) {
@@ -124,7 +128,7 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                 Live Unix Epoch
               </div>
               <div className="font-mono text-4xl font-bold tracking-tight text-emerald-400">
-                {currentEpochSeconds}
+                {currentEpochSeconds || <span aria-hidden="true">{"—".repeat(10)}</span>}
               </div>
             </div>
 
