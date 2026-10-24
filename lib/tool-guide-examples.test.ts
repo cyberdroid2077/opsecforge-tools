@@ -1,5 +1,8 @@
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
+import CryptoJS from 'crypto-js';
 import { describe, expect, it } from 'vitest';
+import { compareDigest, digestFile } from './file-checksum';
+import { analyzeTimeClaim, decodeJwt, encodeJwt } from './jwt';
 import { decodeBase64Text, encodeBase64Text } from './base64-codec';
 import { beautifyJson, findUnsafeIntegers, minifyJson } from './json-format';
 import { countStringsUsingEveryPool, estimateEntropyBits, policyEntropyBits } from './password';
@@ -8,6 +11,8 @@ import {
   BASE64_BASIC_AUTH,
   BASE64_GUIDE_ROWS,
   BASE64_JWT_HEADER,
+  HASH_GUIDE_VECTOR,
+  JWT_ENCODER_GUIDE,
   JSON_GUIDE_ERRORS,
   JSON_GUIDE_PRECISION,
   PASSWORD_GUIDE_ROWS,
@@ -208,5 +213,93 @@ describe('sql guide example', () => {
     expect(new SQLFormatter(options, 'postgresql').format(SQL_GUIDE_EXAMPLE.returningInput)).toBe(SQL_GUIDE_EXAMPLE.returningPostgres);
     expect(new SQLFormatter(options, 'standard').format(SQL_GUIDE_EXAMPLE.returningInput)).toBe(SQL_GUIDE_EXAMPLE.returningStandard);
     expect(new SQLFormatter(options, 'mysql').format(SQL_GUIDE_EXAMPLE.returningInput)).toBe(SQL_GUIDE_EXAMPLE.returningStandard);
+  });
+});
+
+describe('hash generator guide vector', () => {
+  const v = HASH_GUIDE_VECTOR;
+  const digest = (algorithm: string, input: string) => createHash(algorithm).update(input).digest('hex');
+
+  it('matches node:crypto for every algorithm shown', () => {
+    expect(digest('md5', v.message)).toBe(v.md5);
+    expect(digest('sha1', v.message)).toBe(v.sha1);
+    expect(digest('sha256', v.message)).toBe(v.sha256);
+    expect(digest('sha512', v.message)).toBe(v.sha512);
+    expect(digest('sha256', '')).toBe(v.sha256Empty);
+  });
+
+  it('is the published NIST FIPS 180-4 digest of "abc"', () => {
+    expect(v.sha256.slice(0, 16)).toBe('ba7816bf8f01cfea');
+    expect(v.sha256.slice(-8)).toBe('f20015ad');
+  });
+
+  it('matches the page tool: CryptoJS MD5, Web Crypto SHA-1/SHA-256', async () => {
+    expect(CryptoJS.MD5(v.message).toString()).toBe(v.md5);
+    const hex = async (alg: string) =>
+      Array.from(new Uint8Array(await crypto.subtle.digest(alg, new TextEncoder().encode(v.message))), (b) => b.toString(16).padStart(2, '0')).join('');
+    expect(await hex('SHA-1')).toBe(v.sha1);
+    expect(await hex('SHA-256')).toBe(v.sha256);
+  });
+
+  it('the file checksum tool gives the same SHA-256 and SHA-512, and compareDigest accepts it', async () => {
+    const bytes = new TextEncoder().encode(v.message);
+    const file = { size: bytes.byteLength, arrayBuffer: async () => bytes.buffer as ArrayBuffer };
+    const sha256 = await digestFile(file, 'SHA-256');
+    expect(sha256).toBe(v.sha256);
+    expect(await digestFile(file, 'SHA-512')).toBe(v.sha512);
+    expect(compareDigest(sha256, v.sha256.toUpperCase(), 'SHA-256')).toBe('match');
+  });
+
+  it('shows why echo and printf give different checksums', () => {
+    expect(digest('sha256', v.message + '\n')).toBe(v.sha256WithNewline);
+    expect(v.sha256WithNewline).not.toBe(v.sha256);
+    expect(compareDigest(v.sha256, v.sha256WithNewline, 'SHA-256')).toBe('mismatch');
+  });
+
+  it('HMAC with a key differs from the plain hash', () => {
+    expect(createHmac('sha256', v.hmacKey).update(v.message).digest('hex')).toBe(v.hmacSha256);
+    expect(v.hmacSha256).not.toBe(v.sha256);
+  });
+});
+
+describe('jwt encoder guide example', () => {
+  const ex = JWT_ENCODER_GUIDE;
+  const b64u = (text: string) => Buffer.from(text).toString('base64url');
+
+  it('the secret is at least 256 bits, as RFC 7518 section 3.2 requires for HS256', () => {
+    expect(Buffer.byteLength(ex.secret)).toBeGreaterThanOrEqual(32);
+  });
+
+  it('the encoder produces exactly the token shown', async () => {
+    const result = await encodeJwt({ headerJson: ex.header, payloadJson: ex.payload, secret: ex.secret, algorithm: 'HS256' });
+    expect(result.token).toBe(ex.token);
+    expect(result.parts[2]).toBe(ex.signature);
+  });
+
+  it('node:crypto agrees with the page signature', () => {
+    const signingInput = `${b64u(ex.header)}.${b64u(ex.payload)}`;
+    expect(`${signingInput}.${createHmac('sha256', ex.secret).update(signingInput).digest('base64url')}`).toBe(ex.token);
+  });
+
+  it('decodes back to the claims, and the time claims are seconds', () => {
+    const decoded = decodeJwt(ex.token);
+    expect(JSON.stringify(decoded.header)).toBe(ex.header);
+    expect(JSON.stringify(decoded.payload)).toBe(ex.payload);
+    expect(new Date(ex.iat * 1000).toISOString()).toBe(ex.iatUtc);
+    expect(new Date(ex.exp * 1000).toISOString()).toBe(ex.expUtc);
+    expect(ex.exp - ex.iat).toBe(3600);
+  });
+
+  it('the decoder flags the token as expired a day later but not inside the window', () => {
+    expect(analyzeTimeClaim('exp', ex.exp, (ex.iat + 60) * 1000).status).toBe('not-expired');
+    expect(analyzeTimeClaim('exp', ex.exp, (ex.exp + 86400) * 1000).status).toBe('expired');
+    expect(analyzeTimeClaim('nbf', ex.iat + 600, ex.iat * 1000).status).toBe('not-yet-valid');
+  });
+
+  it('changing one payload byte breaks the signature', () => {
+    const [h, , sig] = ex.token.split('.');
+    const tampered = `${h}.${b64u(ex.payload.replace('test-user-123', 'test-user-124'))}`;
+    const expected = createHmac('sha256', ex.secret).update(tampered).digest('base64url');
+    expect(expected).not.toBe(sig);
   });
 });

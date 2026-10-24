@@ -150,6 +150,37 @@ export const SQL_GUIDE_EXAMPLE = {
   returningStandard: ['INSERT INTO users (id)', 'VALUES (1) returning id'].join('\n'),
 } as const;
 
+export const HASH_GUIDE_VECTOR = {
+  // "abc" is the first example message in NIST FIPS 180-4 / the NIST example values.
+  message: 'abc',
+  md5: '900150983cd24fb0d6963f7d28e17f72',
+  sha1: 'a9993e364706816aba3e25717850c26c9cd0d89d',
+  sha256: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+  sha512:
+    'ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f',
+  // The same word with the newline that `echo abc` appends.
+  sha256WithNewline: 'edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb',
+  sha256Empty: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  // HMAC-SHA256 of "abc" with the key "key": same message, different digest from plain SHA-256.
+  hmacKey: 'key',
+  hmacSha256: '9c196e32dc0175f86f4b1cb89289d6619de6bee699e4c378e68309ed97a1a6ab',
+} as const;
+
+export const JWT_ENCODER_GUIDE = {
+  // 32 ASCII bytes = 256 bits, the minimum RFC 7518 section 3.2 asks for with HS256. Synthetic.
+  secret: 'synthetic-test-secret-key-32-byt',
+  header: '{"alg":"HS256","typ":"JWT"}',
+  payload:
+    '{"iss":"https://issuer.test.example","aud":"https://api.test.example","sub":"test-user-123","iat":1700000000,"nbf":1700000000,"exp":1700003600}',
+  iat: 1700000000,
+  exp: 1700003600,
+  iatUtc: '2023-11-14T22:13:20.000Z',
+  expUtc: '2023-11-14T23:13:20.000Z',
+  token:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci50ZXN0LmV4YW1wbGUiLCJhdWQiOiJodHRwczovL2FwaS50ZXN0LmV4YW1wbGUiLCJzdWIiOiJ0ZXN0LXVzZXItMTIzIiwiaWF0IjoxNzAwMDAwMDAwLCJuYmYiOjE3MDAwMDAwMDAsImV4cCI6MTcwMDAwMzYwMH0.HEW0mzlWVnHQAHy7V6Zs1mbzit6L0vCgasILJY5LvWI',
+  signature: 'HEW0mzlWVnHQAHy7V6Zs1mbzit6L0vCgasILJY5LvWI',
+} as const;
+
 export const BASE64_BASIC_AUTH = {
   // Example credentials from RFC 7617, section 2.
   credentials: 'Aladdin:open sesame',
