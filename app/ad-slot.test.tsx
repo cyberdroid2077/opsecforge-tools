@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import AdSlot from '@/components/AdSlot';
+import PrivacyPage from '@/app/privacy/page';
 import { AD_SLOT_MIN_HEIGHT, MIN_AD_WORDS, countWordsInHtml, getAdsenseScriptSrc } from '@/lib/ads';
 
 const SYNTHETIC_CLIENT = 'ca-pub-0000000000000000';
@@ -53,6 +54,23 @@ describe('AdSlot', () => {
     const ins = box.querySelector('ins.adsbygoogle');
     expect(ins?.getAttribute('data-ad-client')).toBe(SYNTHETIC_CLIENT);
     expect(ins?.getAttribute('data-ad-slot')).toBe(SYNTHETIC_SLOT);
+  });
+});
+
+describe('Privacy page advertising section', () => {
+  it('says no ads are served when the client env var is not set', () => {
+    vi.stubEnv('NEXT_PUBLIC_ADSENSE_CLIENT', '');
+    render(<PrivacyPage />);
+    expect(document.body.textContent).toContain('does not serve advertisements');
+    expect(document.body.textContent).not.toContain('consent management platform');
+  });
+
+  it('describes AdSense cookies and the consent message when ads are enabled', () => {
+    enableAds();
+    render(<PrivacyPage />);
+    expect(document.body.textContent).toContain('Google AdSense');
+    expect(document.body.textContent).toContain('consent management platform');
+    expect(document.body.textContent).not.toContain('does not serve advertisements');
   });
 });
 

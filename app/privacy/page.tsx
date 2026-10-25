@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { Shield, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { getAdsenseClient } from '@/lib/ads';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacyPage() {
+  // The advertising section describes AdSense only in builds where the ad script is enabled.
+  const adsEnabled = Boolean(getAdsenseClient());
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 text-slate-300">
       <div className="w-full max-w-4xl">
@@ -44,6 +47,8 @@ export default function PrivacyPage() {
             OpsecForge uses Vercel Web Analytics for aggregate page-view measurement. According to Vercel&apos;s documentation, Web Analytics does not use third-party cookies; visitors are identified by a hash created from the incoming request, and the visitor session is discarded after 24 hours. These events do not include tool input or output.
           </p>
           <h2 className="text-slate-100">Advertising and cookies</h2>
+          {adsEnabled ? (
+          <>
           <p>
             OpsecForge may show advertisements served by Google AdSense on blog articles. Ads are not placed inside tool interfaces, and OpsecForge does not send tool input or output to advertisers or to Google.
           </p>
@@ -61,6 +66,12 @@ export default function PrivacyPage() {
           <p>
             For details on how Google uses data from sites that use its services, see Google&apos;s <a href="https://policies.google.com/technologies/partner-sites" rel="noopener noreferrer" className="text-emerald-400 hover:text-emerald-300 transition-colors">partner-sites explanation</a>. OpsecForge does not currently use any other advertising network.
           </p>
+          </>
+          ) : (
+          <p>
+            At the time of this update, OpsecForge does not serve advertisements or load the AdSense ad-serving script. The public ads.txt file and publisher meta tag are ownership-verification signals; they do not by themselves display ads. This section will be updated before advertising is enabled.
+          </p>
+          )}
           <h2 className="text-slate-100">Contact</h2>
           <p>
             For questions about our privacy commitment, please contact us at <a href="mailto:admin@opsecforge.com" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">admin@opsecforge.com</a>.
