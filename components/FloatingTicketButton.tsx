@@ -17,7 +17,7 @@ export default function FloatingTicketButton() {
       <button
         onClick={() => setIsOpen(true)}
         aria-label="Report a Bug"
-        className="fixed bottom-20 right-6 z-40 flex items-center justify-center p-3 text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 transition-transform hover:scale-110"
+        className="mx-auto my-4 w-fit md:fixed md:bottom-20 md:right-6 md:z-40 md:m-0 flex items-center justify-center p-3 text-white bg-red-600 rounded-full shadow-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300 dark:focus:ring-red-800 transition-transform hover:scale-110"
         title="Report a Bug"
       >
         <span className="sr-only">Report a Bug</span>
