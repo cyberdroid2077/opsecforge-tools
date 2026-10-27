@@ -52,6 +52,11 @@ export default function AboutPage() {
             Security articles in the public index carry a &quot;Sources reviewed&quot; date and, where applicable, a primary source. Older material that did not meet that standard has been removed or merged; see <Link className={linkClass} href="/corrections">corrections</Link>.
           </p>
 
+          <h2 id="support" className="text-slate-100">Supporting the site</h2>
+          <p>
+            The tools and articles are free to use. If they saved you time, you can support hosting and maintenance through <a className={linkClass} href="https://github.com/sponsors/cyberdroid2077" rel="noopener noreferrer">GitHub Sponsors</a>, monthly or once. Sponsorship is optional and comes with no extra features, private access or priority support. It does not decide what articles conclude or which tools or products are mentioned, and sponsors are not asked to review content.
+          </p>
+
           <h2 className="text-slate-100">Contact</h2>
           <p>
             Product questions, corrections and security reports go to <a className={linkClass} href="mailto:admin@opsecforge.com">admin@opsecforge.com</a>. The <Link className={linkClass} href="/contact">contact page</Link> explains what to send and what not to send, and how to report a vulnerability.

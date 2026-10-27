@@ -96,6 +96,7 @@ export default function RootLayout({
               ['Contact', '/contact'],
               ['Editorial policy', '/editorial-policy'],
               ['Corrections', '/corrections'],
+              ['Support', '/about#support'],
             ].map(([label, href]) => (
               <Link
                 key={href}
