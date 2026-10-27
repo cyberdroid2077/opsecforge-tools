@@ -72,6 +72,9 @@ export default function EditorialPolicyPage() {
           <p>
             If advertising or affiliate links are added, they will be disclosed where they appear and in the <Link className={linkClass} href="/privacy">privacy policy</Link>, and this policy will be updated at the same time. Advertising does not decide what articles conclude or which tools or products are mentioned.
           </p>
+          <p>
+            Readers can support the site through <Link className={linkClass} href="/about#support">GitHub Sponsors</Link>. Sponsors receive no editorial input, review rights or mentions in articles.
+          </p>
 
           <h2 className="text-slate-100">Tool inputs and privacy</h2>
           <p>
