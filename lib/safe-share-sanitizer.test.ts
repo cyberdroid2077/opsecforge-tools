@@ -549,3 +549,46 @@ describe('unterminated private key blocks', () => {
     expect(sanitizeForSharing(input)).toEqual({ output: input, findings: [] });
   });
 });
+
+describe('published .env sharing examples (synthetic values)', () => {
+  it('keeps the export prefix, the quotes and the trailing comment around a redacted value', () => {
+    const result = sanitizeForSharing('export DB_PASSWORD="example-not-real pass" # prod');
+    expect(result.output).toBe(`export DB_PASSWORD="${REDACTION_MARKER}" # prod`);
+    expect(result.findings).toEqual([{ kind: 'Sensitive named field', count: 1 }]);
+  });
+
+  it('masks a Bearer header inside a cURL command and keeps the URL', () => {
+    const result = sanitizeForSharing(
+      'curl -H "Authorization: Bearer EXAMPLE-not-real-token" https://api.example.test/v1',
+    );
+    expect(result.output).toBe(
+      `curl -H "Authorization: Bearer ${REDACTION_MARKER}" https://api.example.test/v1`,
+    );
+    expect(result.findings).toEqual([{ kind: 'Authorization credential', count: 1 }]);
+  });
+
+  it('replaces a multi-line private key block with a generic placeholder block', () => {
+    const result = sanitizeForSharing(
+      'NOTE=before\n-----BEGIN RSA PRIVATE KEY-----\nEXAMPLEnotreal1\nEXAMPLEnotreal2\n-----END RSA PRIVATE KEY-----\nNEXT=1',
+    );
+    expect(result.output).toBe(
+      `NOTE=before\n-----BEGIN PRIVATE KEY-----\n${REDACTION_MARKER}\n-----END PRIVATE KEY-----\nNEXT=1`,
+    );
+    expect(result.findings).toEqual([{ kind: 'Private key block', count: 1 }]);
+  });
+
+  it('does not mask a custom field name or a personal value under an ordinary name', () => {
+    const input = 'INTERNAL_LOOKUP=hunter-test-value\nCUSTOMER_EMAIL=jane@example.test';
+    expect(sanitizeForSharing(input)).toEqual({ output: input, findings: [] });
+  });
+
+  it('does not mask a commented-out assignment (a known miss)', () => {
+    const input = '# DB_PASSWORD=old-example-password\nAPP_NAME=demo';
+    expect(sanitizeForSharing(input)).toEqual({ output: input, findings: [] });
+  });
+
+  it('does not mask a multi-line value under a non-sensitive name', () => {
+    const input = 'MULTI="line1\nline2"';
+    expect(sanitizeForSharing(input)).toEqual({ output: input, findings: [] });
+  });
+});
