@@ -133,8 +133,8 @@ describe('suggestUnit', () => {
   );
 
   it('ignores leading zeros when counting digits', () => {
-    expect(suggestUnit('0001710352200')).toBe('milliseconds');
-    expect(countIntegerDigits('0001710352200')).toBe(13);
+    expect(suggestUnit('0001710352200')).toBe('seconds');
+    expect(countIntegerDigits('0001710352200')).toBe(10);
     expect(countIntegerDigits('-1710352200.99')).toBe(10);
     expect(countIntegerDigits('abc')).toBe(0);
   });
