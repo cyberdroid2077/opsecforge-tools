@@ -4,9 +4,27 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Check, Clock3, Copy, Lock, TimerReset } from 'lucide-react';
 import {
+  countIntegerDigits,
+  dateInputToEpoch,
+  suggestUnit,
   unixTimestampToDate,
+  type DateInputZone,
   type UnixTimestampUnit,
 } from '../lib/unix-timestamp';
+
+const UNIT_LABELS: Record<UnixTimestampUnit, string> = {
+  seconds: 'seconds',
+  milliseconds: 'milliseconds',
+  microseconds: 'microseconds',
+  nanoseconds: 'nanoseconds',
+};
+
+const UNIT_PLACEHOLDERS: Record<UnixTimestampUnit, string> = {
+  seconds: '1710352200',
+  milliseconds: '1710352200000',
+  microseconds: '1710352200000000',
+  nanoseconds: '1710352200000000000',
+};
 
 function formatDateTimeLocal(date: Date) {
   const year = date.getFullYear();
@@ -24,6 +42,7 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
   const [epochUnit, setEpochUnit] = useState<UnixTimestampUnit>('seconds');
   const [dateInput, setDateInput] = useState("");
   const [secondsInput, setSecondsInput] = useState('0');
+  const [dateZone, setDateZone] = useState<DateInputZone>('local');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,26 +82,21 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
       return { seconds: '', milliseconds: '', error: '' };
     }
 
-    const seconds = Number(secondsInput || '0');
+    const result = dateInputToEpoch(dateInput, Number(secondsInput || '0'), dateZone);
 
-    if (!Number.isInteger(seconds) || seconds < 0 || seconds > 59) {
-      return { seconds: '', milliseconds: '', error: 'Seconds must be an integer between 0 and 59.' };
+    if (result.milliseconds === null) {
+      return { seconds: '', milliseconds: '', error: result.error };
     }
-
-    const parsed = new Date(`${dateInput}:00`);
-
-    if (Number.isNaN(parsed.getTime())) {
-      return { seconds: '', milliseconds: '', error: 'Pick a valid local date and time.' };
-    }
-
-    parsed.setSeconds(seconds);
 
     return {
-      seconds: Math.floor(parsed.getTime() / 1000).toString(),
-      milliseconds: parsed.getTime().toString(),
+      seconds: Math.floor(result.milliseconds / 1000).toString(),
+      milliseconds: result.milliseconds.toString(),
       error: '',
     };
-  }, [dateInput, secondsInput]);
+  }, [dateInput, secondsInput, dateZone]);
+
+  const suggestedUnit = suggestUnit(epochInput);
+  const showUnitHint = suggestedUnit !== null && suggestedUnit !== epochUnit;
 
   const copyValue = async (key: string, value: string) => {
     if (!value) {
@@ -151,11 +165,11 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                 Epoch To Date
               </div>
               <p className="text-sm leading-relaxed text-slate-400">
-                Choose seconds or milliseconds explicitly. UTC output uses ISO 8601 with milliseconds; local output uses your browser&apos;s timezone.
+                Choose the unit explicitly; the tool never guesses it. Microseconds and nanoseconds are floored to whole milliseconds. UTC output uses ISO 8601 with milliseconds; local output uses your browser&apos;s timezone.
               </p>
             </div>
 
-            <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_170px]">
+            <div className="grid gap-3 sm:grid-cols-[1fr_170px]">
               <label>
                 <span className="sr-only">Unix timestamp</span>
                 <input
@@ -163,7 +177,7 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                   inputMode="decimal"
                   value={epochInput}
                   onChange={(event) => setEpochInput(event.target.value)}
-                  placeholder={epochUnit === 'seconds' ? '1710352200' : '1710352200000'}
+                  placeholder={UNIT_PLACEHOLDERS[epochUnit]}
                   className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-lg text-cyan-300 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
                 />
               </label>
@@ -176,8 +190,28 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                 >
                   <option value="seconds">Seconds</option>
                   <option value="milliseconds">Milliseconds</option>
+                  <option value="microseconds">Microseconds</option>
+                  <option value="nanoseconds">Nanoseconds</option>
                 </select>
               </label>
+            </div>
+
+            {/* Fixed-height row so showing or hiding the hint does not move the results. */}
+            <div className="mb-4 mt-2 flex min-h-[3.25rem] flex-wrap content-start items-center gap-x-3 gap-y-1 text-xs text-slate-400 sm:min-h-[1.75rem]" aria-live="polite">
+              {showUnitHint && suggestedUnit ? (
+                <>
+                  <span>
+                    This looks like {UNIT_LABELS[suggestedUnit]} ({countIntegerDigits(epochInput)} digits).
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setEpochUnit(suggestedUnit)}
+                    className="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs font-bold text-emerald-400 transition-all hover:border-emerald-500/30 hover:text-emerald-300"
+                  >
+                    Use {UNIT_LABELS[suggestedUnit]}
+                  </button>
+                </>
+              ) : null}
             </div>
 
             {epochConversion.error ? (
@@ -232,13 +266,31 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                 Date To Epoch
               </div>
               <p className="text-sm leading-relaxed text-slate-400">
-                Pick a local date/time, set the seconds field, and copy either seconds or milliseconds.
+                Pick a date/time, choose whether it is local time or UTC, set the seconds field, and copy either seconds or milliseconds.
               </p>
+            </div>
+
+            <div role="group" aria-label="Interpret the date and time as" className="mb-4 inline-flex rounded-xl border border-slate-800 bg-slate-950/70 p-1">
+              {(['local', 'utc'] as const).map((zone) => (
+                <button
+                  key={zone}
+                  type="button"
+                  aria-pressed={dateZone === zone}
+                  onClick={() => setDateZone(zone)}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
+                    dateZone === zone
+                      ? 'bg-emerald-500/15 text-emerald-300'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {zone === 'local' ? 'Local time' : 'UTC'}
+                </button>
+              ))}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
               <input
-                aria-label="Local date and time"
+                aria-label={dateZone === 'utc' ? 'UTC date and time' : 'Local date and time'}
                 type="datetime-local"
                 value={dateInput}
                 onChange={(event) => setDateInput(event.target.value)}
@@ -259,8 +311,16 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
               Seconds (0–59)
             </div>
             <p className="mt-3 text-xs leading-relaxed text-slate-400">
-              This is a local time, not UTC. At daylight-saving transitions, JavaScript chooses the earlier repeated time or moves a skipped time forward.{' '}
-              <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_components_and_time_zones" className="text-emerald-400 underline">Date/time behavior</a>.
+              {dateZone === 'utc' ? (
+                <>
+                  The date and time are read as UTC, so the result does not depend on your browser&apos;s timezone and there are no daylight-saving gaps or repeats.
+                </>
+              ) : (
+                <>
+                  The date and time are read in your browser&apos;s timezone, not UTC. At daylight-saving transitions, JavaScript chooses the earlier repeated time or moves a skipped time forward.{' '}
+                  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date#date_components_and_time_zones" className="text-emerald-400 underline">Date/time behavior</a>.
+                </>
+              )}
             </p>
 
             {dateConversion.error ? (
