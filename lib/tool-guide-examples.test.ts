@@ -24,11 +24,11 @@ import {
   WEBHOOK_REFORMAT_EXAMPLE,
   WEBHOOK_STRIPE_EXAMPLE,
 } from './tool-guide-examples';
-import { unixTimestampToDate } from './unix-timestamp';
+import { dateInputToEpoch, suggestUnit, unixTimestampToDate, type UnixTimestampUnit } from './unix-timestamp';
 import { formatUuidV4 } from './uuid';
 import { verifyGenericWebhook, verifyGitHubWebhook, verifyStripeWebhook } from './webhook-verifier';
 
-const isoOf = (input: string, unit: 'seconds' | 'milliseconds') => {
+const isoOf = (input: string, unit: UnixTimestampUnit) => {
   const { date, error } = unixTimestampToDate(input, unit);
   return date ? date.toISOString() : error;
 };
@@ -48,7 +48,43 @@ describe('unix timestamp guide examples', () => {
 
   it('rejects microseconds as an out-of-range value in the seconds field', () => {
     expect(isoOf(ex.microseconds, 'seconds')).toBe('The timestamp is outside the supported JavaScript date range.');
-    expect(isoOf(String(Number(ex.microseconds) / 1000), 'milliseconds')).toBe(ex.utc);
+    expect(isoOf(ex.nanoseconds, 'milliseconds')).toBe('The timestamp is outside the supported JavaScript date range.');
+  });
+
+  it('converts microseconds and nanoseconds with their own units', () => {
+    expect(isoOf(ex.microseconds, 'microseconds')).toBe(ex.utc);
+    expect(isoOf(ex.nanoseconds, 'nanoseconds')).toBe(ex.utc);
+  });
+
+  it('suggests the unit from the digit count in the length table', () => {
+    expect(ex.seconds).toHaveLength(10);
+    expect(ex.milliseconds).toHaveLength(13);
+    expect(ex.microseconds).toHaveLength(16);
+    expect(ex.nanoseconds).toHaveLength(19);
+    expect(suggestUnit(ex.seconds)).toBe('seconds');
+    expect(suggestUnit(ex.milliseconds)).toBe('milliseconds');
+    expect(suggestUnit(ex.microseconds)).toBe('microseconds');
+    expect(suggestUnit(ex.nanoseconds)).toBe('nanoseconds');
+  });
+
+  it('keeps the millisecond-precision example consistent across units', () => {
+    expect(isoOf(ex.withMilliseconds.seconds, 'seconds')).toBe(ex.withMilliseconds.utc);
+    expect(isoOf(ex.withMilliseconds.milliseconds, 'milliseconds')).toBe(ex.withMilliseconds.utc);
+  });
+
+  it('matches the date command examples', () => {
+    const s = ex.shell;
+    const utc = dateInputToEpoch(s.utcWallClock.replace(' ', 'T').slice(0, 16), 0, 'utc');
+    expect(String(utc.milliseconds! / 1000)).toBe(s.utcEpoch);
+    expect(s.utcEpoch).toBe(ex.seconds);
+
+    // The same wall-clock text read in America/Toronto (EDT, UTC-4 on this date).
+    expect(String(Date.parse('2024-03-13T17:50:00-04:00') / 1000)).toBe(s.torontoEpochForSameWallClock);
+    const rendered = new Date(Number(s.utcEpoch) * 1000).toLocaleString('sv-SE', {
+      timeZone: 'America/Toronto',
+      hour12: false,
+    });
+    expect(rendered).toBe(s.torontoWallClockForUtcEpoch);
   });
 
   it.each(ex.zones)('renders the instant in $zone', ({ zone, local }) => {

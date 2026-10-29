@@ -15,6 +15,16 @@ export const UNIX_GUIDE_EXAMPLE = {
   milliseconds: '1710352200000',
   millisecondsReadAsSeconds: '+056168-11-26T01:20:00.000Z',
   microseconds: '1710352200000000',
+  nanoseconds: '1710352200000000000',
+  // The same instant plus 123 ms, in each unit that carries sub-second digits.
+  withMilliseconds: { seconds: '1710352200.123', milliseconds: '1710352200123', utc: '2024-03-13T17:50:00.123Z' },
+  // Shell examples: `date -u -d '2024-03-13 17:50:00' +%s` and its America/Toronto (EDT) counterpart.
+  shell: {
+    utcWallClock: '2024-03-13 17:50:00',
+    utcEpoch: '1710352200',
+    torontoEpochForSameWallClock: '1710366600',
+    torontoWallClockForUtcEpoch: '2024-03-13 13:50:00',
+  },
   zones: [
     { zone: 'UTC', local: '2024-03-13 17:50:00', note: 'UTC' },
     { zone: 'America/Toronto', local: '2024-03-13 13:50:00', note: 'EDT, UTC-4 (DST began 2024-03-10)' },
