@@ -18,7 +18,7 @@ The practical rule is simple: do not use MD5 or SHA-1 where collision resistance
 
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
   <h2 class="mt-0 text-2xl font-bold text-slate-100">Check a downloaded file against its checksum</h2>
-  <p class="text-slate-300">Select a file up to 32 MiB and compare its SHA-256 or SHA-512 digest in your browser. The file is not uploaded. Get the expected digest from a trusted publisher; matching checksums do not prove a file is safe.</p>
+  <p class="text-slate-300">Select a file up to 8 GiB and compare its SHA-256 or SHA-512 digest in your browser. The file is not uploaded. Get the expected digest from a trusted publisher; matching checksums do not prove a file is safe.</p>
   <a href="/tools/hash-generator#file-checksum" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Compare a file checksum →</a>
 </div>
 
