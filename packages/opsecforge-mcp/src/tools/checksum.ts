@@ -41,7 +41,9 @@ export async function fileChecksum(args: {
       empty: 'The expected value was empty, so nothing was compared.',
       pending: 'No digest was computed.',
     };
-    lines.push(`Comparison: ${text[status]}`);
+    // The shared parser also reports statuses for multi-line and mismatched-algorithm input; this tool only
+    // takes the first token of the value, so those all mean "not a usable digest for this algorithm".
+    lines.push(`Comparison: ${text[status] ?? text.invalid}`);
   }
   lines.push(
     'Note: a matching checksum only proves the file equals whatever the expected value was taken from; it is only as trustworthy as where you got that value.',

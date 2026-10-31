@@ -26,7 +26,7 @@ The distinction matters: a matching digest is useful only when the expected valu
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">File and text checksums</p>
   <h2 class="mt-0 text-2xl font-bold text-slate-100">Compare a file with its trusted SHA-256 digest</h2>
-  <p class="text-slate-300">Select a file up to 32 MiB for SHA-256 or SHA-512 comparison without uploading it. Text hashing is also available; legacy outputs are for compatibility and bcrypt is for learning or testing.</p>
+  <p class="text-slate-300">Select a file up to 8 GiB for SHA-256 or SHA-512 comparison without uploading it. Text hashing is also available; legacy outputs are for compatibility and bcrypt is for learning or testing.</p>
   <a href="/tools/hash-generator#file-checksum" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Compare a file checksum →</a>
 </div>
 
@@ -68,7 +68,7 @@ shasum -a 256 release.tar.gz
 
 If the values differ, stop. The cause may be corruption, a different release artifact, or tampering. If they match, you have shown that your file matches the bytes represented by the trusted digest; you have not independently proven who created those bytes.
 
-The [OpsecForge file checksum verifier](/tools/hash-generator#file-checksum) accepts a local file up to 32 MiB and compares SHA-256 or SHA-512 against a pasted hexadecimal digest. It reads file bytes in the browser without uploading them. The size limit bounds memory use because the [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) reads the whole input rather than streaming it. Use the operating-system commands above for larger files. On Windows, use `Get-FileHash ./release.zip -Algorithm SHA256` in [PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash).
+The [OpsecForge file checksum verifier](/tools/hash-generator#file-checksum) accepts a local file up to 8 GiB and compares SHA-256 or SHA-512 against a pasted digest, a `sha256sum` or BSD-style line, or a whole SHA256SUMS file. It reads file bytes in the browser without uploading them. The [Web Crypto digest API](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest) takes the whole input at once rather than streaming it, so files up to 32 MiB use it directly and larger files are read in pieces and hashed by code on the page, which is slower than a native command. Use the operating-system commands above for very large files. On Windows, use `Get-FileHash ./release.zip -Algorithm SHA256` in [PowerShell](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash).
 
 ### Try a synthetic match, then a mismatch
 

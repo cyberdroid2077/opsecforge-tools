@@ -11,8 +11,10 @@ export default function HashGeneratorGuide() {
       <P>
         Pick the file in the checksum box above, choose the algorithm the publisher used, and paste the published value.
         The tool reports a match or a mismatch. Upper and lower case are treated as equal, and the file is read in this
-        browser tab. It accepts files up to 32 MiB; for larger images use a command line. Each of these prints the same
-        digest, so you can cross-check the page against your own machine:
+        browser tab. You can paste just the digest, a whole line from the publisher&apos;s SHA256SUMS file, or the entire
+        file; with several lines, the one matching the selected file name is used. Files up to 32 MiB are hashed in one
+        step; larger files up to 8 GiB are hashed in pieces on this page, which is slower than a command line. Each of
+        these prints the same digest, so you can cross-check the page against your own machine:
       </P>
       <CodeBlock
         label="Linux, macOS, Windows"

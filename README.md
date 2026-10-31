@@ -34,7 +34,7 @@ Never add logging, storage, analytics, error reporting, or network calls that ca
 
 ### Try a real workflow
 
-- [Compare a file checksum](https://www.opsecforge.com/tools/hash-generator?utm_source=github&utm_medium=readme&utm_campaign=file_checksum_20260904#file-checksum): select a file up to 32 MiB, calculate SHA-256 or SHA-512, and compare a trusted publisher's digest. No file upload. A match does not prove the file is safe or authenticate its publisher.
+- [Compare a file checksum](https://www.opsecforge.com/tools/hash-generator?utm_source=github&utm_medium=readme&utm_campaign=file_checksum_20260904#file-checksum): select a file up to 8 GiB, calculate SHA-256 or SHA-512, and compare it with a trusted publisher's digest or SHA256SUMS line. No file upload. A match does not prove the file is safe or authenticate its publisher.
 - [Sanitize a configuration before sharing](https://www.opsecforge.com/tools/env-sanitizer): mask likely secrets in synthetic test data first. Detection is heuristic; review all output.
 - [Check a webhook signature](https://www.opsecforge.com/tools/webhook-debugger): compare supplied GitHub, Stripe, or generic HMAC fixtures. Matching supplied values does not replace a production receiver's replay controls.
 
