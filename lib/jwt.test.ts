@@ -218,10 +218,10 @@ describe('analyzeJwt', () => {
     }
   });
 
-  it('says HS* signatures cannot be verified offline, and does not say it for RS256', () => {
+  it('says HS* signatures need the shared secret, and does not say it for RS256', () => {
     for (const alg of ['HS256', 'HS384', 'HS512']) {
       const { alerts } = analyze({ iat: nowSec, exp: nowSec + DAY }, { alg });
-      expect(messages(alerts)).toMatch(/cannot be verified offline/);
+      expect(messages(alerts)).toMatch(/only be checked with the shared secret/);
     }
     const rs = analyze({ iat: nowSec, exp: nowSec + DAY }, { alg: 'RS256' });
     expect(messages(rs.alerts)).not.toMatch(/HMAC/);

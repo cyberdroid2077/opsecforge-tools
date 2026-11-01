@@ -33,13 +33,10 @@ const files = explicitFiles.length > 0
 const failures = [];
 const highRiskClaimPattern =
   /(?:\$\s?\d[\d,.]*|\b\d+(?:\.\d+)?%\b|\b\d[\d,.]*\s+(?:million|billion)\b|\b(?:study|survey|research|report)\s+(?:found|shows?|reveals?|reports?)\b|\b(?:breach|incident)\b.{0,100}\b(?:cost|fine|records?|customers?|users?|sessions?)\b)/i;
+// Since 2026-11-01 the JWT Decoder can check a signature locally with a key the user pastes, so
+// mentioning signature checks is no longer an unsupported claim. Claim validation and
+// vulnerability detection still are.
 const unsupportedProductClaims = [
-  {
-    pattern:
-      /(?:our\s+)?JWT Decoder[\s\S]{0,220}\b(?<!not )(?:validates?|verif(?:y|ies)|checks?)\b[\s\S]{0,80}\bsignatures?\b/i,
-    message:
-      "OpsecForge JWT Decoder parses tokens but does not verify signatures",
-  },
   {
     pattern:
       /(?:our\s+)?JWT Decoder[\s\S]{0,220}\b(?:verif(?:y|ies)\s+claims|checks?\s+for\s+(?:common\s+)?security\s+issues|algorithm\s+confusion)\b/i,

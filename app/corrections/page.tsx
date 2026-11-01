@@ -63,7 +63,7 @@ const entries: Entry[] = [
     body: (
       <>
         <p>
-          The JWT Decoder treated <code>iat</code> and <code>nbf</code> like <code>exp</code>, so a normal token whose <code>iat</code> or <code>nbf</code> lay in the past could be reported as expired. Now only an <code>exp</code> in the past marks a token as expired; an <code>nbf</code> in the future is shown as not yet valid; <code>iat</code> and <code>auth_time</code> are shown as times only, with a possible-clock-skew note if they lie in the future. Out-of-range timestamp values no longer cause an error and are shown as-is. The decoder still does not verify signatures.
+          The JWT Decoder treated <code>iat</code> and <code>nbf</code> like <code>exp</code>, so a normal token whose <code>iat</code> or <code>nbf</code> lay in the past could be reported as expired. Now only an <code>exp</code> in the past marks a token as expired; an <code>nbf</code> in the future is shown as not yet valid; <code>iat</code> and <code>auth_time</code> are shown as times only, with a possible-clock-skew note if they lie in the future. Out-of-range timestamp values no longer cause an error and are shown as-is. The decoder still does not verify signatures. (Update, 2026-11-01: an optional local signature check with a key you paste has since been added.)
         </p>
         <p>
           The same change fixed several gaps in the Safe-to-Share Sanitizer: partially masked values were treated as already redacted, multi-line YAML block values and quoted values were only partly redacted, and some key formats (including OpenAI, Anthropic, Slack and GitLab tokens and private key blocks) were not recognized. The sanitizer remains a heuristic that can miss data.

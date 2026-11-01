@@ -80,8 +80,8 @@ console.log(c.createHmac('sha256','${ex.secret}').update(i).digest('base64url'))
         The first two segments are Base64URL-encoded JSON. Anyone holding the token can read them, with no key; the secret
         only lets a verifier detect changes. Do not put passwords, personal data or anything confidential in a payload. To
         see this, paste the token into the{' '}
-        <a className={linkClass} href="/tools/jwt-decoder">JWT decoder</a>, which reads claims without verifying the
-        signature. Our{' '}
+        <a className={linkClass} href="/tools/jwt-decoder">JWT decoder</a>, which reads claims without needing the key
+        and can optionally check the signature locally if you supply a test secret. Our{' '}
         <a className={linkClass} href="/blog/jwt-token-vulnerabilities-authentication-security">JWT vulnerabilities article</a>{' '}
         covers the common implementation mistakes.
       </P>

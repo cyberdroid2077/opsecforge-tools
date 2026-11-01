@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { Lock, Trash2, ShieldAlert, Cpu, Network, AlertTriangle, Clock, Info } from 'lucide-react';
+import React, { useMemo, useRef, useState } from 'react';
+import { Lock, Trash2, ShieldAlert, Cpu, Network, AlertTriangle, Clock, Info, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import {
   analyzeJwt,
@@ -11,6 +11,7 @@ import {
   type JwtAlert,
   type JwtAnalysis,
 } from '@/lib/jwt';
+import { jwtKeyKindForAlg, verifyJwtSignature, type JwtVerifyResult } from '@/lib/jwt-verify';
 
 const formatClaim = (key: string, value: unknown, claims: JwtAnalysis['timeClaims']): string => {
     if (isTimeClaim(key) && claims[key]) {
@@ -20,7 +21,26 @@ const formatClaim = (key: string, value: unknown, claims: JwtAnalysis['timeClaim
 };
 
 export default function JwtDecoder() {
-  const [input, setInput] = useState('');
+  const [input, setInputState] = useState('');
+  // Verification state lives only in React state: never written to storage, the URL or the network.
+  const [secret, setSecret] = useState('');
+  const [showSecret, setShowSecret] = useState(false);
+  const [publicKey, setPublicKey] = useState('');
+  const [verifyResult, setVerifyResult] = useState<JwtVerifyResult | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  // Incremented whenever the token or key changes so a slow, older check cannot overwrite the view.
+  const verifyRun = useRef(0);
+
+  const resetVerification = () => {
+    verifyRun.current += 1;
+    setVerifyResult(null);
+    setVerifying(false);
+  };
+
+  const setInput = (value: string) => {
+    setInputState(value);
+    resetVerification();
+  };
 
   const { decoded, error, alerts, timeClaims } = useMemo(() => {
     const empty = {
@@ -39,6 +59,19 @@ export default function JwtDecoder() {
       return { ...empty, error: err instanceof Error ? err.message : 'Failed to decode token' };
     }
   }, [input]);
+
+  const headerAlg = decoded && typeof decoded.header.alg === 'string' ? decoded.header.alg : null;
+  const keyKind = jwtKeyKindForAlg(headerAlg);
+
+  const runVerify = async () => {
+    const run = verifyRun.current + 1;
+    verifyRun.current = run;
+    setVerifying(true);
+    const result = await verifyJwtSignature(input, keyKind === 'secret' ? secret : publicKey);
+    if (verifyRun.current !== run) return;
+    setVerifyResult(result);
+    setVerifying(false);
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 lg:p-24 bg-slate-950 font-sans selection:bg-emerald-500/30">
@@ -83,7 +116,11 @@ export default function JwtDecoder() {
             <div className="flex justify-between items-center px-1">
               <label className="text-sm font-bold text-slate-400 uppercase tracking-widest">Encoded Token</label>
               <button 
-                onClick={() => setInput('')}
+                onClick={() => {
+                  setInput('');
+                  setSecret('');
+                  setPublicKey('');
+                }}
                 className="text-slate-500 hover:text-rose-400 transition-colors flex items-center gap-1 text-xs font-bold uppercase"
               >
                 <Trash2 size={12} /> Clear
@@ -169,13 +206,130 @@ export default function JwtDecoder() {
                   {/* Signature */}
                   <div className="pt-6 border-t border-slate-800">
                     <div className="text-[10px] text-slate-500 font-bold uppercase mb-4 tracking-tighter flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-amber-500"></span> Signature (Cannot Be Verified)
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span> Signature (Not Checked Until You Verify)
                     </div>
                     <pre className="text-amber-500/70 text-xs break-all whitespace-pre-wrap">{decoded.signature}</pre>
                     <div className="mt-3 flex items-center gap-2 text-xs text-slate-500 bg-slate-800/50 rounded-lg px-3 py-2">
-                      <Info size={12} />
-                      <span>Signature verification requires trusted key material — this tool does not request it.</span>
+                      <Info size={12} className="shrink-0" />
+                      <span>Decoding alone does not check the signature. You can optionally check it below, locally, with a key you supply.</span>
                     </div>
+
+                    {/* Optional local verification */}
+                    <details className="mt-4 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                      <summary className="cursor-pointer text-xs font-bold uppercase tracking-wider text-emerald-400">
+                        Verify signature locally (optional)
+                      </summary>
+
+                      <div className="mt-4 space-y-4 font-sans text-xs text-slate-400">
+                        {keyKind === 'secret' ? (
+                          <div className="space-y-2">
+                            <label htmlFor="jwt-verify-secret" className="block font-bold uppercase tracking-wider text-slate-400">
+                              Shared secret
+                            </label>
+                            <div className="flex gap-2">
+                              <input
+                                id="jwt-verify-secret"
+                                type={showSecret ? 'text' : 'password'}
+                                value={secret}
+                                onChange={(e) => {
+                                  setSecret(e.target.value);
+                                  resetVerification();
+                                }}
+                                autoComplete="off"
+                                spellCheck={false}
+                                className="min-w-0 flex-1 rounded-lg border border-slate-800 bg-slate-900 px-3 py-2 font-mono text-sm text-emerald-400 outline-none focus:border-emerald-500/50"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowSecret((shown) => !shown)}
+                                aria-pressed={showSecret}
+                                aria-label={showSecret ? 'Hide secret' : 'Show secret'}
+                                className="flex items-center rounded-lg border border-slate-800 px-3 text-slate-400 hover:text-emerald-400"
+                              >
+                                {showSecret ? <EyeOff size={14} /> : <Eye size={14} />}
+                              </button>
+                            </div>
+                            <p className="leading-relaxed text-amber-400/90">
+                              Use test secrets only. Do not paste a production HMAC key into any web page, including this one.
+                              The secret is UTF-8 text; it stays in this tab and is not stored or sent.
+                            </p>
+                          </div>
+                        ) : keyKind === 'public-key' ? (
+                          <div className="space-y-2">
+                            <label htmlFor="jwt-verify-public-key" className="block font-bold uppercase tracking-wider text-slate-400">
+                              Public key (PEM, JWK or JWKS)
+                            </label>
+                            <textarea
+                              id="jwt-verify-public-key"
+                              value={publicKey}
+                              onChange={(e) => {
+                                setPublicKey(e.target.value);
+                                resetVerification();
+                              }}
+                              spellCheck={false}
+                              rows={5}
+                              placeholder={'-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----'}
+                              className="w-full resize-none rounded-lg border border-slate-800 bg-slate-900 p-3 font-mono text-xs text-emerald-400 outline-none placeholder:text-slate-700 focus:border-emerald-500/50"
+                            />
+                            <p className="leading-relaxed">
+                              A public key is not a secret, but never paste a private key. A JWKS is chosen by the token&apos;s
+                              <code> kid</code>. This page never downloads a JWKS from a URL (that would be a network request);
+                              copy the JSON from the issuer and paste it here.
+                            </p>
+                          </div>
+                        ) : (
+                          <p className="leading-relaxed">
+                            {headerAlg && headerAlg.toLowerCase() === 'none'
+                              ? 'This token declares alg "none": it is unsigned, so there is no signature to verify.'
+                              : headerAlg
+                                ? `Algorithm "${headerAlg}" is not supported for local verification (HS256/384/512, RS256/384/512, PS256/384/512, ES256/384/512 are).`
+                                : 'The header has no "alg" value, so there is no algorithm to verify against.'}
+                          </p>
+                        )}
+
+                        {keyKind && (
+                          <button
+                            type="button"
+                            onClick={runVerify}
+                            disabled={verifying}
+                            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
+                          >
+                            <ShieldCheck size={14} /> {verifying ? 'Verifying…' : 'Verify signature'}
+                          </button>
+                        )}
+
+                        {/* Fixed minimum height so the page does not jump when a result appears. */}
+                        <div role="status" aria-live="polite" className="min-h-[9rem]">
+                          {verifyResult && (
+                            <div
+                              className={`space-y-2 rounded-xl border p-3 leading-relaxed ${
+                                verifyResult.status === 'valid'
+                                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
+                                  : verifyResult.status === 'invalid'
+                                    ? 'border-rose-500/30 bg-rose-500/10 text-rose-300'
+                                    : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                              }`}
+                            >
+                              <div className="font-bold uppercase tracking-wider">
+                                {verifyResult.status === 'valid'
+                                  ? 'Signature matches'
+                                  : verifyResult.status === 'invalid'
+                                    ? 'Signature does not match'
+                                    : 'Could not verify'}
+                                {verifyResult.alg ? ` · ${verifyResult.alg}` : ''}
+                                {verifyResult.keyIdUsed ? ` · kid ${verifyResult.keyIdUsed}` : ''}
+                              </div>
+                              <p>{verifyResult.message}</p>
+                              {verifyResult.warnings.map((warning, i) => (
+                                <p key={i} className="flex items-start gap-2 text-amber-300">
+                                  <AlertTriangle size={12} className="mt-0.5 shrink-0" /> <span>{warning}</span>
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </details>
                   </div>
                 </div>
               ) : (
@@ -223,17 +377,59 @@ export default function JwtDecoder() {
                         Anyone holding a JWT can usually decode its header and payload. Treat those
                         values as untrusted until a server verifies the expected signature, issuer,
                         audience, time constraints, and token type. Authorization remains a separate
-                        decision after validation.
+                        decision after validation. The optional local signature check on this page
+                        covers only the signature step.
                     </p>
                 </div>
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">Security Analysis</h2>
                 <p>
-                    This decoder flags unsigned <code>alg: none</code> headers, HMAC tokens whose signature
-                    cannot be checked offline, expired <code>exp</code> values, <code>nbf</code> values
-                    that are still in the future, and missing timestamp claims as review signals. It does not verify a
-                    signature, establish that a claim is trustworthy, test server configuration, or
-                    prove that a token is safe to accept.
+                    This decoder flags unsigned <code>alg: none</code> headers, HMAC tokens, expired{' '}
+                    <code>exp</code> values, <code>nbf</code> values that are still in the future, and
+                    missing timestamp claims as review signals. The signature is checked only if you
+                    choose to run the optional local verification with a key you supply. Neither
+                    step establishes that a claim is trustworthy, tests server configuration, or
+                    proves that a token is safe to accept.
+                </p>
+
+                <h2 className="text-3xl font-bold text-slate-100 mt-16">How signature verification works here</h2>
+                <p>
+                    A JWS signature covers the ASCII string <code>base64url(header).base64url(payload)</code>{' '}
+                    exactly as it appears in the token, not the decoded JSON. For HS256 the signature is{' '}
+                    <code>base64url(HMAC-SHA256(secret, signingInput))</code>. This synthetic token was signed with the
+                    test secret <code>test-secret-not-for-production-0123456789</code>:
+                </p>
+                <pre className="whitespace-pre-wrap break-all text-xs">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlLnRlc3QiLCJzdWIiOiJ0ZXN0LXVzZXItMTIzIiwiYXVkIjoidGVzdC1hdWRpZW5jZSIsImlhdCI6MTcwMDAwMDAwMCwiZXhwIjo0MTAyNDQ0ODAwfQ.zcPxWi1Jf8zxdX2k8ZrQ6jGt5luyf-YJQ5fs3xZudJw</pre>
+                <p>
+                    Paste it above, open &quot;Verify signature locally&quot;, enter that secret, and the check should report a match.
+                    Change one character of the secret or the payload and it should report a mismatch. The same check in Node.js:
+                </p>
+                <pre className="text-xs">{`import { createHmac, timingSafeEqual } from 'node:crypto';
+const [header, payload, signature] = token.split('.');
+const expected = createHmac('sha256', secret)
+  .update(header + '.' + payload)
+  .digest();
+const given = Buffer.from(signature, 'base64url');
+// Constant-time comparison; the length check comes first because timingSafeEqual throws on a mismatch.
+console.log(given.length === expected.length && timingSafeEqual(given, expected));`}</pre>
+                <p>
+                    For RS*, PS* and ES* tokens you paste the issuer&apos;s public key as a PEM
+                    (<code>BEGIN PUBLIC KEY</code>), a single JWK, or a JWKS; with a JWKS the token&apos;s <code>kid</code>{' '}
+                    selects the key. ES* signatures are the raw <code>r||s</code> form (RFC 7518 section 3.4), and RSA keys under
+                    2048 bits are checked but flagged (RFC 7518 sections 3.3 and 3.5). HMAC secrets shorter than the hash
+                    output are flagged too (section 3.2). The page does not fetch a JWKS from a URL, and it does not store or send
+                    the key.
+                </p>
+                <p>
+                    This page reads the algorithm from the token header only because it is a debugging aid and has no server
+                    configuration to consult, and it refuses to use a public key as an HMAC secret. A real verifier must not
+                    trust the token&apos;s own <code>alg</code>: RFC 8725 section 3.1 requires the library caller to fix the
+                    accepted algorithms and to check that each key is used with exactly one algorithm. See the{' '}
+                    <Link href="/blog/jwt-token-vulnerabilities-authentication-security">JWT vulnerabilities and validation guide</Link>{' '}
+                    for how <code>alg: none</code> and RS256-to-HS256 confusion happen, and the{' '}
+                    <Link href="/tools/jwt-encoder">JWT Encoder</Link> to create HMAC-signed test tokens. A matching signature does not
+                    make a token trustworthy: you still need to check <code>iss</code>, <code>aud</code>, <code>exp</code>, the token
+                    type, and where the key came from.
                 </p>
 
                 <div className="not-prose my-10 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
@@ -248,7 +444,7 @@ export default function JwtDecoder() {
                 <div className="space-y-8 mt-8">
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Can this tool validate JWT signatures?</h4>
-                        <p className="text-slate-400 mb-0">No. Verification requires trusted key material, an expected algorithm, and server-side claim policy. This tool does not request keys and is limited to structural inspection.</p>
+                        <p className="text-slate-400 mb-0">Optionally, for HS256/384/512, RS256/384/512, PS256/384/512 and ES256/384/512. Click Verify signature locally and supply the shared secret or the public key (PEM, JWK or JWKS); the check runs in this browser tab with Web Crypto and the key is not stored or sent. It checks the signature only, not <code>iss</code>, <code>aud</code>, <code>exp</code> or whether you should trust the key, and a real verifier must fix the accepted algorithm itself instead of reading it from the token.</p>
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Does it support encrypted JWTs (JWE)?</h4>
