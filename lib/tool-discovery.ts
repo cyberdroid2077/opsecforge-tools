@@ -155,7 +155,7 @@ export const toolDiscovery: Record<string, ToolDiscovery> = {
     tools: [
       {
         href: '/tools/jwt-decoder',
-        note: 'Decode a token to inspect its header and claims. Decoding does not verify the signature.',
+        note: 'Decode a token to inspect its header and claims, and optionally check its signature locally with a test secret or public key.',
       },
       {
         href: '/tools/unix-timestamp',

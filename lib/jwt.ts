@@ -4,7 +4,8 @@
  * Nothing here touches the DOM, React, the network or storage. Functions that depend on the
  * clock take an explicit `now` (milliseconds since the epoch) so behaviour is deterministic.
  *
- * Decoding is NOT validation: nothing in this module verifies a signature.
+ * Decoding is NOT validation: nothing in this module verifies a signature (see ./jwt-verify for
+ * the optional local signature check).
  */
 
 export type JwtPart = Record<string, unknown>;
@@ -313,7 +314,7 @@ export function analyzeJwt(
       alerts.push({
         type: 'info',
         message:
-          'HMAC algorithm detected. The signature cannot be verified offline without the shared secret.',
+          'HMAC algorithm detected. The signature can only be checked with the shared secret, which decoding does not use.',
       });
     }
     if (signature === '') {

@@ -56,7 +56,7 @@ A compact JWT usually contains three Base64URL-encoded parts: header, payload, a
 
 <div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
   <h3 class="mb-3 text-2xl font-bold text-slate-100">Inspect a JWT locally</h3>
-  <p class="mb-8 text-slate-400 text-lg">OpsecForge's browser-local JWT Decoder shows token structure and registered time claims without sending token contents to an OpsecForge processing backend. It only decodes; authenticity, claim validity, and trust remain unproven.</p>
+  <p class="mb-8 text-slate-400 text-lg">OpsecForge's browser-local JWT Decoder shows token structure and registered time claims without sending token contents to an OpsecForge processing backend. It can also compare the signature with a test secret or public key you paste, in your browser. A matching signature does not show that the issuer, audience, expiry, or key origin are acceptable, so authenticity, claim validity, and trust still need a server-side decision.</p>
   <a href="/tools/jwt-decoder" class="inline-flex items-center justify-center rounded-full bg-emerald-500 px-8 py-3.5 text-sm font-bold !text-slate-950 !no-underline transition-colors hover:bg-emerald-400">
     Open JWT Decoder →
   </a>

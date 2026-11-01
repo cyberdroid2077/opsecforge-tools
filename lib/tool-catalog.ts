@@ -74,7 +74,7 @@ export const toolGroups: ToolGroup[] = [
       {
         name: 'JWT Decoder',
         href: '/tools/jwt-decoder',
-        description: 'Decode JWT headers and payloads locally. Decoding does not verify a signature.',
+        description: 'Decode JWT headers and payloads locally, and optionally check the signature in the browser with a key you paste. A valid signature does not make a token trustworthy.',
         article: {
           title: 'JWT vulnerabilities and safe validation',
           href: '/blog/jwt-token-vulnerabilities-authentication-security',
