@@ -26,8 +26,10 @@ uuid.UUID(bytes=bytes(range(16)), version=4)
 
       <GuideHeading>Versions defined in RFC 9562</GuideHeading>
       <P>
-        RFC 9562 (May 2024) obsoletes RFC 4122. This page&apos;s tool generates version 4 only, using{' '}
-        <Code>crypto.randomUUID()</Code> when the browser has it and <Code>crypto.getRandomValues()</Code> otherwise.
+        RFC 9562 (May 2024) obsoletes RFC 4122. This page&apos;s tool generates version 4 and version 7. Version 4 uses{' '}
+        <Code>crypto.randomUUID()</Code> when the browser has it and <Code>crypto.getRandomValues()</Code> otherwise;
+        version 7 reads the clock with <Code>Date.now()</Code> and takes its random bits from{' '}
+        <Code>crypto.getRandomValues()</Code>.
       </P>
       <GuideTable
         caption="UUID versions"
@@ -38,7 +40,7 @@ uuid.UUID(bytes=bytes(range(16)), version=4)
           ['4', 'Random or pseudorandom', 'General-purpose unique IDs (this tool)'],
           ['5', 'Name-based, SHA-1', 'Stable ID derived from a name'],
           ['6', 'Reordered Gregorian time-based', 'Sortable replacement for v1'],
-          ['7', 'Unix Epoch time-based', 'Database keys that sort by creation time'],
+          ['7', 'Unix Epoch time-based', 'Database keys that sort by creation time (this tool)'],
           ['8', 'Custom format', 'Application-defined layouts'],
         ]}
       />
@@ -52,11 +54,31 @@ uuid.UUID(bytes=bytes(range(16)), version=4)
         possession grants access. Use a dedicated token generator for session or reset links.
       </P>
 
+      <GuideHeading>Reading a version 7 UUID</GuideHeading>
+      <P>
+        A v7 UUID starts with a 48-bit Unix timestamp in milliseconds, so the first 12 hex digits are the creation time.
+        The 13th digit is always <Code>7</Code>, the variant bits are again <Code>10</Code>, and the remaining 74 bits are
+        random (RFC 9562 section 5.7). The RFC&apos;s own example, <Code>017f22e2-79b0-7cc3-98c4-dc0c0c07398f</Code>, begins
+        with <Code>017f22e279b0</Code>, which is 1645557742000 ms, or 2022-02-22T19:22:22Z. You can paste that number into
+        the{' '}
+        <a className="text-emerald-400 underline hover:text-emerald-300" href="/tools/unix-timestamp">
+          Unix timestamp converter
+        </a>{' '}
+        to check it. Selecting v7 above shows the same readout for the first ID in each batch.
+      </P>
+      <P>
+        Two consequences follow from the embedded time. IDs created later sort after earlier ones as plain strings, which is
+        what makes them friendly to database indexes. And anyone who sees the ID can read when it was created, so do not use
+        v7 where the creation time itself is sensitive. When several IDs are generated within the same millisecond, this tool
+        increments the 74 random bits by one so the batch stays in order; across separate clicks or machines, order inside
+        one millisecond is not guaranteed.
+      </P>
+
       <GuideHeading>Using UUIDs as database keys</GuideHeading>
       <P>
         RFC 9562 notes that random UUIDs such as v4 have poor index locality, because new rows land at random positions in a
         B-tree, and that time-ordered v6 and v7 keep new values near each other. If insert performance on a large table
-        matters, consider v7. This tool does not generate it, but common runtimes do:
+        matters, consider v7. Common runtimes generate it too:
       </P>
       <CodeBlock
         label="Version 4 and version 7"
