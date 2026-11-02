@@ -3,22 +3,34 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Check, Copy, Hash, Lock, RefreshCw, ShieldCheck } from 'lucide-react';
-import { createUuidV4, normalizeUuidCount } from '@/lib/uuid';
+import {
+  createUuidV4,
+  createUuidV7Batch,
+  normalizeUuidCount,
+  readUuidV7Timestamp,
+  type UuidVersion,
+} from '@/lib/uuid';
 
 export default function UuidGeneratorTool({ children }: { children?: ReactNode }) {
+  const [version, setVersion] = useState<UuidVersion>('v4');
   const [count, setCount] = useState(1);
   const [uppercase, setUppercase] = useState(false);
   const [removeHyphens, setRemoveHyphens] = useState(false);
   const [output, setOutput] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [v7Time, setV7Time] = useState<number | null>(null);
 
   const normalizedCount = useMemo(() => normalizeUuidCount(count), [count]);
 
   const generateUuids = () => {
     try {
-      const values = Array.from({ length: normalizedCount }, () => {
-        let uuid = createUuidV4();
+      const raw =
+        version === 'v7'
+          ? createUuidV7Batch(normalizedCount)
+          : Array.from({ length: normalizedCount }, () => createUuidV4());
+      const values = raw.map((generated) => {
+        let uuid = generated;
 
         if (removeHyphens) {
           uuid = uuid.replaceAll('-', '');
@@ -32,6 +44,7 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
       });
 
       setOutput(values.join('\n'));
+      setV7Time(version === 'v7' ? readUuidV7Timestamp(raw[0]) : null);
       setCopied(false);
       setError('');
     } catch {
@@ -75,13 +88,31 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
             </span>
           </h1>
           <p className="max-w-3xl text-lg leading-relaxed text-slate-400">
-            Produce RFC-style v4 UUIDs locally with optional uppercase output and hyphen removal
-            for systems that want compact or normalized identifiers.
+            Produce random v4 or time-ordered v7 UUIDs (RFC 9562) locally, with optional uppercase
+            output and hyphen removal for systems that want compact or normalized identifiers.
           </p>
         </section>
 
         <section className="mb-24 rounded-[2rem] border border-slate-800 bg-slate-900/40 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-sm lg:p-8">
-          <div className="mb-6 grid gap-4 border-b border-slate-800 pb-6 lg:grid-cols-[1.2fr_1fr_1fr_auto] lg:items-end">
+          <div className="mb-6 grid gap-4 border-b border-slate-800 pb-6 lg:grid-cols-[1fr_1.2fr_1fr_1fr_auto] lg:items-end">
+            <div>
+              <label
+                htmlFor="uuid-version"
+                className="mb-3 block text-xs font-bold uppercase tracking-[0.22em] text-slate-500"
+              >
+                Version
+              </label>
+              <select
+                id="uuid-version"
+                value={version}
+                onChange={(event) => setVersion(event.target.value as UuidVersion)}
+                className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-lg text-cyan-300 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
+              >
+                <option value="v4">v4 (random)</option>
+                <option value="v7">v7 (time-ordered)</option>
+              </select>
+            </div>
+
             <div>
               <label className="mb-3 block text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
                 How Many To Generate?
@@ -153,6 +184,14 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
             spellCheck={false}
           />
 
+          <p className="mt-4 min-h-[2.5rem] text-sm text-slate-500">
+            {version === 'v7'
+              ? v7Time !== null
+                ? `First v7 ID carries timestamp ${new Date(v7Time).toISOString()} (${v7Time} ms since the Unix epoch). IDs in one batch sort in the order generated.`
+                : 'v7 IDs start with a 48-bit Unix millisecond timestamp, so they sort by creation time. The timestamp is readable by anyone who sees the ID.'
+              : 'v4 IDs are 122 random bits with no embedded time.'}
+          </p>
+
           {error ? (
             <p role="alert" className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-4 text-sm text-rose-300">
               {error}
@@ -170,7 +209,7 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
                 Max batch size 100
               </span>
             </div>
-            <span>Uses crypto.randomUUID() or crypto.getRandomValues()</span>
+            <span>Uses crypto.randomUUID() or crypto.getRandomValues(); v7 adds Date.now()</span>
           </div>
         </section>
 

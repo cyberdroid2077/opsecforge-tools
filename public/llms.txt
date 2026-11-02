@@ -13,7 +13,7 @@ Tool input is processed by JavaScript in the loaded browser page. OpsecForge doe
 - [JWT Decoder](https://www.opsecforge.com/tools/jwt-decoder): Decodes a JWT's header and payload and shows time claims. Can optionally check an HS/RS/PS/ES signature locally with a key you paste. Decoding alone does not verify the signature, and a valid signature does not authorize anything.
 - [JWT Encoder](https://www.opsecforge.com/tools/jwt-encoder): Creates signed HS256 or HS512 test tokens from invented claims. Use throwaway test keys only, never production signing keys or real identity data.
 - [Password Generator](https://www.opsecforge.com/tools/password-generator): Generates random passwords with the browser's cryptographic random source. It does not store or manage passwords.
-- [UUID Generator](https://www.opsecforge.com/tools/uuid-generator): Generates RFC 4122 version 4 UUIDs with the browser crypto API. A UUID is an identifier, not a secret.
+- [UUID Generator](https://www.opsecforge.com/tools/uuid-generator): Generates random v4 and time-ordered v7 UUIDs (RFC 9562) with the browser crypto API. A UUID is an identifier, not a secret.
 - [JSON Beautifier](https://www.opsecforge.com/tools/json-beautifier): Formats, minifies, and validates JSON with the browser's native parser. It does not redact sensitive fields.
 - [SQL Formatter & Minifier](https://www.opsecforge.com/tools/sql-formatter): Formats and minifies MySQL, PostgreSQL, and standard SQL text. It does not execute queries or make them safe from injection.
 - [Unix Timestamp Converter](https://www.opsecforge.com/tools/unix-timestamp): Converts Unix seconds or milliseconds to local and UTC dates and back.
