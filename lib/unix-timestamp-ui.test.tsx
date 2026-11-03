@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import UnixTimestampTool from '../components/UnixTimestampTool';
 
 afterEach(cleanup);
@@ -59,6 +59,94 @@ describe('Unix timestamp task interface', () => {
     const milliseconds = new Date('2024-03-13T12:34:56').getTime();
     expect(screen.getByText(String(milliseconds))).toBeInTheDocument();
     expect(screen.getByText(String(Math.floor(milliseconds / 1000)))).toBeInTheDocument();
+  });
+});
+
+describe('Unix timestamp batch conversion', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  const batchText = '1710352200\n\n2026-01-01 INFO req=abc ts=1710352260 ok\nno time here';
+  const localOptions: Intl.DateTimeFormatOptions = {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    fractionalSecondDigits: 3, timeZoneName: 'short',
+  };
+
+  it('renders an empty, deterministic results area before any input', () => {
+    render(<UnixTimestampTool />);
+    expect(screen.getByRole('heading', { name: 'Batch Epoch To Date' })).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy as TSV' })).toBeDisabled();
+    expect(screen.getByText(/nothing is uploaded/)).toBeInTheDocument();
+  });
+
+  it('shows a results table for pasted lines with line numbers and status', () => {
+    render(<UnixTimestampTool />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Timestamps, one per line' }), {
+      target: { value: batchText },
+    });
+    const table = screen.getByRole('table');
+    // header + 3 non-empty lines (the blank line 2 is skipped)
+    expect(within(table).getAllByRole('row')).toHaveLength(4);
+    expect(within(table).getByText('2024-03-13T17:50:00.000Z')).toBeInTheDocument();
+    expect(within(table).getByText('2024-03-13T17:51:00.000Z')).toBeInTheDocument();
+    expect(within(table).getByText('from line: 1710352260')).toBeInTheDocument();
+    expect(within(table).getByText('No timestamp found')).toBeInTheDocument();
+    const lineCells = within(table).getAllByRole('cell').filter((_, index) => index % 5 === 0);
+    expect(lineCells.map((cell) => cell.textContent)).toEqual(['1', '3', '4']);
+  });
+
+  it('uses the batch unit selector', () => {
+    render(<UnixTimestampTool />);
+    fireEvent.change(screen.getByRole('combobox', { name: 'Batch timestamp unit' }), {
+      target: { value: 'milliseconds' },
+    });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Timestamps, one per line' }), {
+      target: { value: '1710352200123' },
+    });
+    expect(screen.getByText('2024-03-13T17:50:00.123Z')).toBeInTheDocument();
+    // The single-value unit is untouched.
+    expect(screen.getByRole('combobox', { name: 'Timestamp unit' })).toHaveValue('seconds');
+  });
+
+  it('copies the results as TSV without network or storage writes', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    const setItem = vi.spyOn(Storage.prototype, 'setItem');
+
+    render(<UnixTimestampTool />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Timestamps, one per line' }), {
+      target: { value: batchText },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Copy as TSV' }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    const local = (seconds: number) => new Date(seconds * 1000).toLocaleString(undefined, localOptions);
+    expect(writeText).toHaveBeenCalledWith(
+      [
+        `1\t1710352200\t2024-03-13T17:50:00.000Z\t${local(1710352200)}`,
+        `3\t2026-01-01 INFO req=abc ts=1710352260 ok\t2024-03-13T17:51:00.000Z\t${local(1710352260)}`,
+        '4\tno time here\t\t',
+      ].join('\n'),
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(setItem).not.toHaveBeenCalled();
+  });
+
+  it('shows the truncation notice above 1000 lines', () => {
+    render(<UnixTimestampTool />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Timestamps, one per line' }), {
+      target: { value: Array.from({ length: 1001 }, () => '1710352200').join('\n') },
+    });
+    expect(
+      screen.getByText('The input has 1001 lines. Only the first 1000 were converted; paste the rest as a second batch.'),
+    ).toBeInTheDocument();
+    expect(within(screen.getByRole('table')).getAllByRole('row')).toHaveLength(1001);
   });
 });
 
