@@ -184,3 +184,99 @@ export function dateInputToEpoch(
 
   return { milliseconds, error: '' };
 }
+
+export const BATCH_MAX_LINES = 1000;
+
+export type BatchRow = {
+  /** 1-based line number in the pasted text (blank lines are skipped but still counted). */
+  line: number;
+  /** The line as pasted, trimmed. */
+  input: string;
+  /** The number that was converted. Equals input unless extracted is true. */
+  token: string;
+  /** True when the number was found inside a longer line instead of being the whole line. */
+  extracted: boolean;
+  date: Date | null;
+  /** ISO 8601 UTC with milliseconds, or '' when there is no date. */
+  utc: string;
+  error: string;
+};
+
+export type BatchResult = {
+  rows: BatchRow[];
+  /** Number of lines in the input after dropping trailing blank lines. */
+  totalLines: number;
+  truncated: boolean;
+  /** Non-empty when lines were not processed. */
+  notice: string;
+};
+
+// A standalone number inside a longer line: not glued to letters, digits or a
+// decimal point on either side, integer part of at least 9 digits, optional fraction.
+const EMBEDDED_TIMESTAMP = /(?<![0-9A-Za-z.])-?\d{9,}(?:\.\d+)?(?![0-9A-Za-z.])/;
+
+/**
+ * Converts pasted text line by line. The unit is always the caller's choice.
+ *
+ * A line whose trimmed text is a number is converted as is, whatever its length.
+ * Any other line is searched for its first standalone number with at least 9
+ * integer digits, which is converted and flagged extracted. Blank lines are
+ * skipped (line numbers still count them). Only the first BATCH_MAX_LINES lines
+ * are processed; the result says so in notice.
+ */
+export function convertTimestampBatch(text: string, unit: UnixTimestampUnit): BatchResult {
+  const lines = text.split(/\r\n|\r|\n/);
+
+  while (lines.length > 0 && lines[lines.length - 1].trim() === '') {
+    lines.pop();
+  }
+
+  const totalLines = lines.length;
+  const truncated = totalLines > BATCH_MAX_LINES;
+  const rows: BatchRow[] = [];
+
+  lines.slice(0, BATCH_MAX_LINES).forEach((raw, index) => {
+    const input = raw.trim();
+
+    if (!input) {
+      return;
+    }
+
+    let token = input;
+    let extracted = false;
+
+    if (!DECIMAL_NUMBER.test(input)) {
+      const match = EMBEDDED_TIMESTAMP.exec(input);
+
+      if (!match) {
+        rows.push({
+          line: index + 1, input, token: '', extracted: false, date: null, utc: '', error: 'No timestamp found',
+        });
+        return;
+      }
+
+      token = match[0];
+      extracted = true;
+    }
+
+    const result = unixTimestampToDate(token, unit);
+    rows.push({
+      line: index + 1,
+      input,
+      token,
+      extracted,
+      date: result.date,
+      utc: result.date ? result.date.toISOString() : '',
+      error: result.error,
+    });
+  });
+
+  return {
+    rows,
+    totalLines,
+    truncated,
+    notice: truncated
+      ? `The input has ${totalLines} lines. Only the first ${BATCH_MAX_LINES} were converted; paste the rest as a second batch.`
+      : '',
+  };
+}

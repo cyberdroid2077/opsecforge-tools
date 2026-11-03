@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { Check, Clock3, Copy, Lock, TimerReset } from 'lucide-react';
+import { Check, Clock3, Copy, ListOrdered, Lock, TimerReset } from 'lucide-react';
 import {
+  convertTimestampBatch,
   countIntegerDigits,
   dateInputToEpoch,
   suggestUnit,
@@ -26,6 +27,14 @@ const UNIT_PLACEHOLDERS: Record<UnixTimestampUnit, string> = {
   nanoseconds: '1710352200000000000',
 };
 
+function formatLocalDisplay(date: Date) {
+  return date.toLocaleString(undefined, {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    fractionalSecondDigits: 3, timeZoneName: 'short',
+  });
+}
+
 function formatDateTimeLocal(date: Date) {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
@@ -44,6 +53,8 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
   const [secondsInput, setSecondsInput] = useState('0');
   const [dateZone, setDateZone] = useState<DateInputZone>('local');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [batchInput, setBatchInput] = useState('');
+  const [batchUnit, setBatchUnit] = useState<UnixTimestampUnit>('seconds');
 
   useEffect(() => {
     setNow(Date.now());
@@ -94,6 +105,18 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
       error: '',
     };
   }, [dateInput, secondsInput, dateZone]);
+
+  const batch = useMemo(() => {
+    const result = convertTimestampBatch(batchInput, batchUnit);
+    const rows = result.rows.map((row) => ({
+      ...row,
+      local: row.date ? formatLocalDisplay(row.date) : '',
+    }));
+    const tsv = rows
+      .map((row) => [row.line, row.input.replace(/\t/g, ' '), row.utc, row.local].join('\t'))
+      .join('\n');
+    return { rows, tsv, notice: result.notice, okCount: rows.filter((row) => row.date).length };
+  }, [batchInput, batchUnit]);
 
   const suggestedUnit = suggestUnit(epochInput);
   const showUnitHint = suggestedUnit !== null && suggestedUnit !== epochUnit;
@@ -157,7 +180,7 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
           </div>
         </section>
 
-        <section className="mb-24 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <section className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="rounded-[2rem] border border-slate-800 bg-slate-900/40 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-sm lg:p-8">
             <div className="mb-6">
               <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
@@ -365,6 +388,108 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="batch-epoch-heading"
+          className="mb-24 rounded-[2rem] border border-slate-800 bg-slate-900/40 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-sm lg:p-8"
+        >
+          <div className="mb-6">
+            <h2 id="batch-epoch-heading" className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+              <ListOrdered size={14} className="text-emerald-400" />
+              Batch Epoch To Date
+            </h2>
+            <p className="text-sm leading-relaxed text-slate-400">
+              Paste one timestamp per line, up to 1000 lines. A line that is only a number is converted in the batch unit you choose below. Any other line is searched for its first standalone number with at least 9 digits, which is marked &quot;from line&quot;. Everything is processed in this browser tab and nothing is uploaded.
+            </p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-[1fr_220px]">
+            <label>
+              <span className="sr-only">Timestamps, one per line</span>
+              <textarea
+                value={batchInput}
+                onChange={(event) => setBatchInput(event.target.value)}
+                placeholder={'1710352200\n2026-01-01 INFO req=abc ts=1710352200 ok'}
+                spellCheck={false}
+                className="h-56 w-full resize-none overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-sm text-cyan-300 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
+              />
+            </label>
+            <div className="flex flex-col gap-2">
+              <label>
+                <span className="sr-only">Batch timestamp unit</span>
+                <select
+                  value={batchUnit}
+                  onChange={(event) => setBatchUnit(event.target.value as UnixTimestampUnit)}
+                  className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4 text-sm font-bold text-slate-200 outline-none transition-all focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
+                >
+                  <option value="seconds">Seconds</option>
+                  <option value="milliseconds">Milliseconds</option>
+                  <option value="microseconds">Microseconds</option>
+                  <option value="nanoseconds">Nanoseconds</option>
+                </select>
+              </label>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Unit for every line in this batch. It is separate from the single-value unit above and is never guessed.
+              </p>
+            </div>
+          </div>
+
+          {/* Fixed-height status row so notices do not move the table. */}
+          <div className="mt-3 flex min-h-[3rem] flex-wrap content-start items-center justify-between gap-x-4 gap-y-2 text-xs text-slate-400 sm:min-h-[2rem]" aria-live="polite">
+            <span className={batch.notice ? 'text-amber-400' : ''}>
+              {batch.notice ||
+                (batch.rows.length > 0
+                  ? `${batch.okCount} of ${batch.rows.length} lines converted.`
+                  : '')}
+            </span>
+            <button
+              type="button"
+              onClick={() => copyValue('batch', batch.tsv)}
+              disabled={batch.rows.length === 0}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-200 transition-all hover:border-emerald-500/30 hover:text-emerald-300 disabled:opacity-40"
+            >
+              {copiedKey === 'batch' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+              {copiedKey === 'batch' ? 'Copied' : 'Copy as TSV'}
+            </button>
+          </div>
+
+          <div
+            tabIndex={0}
+            role="region"
+            aria-label="Batch results (scrollable)"
+            className="h-80 overflow-auto rounded-2xl border border-slate-800 bg-slate-950/70"
+          >
+            {batch.rows.length === 0 ? (
+              <p className="p-5 text-sm text-slate-500">Results appear here.</p>
+            ) : (
+              <table className="w-full min-w-[44rem] border-collapse text-left font-mono text-xs">
+                <caption className="sr-only">Batch epoch conversion results</caption>
+                <thead className="sticky top-0 bg-slate-900 text-[11px] uppercase tracking-widest text-slate-500">
+                  <tr>
+                    <th scope="col" className="px-4 py-2 font-bold">Line</th>
+                    <th scope="col" className="px-4 py-2 font-bold">Input</th>
+                    <th scope="col" className="px-4 py-2 font-bold">UTC (ISO 8601)</th>
+                    <th scope="col" className="px-4 py-2 font-bold">Local time</th>
+                    <th scope="col" className="px-4 py-2 font-bold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {batch.rows.map((row) => (
+                    <tr key={row.line} className="border-t border-slate-800 align-top">
+                      <td className="px-4 py-2 text-slate-500">{row.line}</td>
+                      <td className="max-w-[16rem] break-all px-4 py-2 text-cyan-300">{row.input}</td>
+                      <td className="whitespace-nowrap px-4 py-2 text-emerald-300">{row.utc}</td>
+                      <td className="whitespace-nowrap px-4 py-2 text-emerald-300">{row.local}</td>
+                      <td className={`px-4 py-2 ${row.error ? 'text-rose-300' : 'text-slate-400'}`}>
+                        {row.error || (row.extracted ? `from line: ${row.token}` : 'OK')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </section>
