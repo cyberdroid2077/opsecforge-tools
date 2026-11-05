@@ -247,6 +247,33 @@ export function sanitizeForSharing(input: string): SanitizerResult {
     'SendGrid API key',
     () => REDACTION_MARKER,
   );
+  // npm automation / publish tokens: "npm_" + 36 alphanumerics.
+  trackedReplace(/\bnpm_[A-Za-z0-9]{36}(?![A-Za-z0-9])/g, 'npm access token', () => REDACTION_MARKER);
+  // Hugging Face user access tokens: "hf_" + 34 or more letters.
+  trackedReplace(/\bhf_[A-Za-z]{34,}(?![A-Za-z0-9])/g, 'Hugging Face token', () => REDACTION_MARKER);
+  // PyPI API tokens: macaroon prefix "pypi-AgE..." followed by a long URL-safe body.
+  trackedReplace(
+    /\bpypi-AgE[A-Za-z0-9_-]{50,}(?![A-Za-z0-9_-])/g,
+    'PyPI API token',
+    () => REDACTION_MARKER,
+  );
+  // Stripe restricted keys and webhook signing secrets.
+  trackedReplace(
+    /\b(?:rk_(?:live|test)_[A-Za-z0-9]{16,}|whsec_[A-Za-z0-9]{24,})(?![A-Za-z0-9])/g,
+    'Stripe restricted key or webhook secret',
+    () => REDACTION_MARKER,
+  );
+  // Incoming-webhook URLs: the URL itself is the credential.
+  trackedReplace(
+    /\bhttps:\/\/hooks\.slack\.com\/services\/T[A-Za-z0-9]+\/B[A-Za-z0-9]+\/[A-Za-z0-9]{16,}/g,
+    'Slack webhook URL',
+    () => REDACTION_MARKER,
+  );
+  trackedReplace(
+    /\bhttps:\/\/(?:(?:canary|ptb)\.)?discord(?:app)?\.com\/api(?:\/v\d+)?\/webhooks\/\d{15,}\/[A-Za-z0-9_-]{40,}/g,
+    'Discord webhook URL',
+    () => REDACTION_MARKER,
+  );
   trackedReplace(
     /\beyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
     'JWT-like token',

@@ -416,6 +416,36 @@ describe('vendor token detection', () => {
       positives: [`SG.${pad('aB3dE5gH', 22)}.${pad('cD4fG6hJ', 43)}`],
       negatives: ['SG.short.value', `SG.${pad('aB3dE5gH', 22)}`, 'SG.1234', `SG.${pad('aB3dE5gH', 22)}.${pad('cD4fG6hJ', 20)}`],
     },
+    {
+      kind: 'npm access token',
+      positives: [`npm_${pad('aB3dE5gH', 36)}`],
+      negatives: ['npm_install', `npm_${pad('aB3dE5gH', 20)}`, `npm_${pad('aB3dE5gH', 40)}`],
+    },
+    {
+      kind: 'Hugging Face token',
+      positives: [`hf_${pad('abCdEfGh', 34)}`],
+      negatives: ['hf_short', 'hf_transfer_enabled', `hf_${pad('abCdEfGh', 20)}`],
+    },
+    {
+      kind: 'PyPI API token',
+      positives: [`pypi-AgE${pad('aB3dE5gH', 60)}`],
+      negatives: ['pypi-AgEnt', 'pypi-mirror-url', `pypi-AgE${pad('aB3dE5gH', 10)}`],
+    },
+    {
+      kind: 'Stripe restricted key or webhook secret',
+      positives: [`rk_live_${pad('aB3dE5gH', 24)}`, `rk_test_${pad('aB3dE5gH', 24)}`, `whsec_${pad('aB3dE5gH', 32)}`],
+      negatives: ['rk_live_short', 'whsec_short', 'whsec_'],
+    },
+    {
+      kind: 'Slack webhook URL',
+      positives: [`https://hooks.slack.com/services/T0AB12CD3/B0EF45GH6/${pad('aB3dE5gH', 24)}`],
+      negatives: ['https://hooks.slack.com/services/T0AB12CD3', 'https://hooks.slack.com/docs/messaging'],
+    },
+    {
+      kind: 'Discord webhook URL',
+      positives: [`https://discord.com/api/webhooks/123456789012345678/${pad('aB3dE5gH', 68)}`],
+      negatives: ['https://discord.com/api/webhooks', 'https://discord.com/developers/docs/resources/webhook'],
+    },
   ];
 
   for (const { kind, positives, negatives } of cases) {
