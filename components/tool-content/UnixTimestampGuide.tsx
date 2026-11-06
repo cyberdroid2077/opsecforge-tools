@@ -49,6 +49,31 @@ export default function UnixTimestampGuide() {
         rows={ex.zones.map((z) => [z.zone, <Code key={z.zone}>{z.local}</Code>, z.note])}
       />
 
+      <GuideHeading>The Details box</GuideHeading>
+      <P>
+        Below the UTC line, Epoch To Date lists a few values derived from the same instant. All of them are calculated in
+        UTC, so they do not change with your browser&apos;s zone. For <Code>1710352200</Code> (2024-03-13T17:50:00Z) the
+        tool shows <Code>Wednesday</Code>, day of year <Code>73</Code> (31 days of January, 29 of February in the leap year
+        2024, plus 13), ISO week <Code>2024-W11-3</Code>, and the HTTP date{' '}
+        <Code>Wed, 13 Mar 2024 17:50:00 GMT</Code>.
+      </P>
+      <P>
+        An ISO 8601 week starts on Monday, and week 1 is the week that contains the year&apos;s first Thursday. The week
+        number therefore belongs to the year of that Thursday, which can differ from the calendar year near 1 January:{' '}
+        <Code>1609459200</Code> (2021-01-01, a Friday) is <Code>2020-W53-5</Code>, and <Code>1735603200</Code>{' '}
+        (2024-12-31, a Tuesday) is <Code>2025-W01-2</Code>. The last number is the weekday, 1 for Monday to 7 for Sunday.
+        The HTTP date is the fixed-format timestamp from RFC 9110 (IMF-fixdate): English day and month abbreviations, always
+        GMT, independent of locale. The relative text, such as <Code>3 days ago</Code> or <Code>in 2 hours</Code>, is
+        computed in the browser from the current time and is floored to one unit (a month is 30.4375 days, a year 365.25
+        days).
+      </P>
+      <P>
+        If the seconds value does not fit a signed 32-bit integer, that is above <Code>2147483647</Code> or below{' '}
+        <Code>-2147483648</Code>, the box adds a note. Code that stores the value in a 32-bit <Code>time_t</Code> would
+        overflow there; the conversion in this tool is not affected. Sub-second values are floored to whole seconds for
+        that check.
+      </P>
+
       <GuideHeading>The year 2038 limit</GuideHeading>
       <P>
         A signed 32-bit seconds counter tops out at 2<sup>31</sup> − 1. One second later it does not fit, and a naive
@@ -175,6 +200,7 @@ date -j -u -f '%Y-%m-%d %H:%M:%S' '2024-03-13 17:50:00' +%s`}
           { href: 'https://pubs.opengroup.org/onlinepubs/9799919799/basedefs/V1_chap04.html#tag_04_19', label: 'POSIX.1-2024, Base Definitions 4.19: Seconds Since the Epoch' },
           { href: 'https://tc39.es/ecma262/#sec-time-values-and-time-range', label: 'ECMAScript: Time Values and Time Range' },
           { href: 'https://www.rfc-editor.org/rfc/rfc3339', label: 'RFC 3339: Date and Time on the Internet: Timestamps' },
+          { href: 'https://www.rfc-editor.org/rfc/rfc9110.html#name-date-time-formats', label: 'RFC 9110: HTTP Semantics, 5.6.7 Date/Time Formats' },
           { href: 'https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html', label: 'GNU Coreutils manual: date invocation' },
           { href: 'https://www.gnu.org/software/coreutils/manual/html_node/Seconds-since-the-Epoch.html', label: 'GNU Coreutils manual: Seconds since the Epoch (the @ syntax)' },
           { href: 'https://man.freebsd.org/cgi/man.cgi?query=date', label: 'FreeBSD date(1) manual page' },

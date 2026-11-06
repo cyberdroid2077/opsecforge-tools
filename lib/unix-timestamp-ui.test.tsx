@@ -168,3 +168,67 @@ describe("Unix timestamp SSR safety", () => {
     await waitFor(() => expect(live?.textContent).toMatch(/^[0-9]{10}$/));
   });
 });
+
+describe("Unix timestamp details", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  const enter = (value: string) =>
+    fireEvent.change(screen.getByRole("textbox", { name: "Unix timestamp" }), { target: { value } });
+
+  it("shows weekday, day of year, ISO week, HTTP date and a relative time", async () => {
+    vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+    vi.setSystemTime(new Date("2024-03-16T17:50:00Z"));
+    render(<UnixTimestampTool />);
+    enter("1710352200");
+    const details = screen.getByRole("group", { name: "Details" });
+    expect(within(details).getByText("Wednesday")).toBeInTheDocument();
+    expect(within(details).getByText("73")).toBeInTheDocument();
+    expect(within(details).getByText("2024-W11-3")).toBeInTheDocument();
+    expect(within(details).getByText("Wed, 13 Mar 2024 17:50:00 GMT")).toBeInTheDocument();
+    expect(within(details).getByText("3 days ago")).toBeInTheDocument();
+    expect(within(details).queryByText(/32-bit/)).not.toBeInTheDocument();
+  });
+
+  it("shows the 32-bit notice for 2147483648 but not for 2147483647", () => {
+    render(<UnixTimestampTool />);
+    enter("2147483647");
+    expect(screen.getByText("2038-W03-2")).toBeInTheDocument();
+    expect(screen.queryByText(/32-bit/)).not.toBeInTheDocument();
+    enter("2147483648");
+    expect(screen.getByText(/signed 32-bit time_t range/)).toBeInTheDocument();
+  });
+
+  it("describes negative values", () => {
+    render(<UnixTimestampTool />);
+    enter("-1");
+    expect(screen.getByText("Wed, 31 Dec 1969 23:59:59 GMT")).toBeInTheDocument();
+    expect(screen.getByText("1970-W01-3")).toBeInTheDocument();
+  });
+
+  it("clears the details on invalid input", () => {
+    render(<UnixTimestampTool />);
+    enter("1710352200");
+    enter("nope");
+    expect(screen.queryByRole("group", { name: "Details" })).not.toBeInTheDocument();
+  });
+
+  it("does not render details or relative text during server rendering", async () => {
+    const { renderToString } = await import("react-dom/server");
+    const html = renderToString(<UnixTimestampTool />);
+    expect(html).not.toMatch(/\bago\b|GMT|W[0-9]{2}-[1-7]/);
+  });
+
+  it("makes no requests and writes no storage while showing details", () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+    render(<UnixTimestampTool />);
+    enter("1710352200");
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(setItem).not.toHaveBeenCalled();
+  });
+});

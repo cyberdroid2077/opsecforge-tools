@@ -7,6 +7,7 @@ import {
   convertTimestampBatch,
   countIntegerDigits,
   dateInputToEpoch,
+  describeInstant,
   suggestUnit,
   unixTimestampToDate,
   type DateInputZone,
@@ -68,16 +69,17 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
 
   const epochConversion = useMemo(() => {
     if (!epochInput.trim()) {
-      return { local: '', utc: '', error: '' };
+      return { local: '', utc: '', error: '', date: null };
     }
 
     const result = unixTimestampToDate(epochInput, epochUnit);
 
     if (!result.date) {
-      return { local: '', utc: '', error: result.error };
+      return { local: '', utc: '', error: result.error, date: null };
     }
 
     return {
+      date: result.date,
       local: result.date.toLocaleString(undefined, {
         year: 'numeric', month: '2-digit', day: '2-digit',
         hour: '2-digit', minute: '2-digit', second: '2-digit',
@@ -87,6 +89,13 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
       error: '',
     };
   }, [epochInput, epochUnit]);
+
+  // `now` is null on the server and on the first client render, so the relative
+  // text stays empty until after mount and hydration matches.
+  const details = useMemo(
+    () => (epochConversion.date ? describeInstant(epochConversion.date, now) : null),
+    [epochConversion.date, now],
+  );
 
   const dateConversion = useMemo(() => {
     if (!dateInput) {
@@ -277,6 +286,30 @@ export default function UnixTimestampTool({ children }: { children?: ReactNode }
                   <div className="break-all font-mono text-sm text-emerald-300">
                     {epochConversion.utc || 'Waiting for input...'}
                   </div>
+                </div>
+
+                {/* Fixed minimum height so the relative text and the 32-bit notice do not shift the layout. */}
+                <div className="min-h-[15rem] rounded-2xl border border-slate-800 bg-slate-950/70 p-5 sm:min-h-[13rem]" role="group" aria-label="Details">
+                  <h3 className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Details</h3>
+                  {details ? (
+                    <dl className="grid grid-cols-[7.5rem_1fr] gap-x-3 gap-y-1.5 font-mono text-sm text-emerald-300">
+                      <dt className="text-slate-500">Weekday (UTC)</dt>
+                      <dd>{details.weekday}</dd>
+                      <dt className="text-slate-500">Day of year</dt>
+                      <dd>{details.dayOfYear}</dd>
+                      <dt className="text-slate-500">ISO week</dt>
+                      <dd>{details.isoWeek}</dd>
+                      <dt className="text-slate-500">HTTP date</dt>
+                      <dd className="break-words">{details.httpDate}</dd>
+                      <dt className="text-slate-500">Relative</dt>
+                      <dd aria-live="polite">{details.relative || ' '}</dd>
+                    </dl>
+                  ) : (
+                    <div className="font-mono text-sm text-emerald-300">Waiting for input...</div>
+                  )}
+                  <p className="mt-3 min-h-[2.5rem] text-xs leading-relaxed text-amber-400">
+                    {details?.int32Notice}
+                  </p>
                 </div>
               </div>
             )}

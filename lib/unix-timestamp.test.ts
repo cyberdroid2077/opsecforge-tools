@@ -5,6 +5,9 @@ import {
   convertTimestampBatch,
   countIntegerDigits,
   dateInputToEpoch,
+  describeInstant,
+  formatRelative,
+  INT32_NOTICE,
   suggestUnit,
   unixTimestampToDate,
 } from './unix-timestamp';
@@ -304,5 +307,79 @@ describe('convertTimestampBatch', () => {
     expect(result.rows).toHaveLength(1000);
     expect(result.truncated).toBe(false);
     expect(result.notice).toBe('');
+  });
+});
+
+describe("describeInstant", () => {
+  // Vectors recomputed independently with Date.prototype.toUTCString and the
+  // "Thursday of the week" ISO rule in plain node.
+  const at = (seconds: number) => new Date(seconds * 1000);
+
+  it.each([
+    [1710352200, "Wednesday", 73, "2024-W11-3", "Wed, 13 Mar 2024 17:50:00 GMT"],
+    [2147483647, "Tuesday", 19, "2038-W03-2", "Tue, 19 Jan 2038 03:14:07 GMT"],
+    [0, "Thursday", 1, "1970-W01-4", "Thu, 01 Jan 1970 00:00:00 GMT"],
+    [-1, "Wednesday", 365, "1970-W01-3", "Wed, 31 Dec 1969 23:59:59 GMT"],
+    [-2147483648, "Friday", 347, "1901-W50-5", "Fri, 13 Dec 1901 20:45:52 GMT"],
+    [1704067200, "Monday", 1, "2024-W01-1", "Mon, 01 Jan 2024 00:00:00 GMT"],
+    [1735603200, "Tuesday", 366, "2025-W01-2", "Tue, 31 Dec 2024 00:00:00 GMT"],
+    [1609459200, "Friday", 1, "2020-W53-5", "Fri, 01 Jan 2021 00:00:00 GMT"],
+    [1609459199, "Thursday", 366, "2020-W53-4", "Thu, 31 Dec 2020 23:59:59 GMT"],
+    [1231006505, "Saturday", 3, "2009-W01-6", "Sat, 03 Jan 2009 18:15:05 GMT"],
+    [4102444800, "Friday", 1, "2099-W53-5", "Fri, 01 Jan 2100 00:00:00 GMT"],
+  ])("describes %i", (seconds, weekday, dayOfYear, isoWeek, httpDate) => {
+    const details = describeInstant(at(seconds), null);
+    expect(details.weekday).toBe(weekday);
+    expect(details.dayOfYear).toBe(dayOfYear);
+    expect(details.isoWeek).toBe(isoWeek);
+    expect(details.httpDate).toBe(httpDate);
+    expect(details.httpDate).toBe(at(seconds).toUTCString());
+  });
+
+  it("leaves relative text empty without a current time", () => {
+    expect(describeInstant(at(1710352200), null).relative).toBe("");
+  });
+
+  it("flags values outside the signed 32-bit range only", () => {
+    expect(describeInstant(at(2147483647), null).int32Notice).toBe("");
+    expect(describeInstant(at(2147483648), null).int32Notice).toBe(INT32_NOTICE);
+    expect(describeInstant(at(-2147483648), null).int32Notice).toBe("");
+    expect(describeInstant(at(-2147483649), null).int32Notice).toBe(INT32_NOTICE);
+    expect(describeInstant(at(0), null).int32Notice).toBe("");
+  });
+
+  it("floors sub-second values for the 32-bit check", () => {
+    expect(describeInstant(new Date(2147483647999), null).int32Notice).toBe("");
+    expect(describeInstant(new Date(-2147483648001), null).int32Notice).toBe(INT32_NOTICE);
+  });
+
+  it("uses the weekday of the UTC day for instants before 1970", () => {
+    expect(describeInstant(new Date(-1), null).weekday).toBe("Wednesday");
+  });
+});
+
+describe("formatRelative", () => {
+  const base = 1710352200000;
+  const hour = 3600000;
+  const day = 24 * hour;
+
+  it("formats past and future with singular and plural units", () => {
+    expect(formatRelative(base, base + 3 * day)).toBe("3 days ago");
+    expect(formatRelative(base + 2 * hour, base)).toBe("in 2 hours");
+    expect(formatRelative(base, base + day)).toBe("1 day ago");
+    expect(formatRelative(base + 60000, base)).toBe("in 1 minute");
+    expect(formatRelative(base, base + 45000)).toBe("45 seconds ago");
+    expect(formatRelative(base, base + 40 * day)).toBe("1 month ago");
+    expect(formatRelative(base + 400 * day, base)).toBe("in 1 year");
+    expect(formatRelative(base, base + 1000 * day)).toBe("2 years ago");
+  });
+
+  it("says just now within the same second", () => {
+    expect(formatRelative(base, base + 999)).toBe("just now");
+    expect(formatRelative(base, base)).toBe("just now");
+  });
+
+  it("is used by describeInstant when a current time is given", () => {
+    expect(describeInstant(new Date(base), base + 3 * day).relative).toBe("3 days ago");
   });
 });

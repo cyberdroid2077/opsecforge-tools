@@ -280,3 +280,107 @@ export function convertTimestampBatch(text: string, unit: UnixTimestampUnit): Ba
       : '',
   };
 }
+
+const MS_PER_DAY = 86_400_000;
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const HTTP_DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const HTTP_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+export const INT32_MIN = -2147483648;
+export const INT32_MAX = 2147483647;
+export const INT32_NOTICE = "Outside the signed 32-bit time_t range (after 2038-01-19T03:14:07Z, or before 1901-12-13T20:45:52Z).";
+
+export type InstantDetails = {
+  /** English weekday name in UTC. */
+  weekday: string;
+  /** Day of the year in UTC, 1 to 366. */
+  dayOfYear: number;
+  /** ISO 8601 week date in UTC, for example 2024-W11-3 (year, week, weekday 1=Monday..7=Sunday). */
+  isoWeek: string;
+  /** RFC 9110 IMF-fixdate, for example Wed, 13 Mar 2024 17:50:00 GMT. */
+  httpDate: string;
+  /** Relative to nowMs, or "" when nowMs is null (server rendering). */
+  relative: string;
+  /** Whole epoch seconds (floored). */
+  epochSeconds: number;
+  /** Non-empty when epochSeconds does not fit a signed 32-bit integer. */
+  int32Notice: string;
+};
+
+const pad2 = (value: number) => String(value).padStart(2, "0");
+
+function formatYear(year: number): string {
+  return year < 0 ? "-" + String(-year).padStart(6, "0") : String(year).padStart(4, "0");
+}
+
+function dayOfYearUtc(date: Date): number {
+  const start = new Date(0);
+  start.setUTCFullYear(date.getUTCFullYear(), 0, 1);
+  return Math.floor((date.getTime() - start.getTime()) / MS_PER_DAY) + 1;
+}
+
+/** Weekday in UTC, 0 = Sunday. 1970-01-01 was a Thursday. */
+function weekdayUtc(ms: number): number {
+  return (((Math.floor(ms / MS_PER_DAY) + 4) % 7) + 7) % 7;
+}
+
+export function formatHttpDate(date: Date): string {
+  const ms = date.getTime();
+  return (
+    HTTP_DAY_NAMES[weekdayUtc(ms)] + ", " + pad2(date.getUTCDate()) + " " +
+    HTTP_MONTH_NAMES[date.getUTCMonth()] + " " + formatYear(date.getUTCFullYear()) + " " +
+    pad2(date.getUTCHours()) + ":" + pad2(date.getUTCMinutes()) + ":" + pad2(date.getUTCSeconds()) + " GMT"
+  );
+}
+
+/** ISO 8601 week date: the week belongs to the year that contains its Thursday. */
+export function formatIsoWeek(date: Date): string {
+  const ms = date.getTime();
+  const isoWeekday = weekdayUtc(ms) || 7;
+  const thursday = new Date(Math.floor(ms / MS_PER_DAY) * MS_PER_DAY + (4 - isoWeekday) * MS_PER_DAY);
+  const week = Math.floor((dayOfYearUtc(thursday) - 1) / 7) + 1;
+  return formatYear(thursday.getUTCFullYear()) + "-W" + pad2(week) + "-" + isoWeekday;
+}
+
+const RELATIVE_UNITS: Array<[string, number]> = [
+  ["year", 31_557_600],
+  ["month", 2_629_800],
+  ["day", 86_400],
+  ["hour", 3_600],
+  ["minute", 60],
+  ["second", 1],
+];
+
+/** "3 days ago" / "in 2 hours". Units are floored; a month is 30.4375 days and a year 365.25 days. */
+export function formatRelative(targetMs: number, nowMs: number): string {
+  const diffSeconds = Math.floor(Math.abs(targetMs - nowMs) / 1000);
+
+  if (diffSeconds < 1) {
+    return "just now";
+  }
+
+  const [name, size] = RELATIVE_UNITS.find(([, unitSize]) => diffSeconds >= unitSize) ?? RELATIVE_UNITS[RELATIVE_UNITS.length - 1];
+  const count = Math.floor(diffSeconds / size);
+  const label = count + " " + name + (count === 1 ? "" : "s");
+  return targetMs < nowMs ? label + " ago" : "in " + label;
+}
+
+/**
+ * Derived facts about one instant. Everything is computed in UTC and does not
+ * depend on the locale or time zone. Pass nowMs = null to skip the relative
+ * text (server rendering must not bake in the current time).
+ */
+export function describeInstant(date: Date, nowMs: number | null): InstantDetails {
+  const ms = date.getTime();
+  const epochSeconds = Math.floor(ms / 1000);
+
+  return {
+    weekday: WEEKDAY_NAMES[weekdayUtc(ms)],
+    dayOfYear: dayOfYearUtc(date),
+    isoWeek: formatIsoWeek(date),
+    httpDate: formatHttpDate(date),
+    relative: nowMs === null ? "" : formatRelative(ms, nowMs),
+    epochSeconds,
+    int32Notice: epochSeconds < INT32_MIN || epochSeconds > INT32_MAX ? INT32_NOTICE : "",
+  };
+}
