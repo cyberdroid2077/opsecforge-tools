@@ -48,10 +48,29 @@ export default function Base64ConverterGuide() {
           [<Code key="2">SGVsb</Code>, 'Standard', 'Invalid Base64 input.', 'A length of 1 mod 4 cannot occur in valid Base64; the string was cut off.'],
           [<Code key="3">PDw_Pz8-Pg</Code>, 'Standard', 'Invalid Base64 input.', 'It contains - and _, so it is Base64URL; switch the variant.'],
           [<Code key="4">PDw/Pz8+Pg==</Code>, 'Base64URL', 'Invalid Base64URL input.', 'It contains + and /; use the Standard variant.'],
-          [<Code key="5">/w==</Code>, 'Standard', 'Decoded bytes are not valid UTF-8 text.', 'The byte FF is not text. Binary data (images, keys) should be decoded to a file instead.'],
+          [<Code key="5">/w==</Code>, 'Standard', 'Not UTF-8 text; hex view: ff', 'The byte FF is not text, so the tool shows the bytes as hex. It does not save binary data to a file.'],
           [<Code key="6">SGVsbG8</Code>, 'Standard', 'Hello', 'Missing padding is accepted; whitespace and line breaks are ignored.'],
         ]}
       />
+
+      <GuideHeading>Input check, hex view, and variant conversion</GuideHeading>
+      <P>
+        In Decode mode the Input check panel reports which alphabet the string uses (standard, URL-safe, ambiguous when it
+        only has characters both share, or invalid when it mixes <Code>+ /</Code> with <Code>- _</Code>), whether padding is
+        present, correct, or missing, the length modulo 4, the first invalid character and its position, how much whitespace
+        was ignored, and the decoded size in bytes. If the detected variant differs from the selected one, a button offers to
+        switch; the tool never switches on its own. When the decoded bytes are not valid UTF-8, the tool says so and shows
+        them as lowercase hex, capped at 4096 bytes with a note when the output is cut short. The Convert Standard ⇄ URL-safe
+        section swaps the alphabet and adds or removes <Code>=</Code> without decoding anything.
+      </P>
+      <P>
+        Worked example: the four bytes <Code>fb ff bf 3e</Code> are <Code>+/+/Pg==</Code> in standard Base64 and{' '}
+        <Code>-_-_Pg</Code> as unpadded Base64URL. Paste <Code>-_-_Pg</Code> in Decode mode with Standard selected and the
+        check reports URL-safe, padding missing, 4 bytes; after you switch to Base64URL the hex view shows{' '}
+        <Code>fb ff bf 3e</Code>. In the conversion section, <Code>-_-_Pg</Code> to Standard with padding on gives{' '}
+        <Code>+/+/Pg==</Code>. The check and hex view describe the characters and bytes only; they do not show that a value
+        is authentic, and a JWT segment decoded here is not a verified token.
+      </P>
 
       <GuideHeading>The same conversion in code</GuideHeading>
       <CodeBlock
