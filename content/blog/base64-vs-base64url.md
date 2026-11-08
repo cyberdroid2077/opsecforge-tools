@@ -1,15 +1,15 @@
 ---
-title: "Base64 vs Base64URL: Differences, Padding and Use Cases"
+title: "Base64 vs Base64URL: Differences, Padding and Decoder Pitfalls"
 date: "2026-03-22"
-updated: "2026-10-30"
-description: "Base64URL swaps + and / for - and _ so data fits in URLs, and often drops = padding. RFC 4648 differences, JWT use and when to pick each."
+updated: "2026-11-08"
+description: "Base64URL uses - and _ instead of + and / and usually drops = padding. Tested in Node, atob and Python: which decoders return wrong bytes, and how to convert."
 category: "Web Development"
 tags: ["base64", "base64url", "jwt", "encoding", "url-encoding", "security", "web-development"]
 source_reviewed: "2026-10-30"
 primary_source: "https://www.rfc-editor.org/rfc/rfc4648"
 ---
 
-# Base64 vs Base64URL: Differences, Padding and Use Cases
+# Base64 vs Base64URL: Differences, Padding and Decoder Pitfalls
 
 **Base64URL is Base64 with a URL-safe alphabet.** Both encode bytes in 6-bit groups, but Base64URL uses `-` and `_` in place of `+` and `/` (RFC 4648 section 5), so the output can sit in URLs and file names without escaping. Standard Base64 pads output with `=`; Base64URL specifications such as JWS often omit that padding, though RFC 4648 says padding stays unless the referring specification says otherwise.
 
@@ -24,7 +24,7 @@ primary_source: "https://www.rfc-editor.org/rfc/rfc4648"
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Try it locally</p>
   <h2 class="mt-0 text-2xl font-bold text-slate-100">Try standard Base64 and Base64URL on a sample</h2>
-  <p class="text-slate-300">The converter handles UTF-8 text only, in the loaded browser page. It encodes to unpadded Base64URL and does not decode arbitrary binary data or verify JWTs.</p>
+  <p class="text-slate-300">The converter runs in the loaded browser page. It decodes either variant, shows bytes that are not UTF-8 text as hex, and can convert between standard and URL-safe forms without decoding. It does not verify JWTs.</p>
   <a href="/tools/base64-converter" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Base64 Converter →</a>
 </div>
 
