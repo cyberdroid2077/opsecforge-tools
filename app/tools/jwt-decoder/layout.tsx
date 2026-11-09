@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'JWT Decoder - Decode JSON Web Tokens Instantly',
-  description: 'Free JWT decoder that decodes JSON Web Tokens instantly in your browser. The pasted token is not sent to OpsecForge for processing. Inspect JWT headers and payloads, and optionally check HS/RS/PS/ES signatures locally with a key you paste; a valid signature does not by itself make a token trustworthy.',
+  description: 'Free JWT decoder that decodes JSON Web Tokens instantly in your browser. The pasted token is not sent to OpsecForge for processing. Inspect JWT headers and payloads, and optionally check HS/RS/PS/ES/EdDSA signatures locally with a key you paste; a valid signature does not by itself make a token trustworthy.',
   alternates: { canonical: '/tools/jwt-decoder' },
   keywords: ['JWT decoder', 'decode JWT', 'JWT inspector', 'JSON Web Token decoder', 'JWT parser', 'JWT viewer', 'decode token', 'client-side JWT'],
   openGraph: {
