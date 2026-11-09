@@ -282,7 +282,7 @@ export default function JwtDecoder() {
                             {headerAlg && headerAlg.toLowerCase() === 'none'
                               ? 'This token declares alg "none": it is unsigned, so there is no signature to verify.'
                               : headerAlg
-                                ? `Algorithm "${headerAlg}" is not supported for local verification (HS256/384/512, RS256/384/512, PS256/384/512, ES256/384/512 are).`
+                                ? `Algorithm "${headerAlg}" is not supported for local verification (HS256/384/512, RS256/384/512, PS256/384/512, ES256/384/512 and EdDSA with Ed25519 are).`
                                 : 'The header has no "alg" value, so there is no algorithm to verify against.'}
                           </p>
                         )}
@@ -413,10 +413,13 @@ const given = Buffer.from(signature, 'base64url');
 // Constant-time comparison; the length check comes first because timingSafeEqual throws on a mismatch.
 console.log(given.length === expected.length && timingSafeEqual(given, expected));`}</pre>
                 <p>
-                    For RS*, PS* and ES* tokens you paste the issuer&apos;s public key as a PEM
+                    For RS*, PS*, ES* and EdDSA tokens you paste the issuer&apos;s public key as a PEM
                     (<code>BEGIN PUBLIC KEY</code>), a single JWK, or a JWKS; with a JWKS the token&apos;s <code>kid</code>{' '}
                     selects the key. ES* signatures are the raw <code>r||s</code> form (RFC 7518 section 3.4), and RSA keys under
-                    2048 bits are checked but flagged (RFC 7518 sections 3.3 and 3.5). HMAC secrets shorter than the hash
+                    2048 bits are checked but flagged (RFC 7518 sections 3.3 and 3.5). EdDSA means Ed25519 here: an{' '}
+                    <code>OKP</code> JWK with <code>crv</code> <code>Ed25519</code> or an SPKI PEM, and a 64-byte signature
+                    (<a href="https://www.rfc-editor.org/rfc/rfc8037" rel="noopener noreferrer">RFC 8037</a>). Ed448 is not
+                    supported, and a browser whose Web Crypto lacks Ed25519 will say so instead of giving a result. HMAC secrets shorter than the hash
                     output are flagged too (section 3.2). The page does not fetch a JWKS from a URL, and it does not store or send
                     the key.
                 </p>
@@ -444,7 +447,7 @@ console.log(given.length === expected.length && timingSafeEqual(given, expected)
                 <div className="space-y-8 mt-8">
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Can this tool validate JWT signatures?</h4>
-                        <p className="text-slate-400 mb-0">Optionally, for HS256/384/512, RS256/384/512, PS256/384/512 and ES256/384/512. Click Verify signature locally and supply the shared secret or the public key (PEM, JWK or JWKS); the check runs in this browser tab with Web Crypto and the key is not stored or sent. It checks the signature only, not <code>iss</code>, <code>aud</code>, <code>exp</code> or whether you should trust the key, and a real verifier must fix the accepted algorithm itself instead of reading it from the token.</p>
+                        <p className="text-slate-400 mb-0">Optionally, for HS256/384/512, RS256/384/512, PS256/384/512, ES256/384/512 and EdDSA (Ed25519 only, in browsers whose Web Crypto supports it). Click Verify signature locally and supply the shared secret or the public key (PEM, JWK or JWKS); the check runs in this browser tab with Web Crypto and the key is not stored or sent. It checks the signature only, not <code>iss</code>, <code>aud</code>, <code>exp</code> or whether you should trust the key, and a real verifier must fix the accepted algorithm itself instead of reading it from the token.</p>
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Does it support encrypted JWTs (JWE)?</h4>

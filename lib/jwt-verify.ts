@@ -8,7 +8,8 @@
  * since). It does not show that the token is trustworthy; issuer, audience, expiry, token type and
  * the origin of the key still have to be checked by the application that accepts the token.
  *
- * References: RFC 7515 (JWS), RFC 7518 (JWA), RFC 8725 (JWT best current practices).
+ * References: RFC 7515 (JWS), RFC 7518 (JWA), RFC 8037 (EdDSA / OKP keys in JOSE), RFC 8032 (Ed25519),
+ * RFC 8725 (JWT best current practices).
  */
 
 import { base64UrlDecodeBytes, decodeJwt, type DecodedJwt } from './jwt';
@@ -38,6 +39,12 @@ type AlgSpec =
       curve: 'P-256' | 'P-384' | 'P-521';
       /** Length of the raw r||s signature (RFC 7518 section 3.4). */
       signatureBytes: number;
+    }
+  | {
+      kind: 'eddsa';
+      curve: 'Ed25519';
+      /** Length of an Ed25519 signature (RFC 8032 section 5.1.6). */
+      signatureBytes: 64;
     };
 
 const ALGORITHMS: Record<string, AlgSpec> = {
@@ -54,6 +61,8 @@ const ALGORITHMS: Record<string, AlgSpec> = {
   ES256: { kind: 'ecdsa', hash: 'SHA-256', curve: 'P-256', signatureBytes: 64 },
   ES384: { kind: 'ecdsa', hash: 'SHA-384', curve: 'P-384', signatureBytes: 96 },
   ES512: { kind: 'ecdsa', hash: 'SHA-512', curve: 'P-521', signatureBytes: 132 },
+  // RFC 8037 section 3.1: "EdDSA" with an OKP key; only the Ed25519 curve is handled here.
+  EdDSA: { kind: 'eddsa', curve: 'Ed25519', signatureBytes: 64 },
 };
 
 export const SUPPORTED_JWT_VERIFY_ALGORITHMS = Object.keys(ALGORITHMS);
@@ -207,6 +216,8 @@ function importParams(spec: AlgSpec): Parameters<SubtleCrypto['importKey']>[2] {
       return { name: 'RSA-PSS', hash: { name: spec.hash } };
     case 'ecdsa':
       return { name: 'ECDSA', namedCurve: spec.curve };
+    case 'eddsa':
+      return { name: 'Ed25519' };
   }
 }
 
@@ -220,6 +231,8 @@ function verifyParams(spec: AlgSpec): Parameters<SubtleCrypto['verify']>[0] {
       return { name: 'RSA-PSS', saltLength: spec.saltLength };
     case 'ecdsa':
       return { name: 'ECDSA', hash: { name: spec.hash } };
+    case 'eddsa':
+      return { name: 'Ed25519' };
   }
 }
 
@@ -231,7 +244,7 @@ function hmacKeyBytes(keyText: string, alg: string, warnings: string[]): { bytes
   const confusion = `${alg} is an HMAC algorithm, which needs a shared secret. A public key must never be used as an HMAC secret: that is the algorithm-confusion attack described in RFC 8725 sections 2.1 and 3.1.`;
 
   if (/-----BEGIN [A-Z ]*-----/.test(keyText)) {
-    throw new VerifyFailure(`You pasted a PEM block. ${confusion} If the token should be verified with a public key, its header alg should be RS*, PS* or ES*.`);
+    throw new VerifyFailure(`You pasted a PEM block. ${confusion} If the token should be verified with a public key, its header alg should be RS*, PS*, ES* or EdDSA.`);
   }
 
   if (keyText.trimStart().startsWith('{')) {
@@ -286,6 +299,28 @@ function publicJwkFor(jwk: JsonObject, spec: AlgSpec, alg: string): JsonWebKey {
     );
   }
 
+  if (spec.kind === 'eddsa') {
+    if (jwk.kty !== 'OKP') {
+      throw new VerifyFailure(
+        `${alg} needs an OKP key (RFC 8037 section 2), but the JWK has kty "${String(jwk.kty)}".`,
+      );
+    }
+    if (jwk.crv === 'Ed448') {
+      throw new VerifyFailure(
+        'Ed448 is not supported here (Web Crypto has no Ed448 in most browsers). Only Ed25519 keys can be checked.',
+      );
+    }
+    if (jwk.crv !== spec.curve) {
+      throw new VerifyFailure(
+        `${alg} is checked here only with curve ${spec.curve} (RFC 8037 section 2), but the JWK has crv "${String(jwk.crv)}".`,
+      );
+    }
+    if (typeof jwk.x !== 'string') {
+      throw new VerifyFailure('The OKP JWK needs an "x" member (the public key).');
+    }
+    return { kty: 'OKP', crv: spec.curve, x: jwk.x };
+  }
+
   if (spec.kind === 'ecdsa') {
     if (jwk.kty !== 'EC') {
       throw new VerifyFailure(`${alg} needs an EC key, but the JWK has kty "${String(jwk.kty)}".`);
@@ -318,7 +353,7 @@ async function importPublicKey(
 ): Promise<CryptoKey> {
   const params = importParams(spec);
   const mismatch = `The key could not be imported for ${alg}. Check that the key type${
-    spec.kind === 'ecdsa' ? ` and curve (${spec.curve})` : ''
+    spec.kind === 'ecdsa' || spec.kind === 'eddsa' ? ` and curve (${spec.curve})` : ''
   } match the token's alg.`;
   try {
     if (material.format === 'spki') {
@@ -327,6 +362,11 @@ async function importPublicKey(
     return await subtle.importKey('jwk', publicJwkFor(material.jwk, spec, alg), params, false, ['verify']);
   } catch (err) {
     if (err instanceof VerifyFailure) throw err;
+    if (spec.kind === 'eddsa' && (err as { name?: unknown } | null)?.name === 'NotSupportedError') {
+      throw new VerifyFailure(
+        "This browser's Web Crypto does not support Ed25519, so EdDSA tokens cannot be checked here. It is supported in Chrome and Edge 137+, Firefox 129+ and Safari 17+.",
+      );
+    }
     throw new VerifyFailure(mismatch);
   }
 }
@@ -341,7 +381,8 @@ const isBase64UrlSegment = (segment: string) => /^[A-Za-z0-9_-]*$/.test(segment)
  *
  * `key` is, depending on the header alg:
  *  - HS*: the shared secret as UTF-8 text (an `oct` JWK is also accepted);
- *  - RS*, PS*, ES*: a PEM "BEGIN PUBLIC KEY" (SPKI) block, a single JWK, or a JWKS.
+ *  - RS*, PS*, ES*, EdDSA: a PEM "BEGIN PUBLIC KEY" (SPKI) block, a single JWK, or a JWKS. For EdDSA
+ *    only Ed25519 (an OKP JWK with crv "Ed25519") is handled, and the browser must support it.
  */
 export async function verifyJwtSignature(
   token: string,
@@ -441,6 +482,12 @@ export async function verifyJwtSignature(
         return fail(
           'invalid',
           `An ${headerAlg} signature must be ${spec.signatureBytes} bytes (raw r||s, RFC 7518 section 3.4), but this one is ${signature.length} bytes. DER-encoded ECDSA signatures are not valid JWS signatures.`,
+        );
+      }
+      if (spec.kind === 'eddsa' && signature.length !== spec.signatureBytes) {
+        return fail(
+          'invalid',
+          `An Ed25519 signature must be ${spec.signatureBytes} bytes (RFC 8032 section 5.1.6), but this one is ${signature.length} bytes.`,
         );
       }
     }

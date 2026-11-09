@@ -209,6 +209,139 @@ describe('ECDSA (ES*)', () => {
   });
 });
 
+// EdDSA (Ed25519). The key is the public test key of RFC 8037 Appendix A.1/A.2.
+// The A.4 JWS from the RFC has a non-JSON payload ("Example of Ed25519 signing"), which the decoder
+// rejects (JWT payloads must be JSON objects), so it is checked directly with Web Crypto below.
+// ED_TOKEN / ED_TOKEN_NO_KID were signed by an independent node:crypto script with the RFC 8037 A.1
+// private test key (never stored in this repo) over a synthetic JSON payload.
+const ED = {
+  x: '11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo',
+  jwk: { kty: 'OKP', crv: 'Ed25519', x: '11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo', kid: 'ed25519-rfc8037-a1' },
+  // SPKI of the A.1 public key (12-byte Ed25519 prefix + 32-byte key), exported with Node webcrypto.
+  pem: '-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEA11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPcHURo=\n-----END PUBLIC KEY-----',
+  token:
+    'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsImtpZCI6ImVkMjU1MTktcmZjODAzNy1hMSJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlLnRlc3QiLCJzdWIiOiJzeW50aGV0aWMtdXNlciIsImlhdCI6MTcwMDAwMDAwMH0._KimxcuyNxae3jU_HFSrt9jw-mQ-ZaaDZNmLlgYL5gxiZtysBzsKQ-Yzf6URRJ9luvOqBZ2AJK_DkHHe8W9oDA',
+  tokenNoKid:
+    'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2lzc3Vlci5leGFtcGxlLnRlc3QiLCJzdWIiOiJzeW50aGV0aWMtdXNlciIsImlhdCI6MTcwMDAwMDAwMH0.oomqqzOCJ0c_jK_UtPc_X3rzhvrznZEazKxfbhtTbcGuOF7G1GnFEKt9K9I88Hywe0apCH8an8s2J2S3HB44AQ',
+  rfcA4:
+    'eyJhbGciOiJFZERTQSJ9.RXhhbXBsZSBvZiBFZDI1NTE5IHNpZ25pbmc.hgyY0il_MGCjP0JzlnLWG1PPOt7-09PGcvMg3AIbQR6dWbhijcNR4ki4iylGjg5BhVsPt9g7sVvpAr_MuM0KAg',
+};
+
+describe('EdDSA (Ed25519, RFC 8037)', () => {
+  const noKidJwk = JSON.stringify({ kty: 'OKP', crv: 'Ed25519', x: ED.x });
+
+  it('RFC 8037 A.4 verifies directly with Web Crypto using the A.2 public key', async () => {
+    const subtle = globalThis.crypto.subtle;
+    const key = await subtle.importKey('jwk', { kty: 'OKP', crv: 'Ed25519', x: ED.x }, { name: 'Ed25519' }, false, ['verify']);
+    const [h, p, s] = ED.rfcA4.split('.');
+    const signature = Buffer.from(s, 'base64url');
+    expect(signature.length).toBe(64);
+    expect(await subtle.verify('Ed25519', key, signature, Buffer.from(`${h}.${p}`))).toBe(true);
+  });
+
+  it('RFC 8037 A.4 is not a JSON-payload JWT, so the decoder reports an error rather than a result', async () => {
+    const result = await verifyJwtSignature(ED.rfcA4, noKidJwk);
+    expect(result.status).toBe('error');
+    expect(result.message).toMatch(/payload/);
+  });
+
+  it('verifies with a JWK, a JWKS chosen by kid, and an SPKI PEM', async () => {
+    const jwk = await verifyJwtSignature(ED.token, JSON.stringify(ED.jwk));
+    expect(jwk.status).toBe('valid');
+    expect(jwk.alg).toBe('EdDSA');
+    expect(jwk.keyIdUsed).toBe('ed25519-rfc8037-a1');
+    expect(jwk.warnings).toEqual([]);
+    expect(jwk.message).toMatch(/does not make the token trustworthy/);
+
+    const other = { kty: 'OKP', crv: 'Ed25519', x: ED.x, kid: 'some-other-kid' };
+    const set = await verifyJwtSignature(ED.token, jwks(other, ED.jwk));
+    expect(set.status).toBe('valid');
+    expect(set.keyIdUsed).toBe('ed25519-rfc8037-a1');
+
+    const pem = await verifyJwtSignature(ED.tokenNoKid, ED.pem);
+    expect(pem.status).toBe('valid');
+    expect((await verifyJwtSignature(ED.tokenNoKid, noKidJwk)).status).toBe('valid');
+  });
+
+  it('accepts a JWK whose alg is EdDSA', async () => {
+    expect((await verifyJwtSignature(ED.token, JSON.stringify({ ...ED.jwk, alg: 'EdDSA' }))).status).toBe('valid');
+  });
+
+  it('rejects a changed payload and a changed signature', async () => {
+    expect((await verifyJwtSignature(tamperPayload(ED.token), JSON.stringify(ED.jwk))).status).toBe('invalid');
+    expect((await verifyJwtSignature(tamperSignature(ED.token), JSON.stringify(ED.jwk))).status).toBe('invalid');
+    expect((await verifyJwtSignature(tamperSignature(ED.tokenNoKid), ED.pem)).status).toBe('invalid');
+  });
+
+  it('rejects a signature that is not 64 bytes and says so', async () => {
+    const sig = Buffer.from(ED.token.split('.')[2], 'base64url');
+    const short = await verifyJwtSignature(withSignature(ED.token, b64u(sig.subarray(0, 63))), JSON.stringify(ED.jwk));
+    expect(short.status).toBe('invalid');
+    expect(short.message).toMatch(/64 bytes/);
+    expect(short.message).toMatch(/63 bytes/);
+    expect(short.message).toMatch(/RFC 8032/);
+    const long = await verifyJwtSignature(withSignature(ED.token, b64u(Buffer.concat([sig, Buffer.from([0])]))), JSON.stringify(ED.jwk));
+    expect(long.status).toBe('invalid');
+    expect(long.message).toMatch(/65 bytes/);
+  });
+
+  it('rejects keys of the wrong kty, the Ed448 curve, a missing x, and private members', async () => {
+    const ec = await verifyJwtSignature(ED.tokenNoKid, withoutKid(VECTORS.ec.P256.jwk));
+    expect(ec.status).toBe('error');
+    expect(ec.message).toMatch(/OKP/);
+
+    const ed448 = await verifyJwtSignature(ED.tokenNoKid, JSON.stringify({ kty: 'OKP', crv: 'Ed448', x: ED.x }));
+    expect(ed448.status).toBe('error');
+    expect(ed448.message).toMatch(/Ed448 is not supported/);
+
+    const x25519 = await verifyJwtSignature(ED.tokenNoKid, JSON.stringify({ kty: 'OKP', crv: 'X25519', x: ED.x }));
+    expect(x25519.status).toBe('error');
+    expect(x25519.message).toMatch(/Ed25519/);
+
+    const noX = await verifyJwtSignature(ED.tokenNoKid, JSON.stringify({ kty: 'OKP', crv: 'Ed25519' }));
+    expect(noX.status).toBe('error');
+    expect(noX.message).toMatch(/"x"/);
+
+    const priv = await verifyJwtSignature(ED.tokenNoKid, JSON.stringify({ kty: 'OKP', crv: 'Ed25519', x: ED.x, d: 'AAAA' }));
+    expect(priv.status).toBe('error');
+    expect(priv.message).toMatch(/private/);
+  });
+
+  it('rejects an RSA key and a JWK with a different alg', async () => {
+    expect((await verifyJwtSignature(ED.tokenNoKid, VECTORS.rsa.pem)).status).toBe('error');
+    const alg = await verifyJwtSignature(ED.token, JSON.stringify({ ...ED.jwk, alg: 'ES256' }));
+    expect(alg.status).toBe('error');
+    expect(alg.message).toMatch(/ES256/);
+    expect(alg.message).toMatch(/EdDSA/);
+  });
+
+  it('explains when the browser Web Crypto does not support Ed25519', async () => {
+    const real = globalThis.crypto.subtle;
+    const unsupported = {
+      importKey: async () => {
+        throw new DOMException('Unrecognized name.', 'NotSupportedError');
+      },
+      verify: real.verify.bind(real),
+    } as unknown as SubtleCrypto;
+    const result = await verifyJwtSignature(ED.token, JSON.stringify(ED.jwk), unsupported);
+    expect(result.status).toBe('error');
+    expect(result.message).toMatch(/does not support Ed25519/);
+    expect(result.message).toMatch(/Chrome and Edge 137\+, Firefox 129\+ and Safari 17\+/);
+  });
+
+  it('keeps the generic key-mismatch message for other import failures', async () => {
+    const broken = {
+      importKey: async () => {
+        throw new DOMException('bad data', 'DataError');
+      },
+    } as unknown as SubtleCrypto;
+    const result = await verifyJwtSignature(ED.token, JSON.stringify(ED.jwk), broken);
+    expect(result.status).toBe('error');
+    expect(result.message).toMatch(/could not be imported/);
+    expect(result.message).toMatch(/Ed25519/);
+  });
+});
+
 describe('key selection and key/algorithm matching', () => {
   const token = VECTORS.rsa.tokens.RS256; // header kid "rsa-test-1"
 
@@ -306,9 +439,9 @@ describe('unsigned, unsupported and malformed tokens', () => {
   });
 
   it('reports unsupported algorithms instead of guessing', async () => {
-    const result = await verifyJwtSignature(customHeaderToken({ alg: 'EdDSA' }), VECTORS.rsa.pem);
+    const result = await verifyJwtSignature(customHeaderToken({ alg: 'ES256K' }), VECTORS.rsa.pem);
     expect(result.status).toBe('error');
-    expect(result.alg).toBe('EdDSA');
+    expect(result.alg).toBe('ES256K');
     expect(result.message).toMatch(/not supported/);
     expect((await verifyJwtSignature(customHeaderToken({}), 'x')).status).toBe('error');
   });
@@ -334,6 +467,7 @@ describe('jwtKeyKindForAlg', () => {
     expect(jwtKeyKindForAlg('HS256')).toBe('secret');
     expect(jwtKeyKindForAlg('PS384')).toBe('public-key');
     expect(jwtKeyKindForAlg('ES512')).toBe('public-key');
+    expect(jwtKeyKindForAlg('EdDSA')).toBe('public-key');
     expect(jwtKeyKindForAlg('none')).toBeNull();
     expect(jwtKeyKindForAlg('toString')).toBeNull();
     expect(jwtKeyKindForAlg(undefined)).toBeNull();
