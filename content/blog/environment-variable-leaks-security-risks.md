@@ -1,12 +1,12 @@
 ---
 title: "Environment Variable Leaks: How Secrets Escape and What to Do"
 date: "2026-04-03"
-updated: "2026-10-23"
+updated: "2026-11-10"
 description: "Exposed a .env file or environment variable? Revoke real credentials first, investigate where they escaped, remove reachable copies, and fix the leak path."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["environment-variables", "secrets-management", "credential-leaks", "devsecops", "incident-response"]
-source_reviewed: "2026-07-29"
+source_reviewed: "2026-11-10"
 primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
 ---
 
@@ -104,6 +104,67 @@ Search the places where a secret could have been copied, without printing real s
 6. Review the credential provider's audit logs for unexpected use.
 
 Detection tools are best used in layers. Provider-specific scanners recognize known token formats; custom rules cover internal formats; code review catches unsafe data flow; audit logs show how a valid credential was used.
+
+## Find every copy of a leaked `.env` file
+
+Revoke the credentials first. Then use these commands to find where the file was copied. They list file names, commit IDs, and rules, not file contents, so the values stay out of your terminal scrollback and shell history. The file names below are synthetic.
+
+### Git history
+
+A file deleted from the current tree can still exist in older commits. The `--full-history` option of [git log](https://git-scm.com/docs/git-log) is documented as "Same as the default mode, but does not prune some history", and `--all` treats every ref under `refs/` plus `HEAD` as a starting point. In a [pathspec](https://git-scm.com/docs/gitglossary), `*` can match directory separators, so one pattern covers nested files:
+
+```bash
+git log --all --full-history --format='%h %ad %an' --date=short --name-only -- '*.env*'
+```
+
+The pattern is deliberately broad and also matches names such as `.env.example`. For each suspicious commit ID, list the branches and tags that contain it ([git branch](https://git-scm.com/docs/git-branch), [git tag](https://git-scm.com/docs/git-tag)):
+
+```bash
+git branch -a --contains abc1234
+git tag --contains abc1234
+```
+
+Avoid `git log -p` and `git show` for these paths: they print the file's lines, which puts the secret into your terminal and scrollback.
+
+### Tracked despite `.gitignore`
+
+The [gitignore documentation](https://git-scm.com/docs/gitignore) states that "Files already tracked by Git are not affected" by ignore rules. Check whether the file is tracked, and which rule matches it:
+
+```bash
+git ls-files -- '*.env*'
+git check-ignore -v --no-index .env
+```
+
+`git ls-files` shows tracked files by default; any `.env` it prints is tracked even if an ignore rule matches it. Without `--no-index`, `git check-ignore` prints nothing for a tracked file, which can look as if no rule matches, per its [documentation](https://git-scm.com/docs/git-check-ignore). To stop tracking a file but keep it on disk, `git rm --cached` removes it from the index only ([git rm](https://git-scm.com/docs/git-rm)):
+
+```bash
+git rm --cached .env
+```
+
+This does not remove the file from earlier commits and does not replace revoking the credential.
+
+### npm packages
+
+The npm [developer guide](https://docs.npmjs.com/cli/v11/using-npm/developers#keeping-files-out-of-your-package) says: "If there's no .npmignore file, but there is a .gitignore file, then npm will ignore the stuff matched by the .gitignore file." The reverse case matters here: if a `.npmignore` file exists, a `.env` listed only in `.gitignore` is not covered by that fallback. The same page suggests the `files` array in `package.json` as an allow-list alternative. Preview what would be packaged without creating a tarball ([`dry-run`](https://docs.npmjs.com/cli/v11/commands/npm-pack) reports what npm would do):
+
+```bash
+npm pack --dry-run
+```
+
+Look for `.env` or similar names in the file list. If a package containing one was already published, treat the credentials as exposed and revoke them.
+
+### Docker build context
+
+In the [Docker build context documentation](https://docs.docker.com/build/concepts/context/), instructions such as `COPY` and `ADD` "can refer to any of the files and directories in the context". A `.dockerignore` file removes matching files from the context "before it's sent to the builder". So `COPY . .` can copy a local `.env` into an image unless the file is excluded:
+
+```text
+# .dockerignore
+.env
+.env.*
+!.env.example
+```
+
+Docker's [build check documentation](https://docs.docker.com/reference/build-checks/secrets-used-in-arg-or-env/) says values set with `ARG` or `ENV` persist in the final image, so check build definitions for those too. If an image was pushed to a registry, treat the credentials in it as exposed.
 
 <div class="my-12 rounded-2xl border border-slate-800 bg-slate-900/50 p-8 text-center sm:p-10 shadow-xl">
   <h3 class="mb-3 text-2xl font-bold text-slate-100">Review a draft before you share it</h3>
