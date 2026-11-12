@@ -17,7 +17,7 @@ import {
   type FormatOptions,
   type SQLDialect,
 } from '@/lib/sql-formatter';
-import { SQL_GUIDE_EXAMPLE } from '@/lib/tool-guide-examples';
+import { SQL_GUIDE_EXAMPLE, SQL_POSTGRES_GUIDE_EXAMPLE } from '@/lib/tool-guide-examples';
 
 export default function SQLFormatterPage() {
   const [input, setInput] = useState(DEFAULT_SQL);
@@ -108,7 +108,7 @@ export default function SQLFormatterPage() {
             </div>
 
             <p className="mb-8 text-sm leading-relaxed text-amber-300/90">
-              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. It lays out SELECT, INSERT, UPDATE and DELETE statements; other statements (for example CREATE TABLE) are mostly left on one line. Review vendor-specific syntax before running the result.
+              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. It lays out SELECT, INSERT, UPDATE and DELETE statements; CREATE TABLE gets one column or constraint per line, and other statements are mostly left on one line. Review vendor-specific syntax before running the result.
             </p>
 
             {showOptions && mode === 'format' && (
@@ -202,17 +202,39 @@ export default function SQLFormatterPage() {
 
                 <h2 className="mt-16 text-3xl font-bold text-slate-100">What the dialect setting changes</h2>
                 <p className="text-slate-400">
-                    The three settings share one layout engine. The dialect changes only two things: which extra words are treated as
-                    keywords (for example <code>ILIKE</code>, <code>JSONB</code> and <code>RETURNING</code> in PostgreSQL;{' '}
-                    <code>ENGINE</code>, <code>UNSIGNED</code> and <code>CHARSET</code> in MySQL) and whether PostgreSQL
-                    dollar-quoted strings such as <code>$$ ... $$</code> are kept as one token. Backtick-quoted identifiers and operators
-                    like <code>-&gt;&gt;</code> and <code>::</code> are recognised in every mode. No dialect-specific syntax is checked:
-                    the formatter will lay out invalid SQL without complaint.
+                    The three settings share one layout engine. The dialect changes three things: which extra words are treated as
+                    keywords (for example <code>ILIKE</code>, <code>JSONB</code>, <code>TIMESTAMPTZ</code>, <code>FILTER</code>,{' '}
+                    <code>CONFLICT</code> and <code>NOTHING</code> in PostgreSQL; <code>ENGINE</code>, <code>UNSIGNED</code> and{' '}
+                    <code>CHARSET</code> in MySQL), whether PostgreSQL dollar-quoted strings such as <code>$$ ... $$</code> are kept
+                    as one token, and whether <code>RETURNING</code> and <code>ON CONFLICT</code> start their own lines. Backtick-quoted
+                    identifiers and operators like <code>-&gt;&gt;</code> and <code>::</code> are recognised in every mode, and{' '}
+                    <code>::</code> casts are written without spaces (<code>created_at::DATE</code>) in every mode. No dialect-specific
+                    syntax is checked: the formatter will lay out invalid SQL without complaint.
                 </p>
                 <p className="text-slate-400">
                     Concretely, <code>{SQL_GUIDE_EXAMPLE.returningInput}</code> puts <code>RETURNING id</code> on its own line in
                     PostgreSQL mode. In Standard and MySQL modes <code>returning</code> is not a keyword, so it is left as typed on the{' '}
                     <code>VALUES</code> line.
+                </p>
+                <p className="text-slate-400">
+                    A PostgreSQL upsert in PostgreSQL mode, with indent 2 and uppercase keywords. <code>ON CONFLICT</code> starts a new
+                    line, <code>DO UPDATE</code> stays with it, and the <code>SET</code> assignments get one line each:
+                </p>
+                <div className="not-prose grid min-w-0 gap-4 md:grid-cols-2">
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Input</figcaption>
+                        <pre tabIndex={0} aria-label="PostgreSQL example input (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-cyan-300">{SQL_POSTGRES_GUIDE_EXAMPLE.input}</pre>
+                    </figure>
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Output</figcaption>
+                        <pre tabIndex={0} aria-label="PostgreSQL example output (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-emerald-300">{SQL_POSTGRES_GUIDE_EXAMPLE.output}</pre>
+                    </figure>
+                </div>
+                <p className="text-slate-400">
+                    In every dialect, a <code>CREATE TABLE</code> with more than one column or constraint puts each one on its own
+                    line; only the outer parenthesis is split, so <code>NUMERIC(10, 2)</code>, <code>CHECK (...)</code> and{' '}
+                    <code>PRIMARY KEY (a, b)</code> stay on one line. Type names such as <code>TIMESTAMPTZ</code> and{' '}
+                    <code>BIGSERIAL</code> are only uppercased in PostgreSQL mode.
                 </p>
             </article>
         </section>

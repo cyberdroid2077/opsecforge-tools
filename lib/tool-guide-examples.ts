@@ -160,6 +160,23 @@ export const SQL_GUIDE_EXAMPLE = {
   returningStandard: ['INSERT INTO users (id)', 'VALUES (1) returning id'].join('\n'),
 } as const;
 
+// Formatted with the PostgreSQL dialect, indent 2, uppercase keywords, commas after, max line 120.
+export const SQL_POSTGRES_GUIDE_EXAMPLE = {
+  input:
+    "insert into users (id, email) values ($1, $2) on conflict (email) do update set email = excluded.email, updated_at = now() returning id",
+  output: [
+    'INSERT INTO users (id, email)',
+    'VALUES ($1, $2)',
+    'ON CONFLICT (email) DO UPDATE',
+    'SET',
+    '  email = excluded.email,',
+    '  updated_at = now()',
+    'RETURNING id',
+  ].join('\n'),
+  castInput: "select created_at::date, $1 :: int[], '7 days'::interval from events",
+  castOutput: ['SELECT', '  created_at::DATE,', '  $1::INT[],', "  '7 days'::INTERVAL", 'FROM events'].join('\n'),
+} as const;
+
 export const HASH_GUIDE_VECTOR = {
   // "abc" is the first example message in NIST FIPS 180-4 / the NIST example values.
   message: 'abc',

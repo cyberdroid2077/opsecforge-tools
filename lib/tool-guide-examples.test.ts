@@ -18,6 +18,7 @@ import {
   PASSWORD_GUIDE_ROWS,
   PASSWORD_POLICY_EXAMPLE,
   SQL_GUIDE_EXAMPLE,
+  SQL_POSTGRES_GUIDE_EXAMPLE,
   UNIX_GUIDE_EXAMPLE,
   UUID_GUIDE_EXAMPLE,
   WEBHOOK_GITHUB_VECTOR,
@@ -249,6 +250,13 @@ describe('sql guide example', () => {
     expect(new SQLFormatter(options, 'postgresql').format(SQL_GUIDE_EXAMPLE.returningInput)).toBe(SQL_GUIDE_EXAMPLE.returningPostgres);
     expect(new SQLFormatter(options, 'standard').format(SQL_GUIDE_EXAMPLE.returningInput)).toBe(SQL_GUIDE_EXAMPLE.returningStandard);
     expect(new SQLFormatter(options, 'mysql').format(SQL_GUIDE_EXAMPLE.returningInput)).toBe(SQL_GUIDE_EXAMPLE.returningStandard);
+  });
+
+  it('formats the PostgreSQL upsert and cast examples exactly as shown', () => {
+    const pg = new SQLFormatter(options, 'postgresql');
+
+    expect(pg.format(SQL_POSTGRES_GUIDE_EXAMPLE.input)).toBe(SQL_POSTGRES_GUIDE_EXAMPLE.output);
+    expect(pg.format(SQL_POSTGRES_GUIDE_EXAMPLE.castInput)).toBe(SQL_POSTGRES_GUIDE_EXAMPLE.castOutput);
   });
 });
 

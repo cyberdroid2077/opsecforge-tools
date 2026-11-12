@@ -59,7 +59,7 @@ describe('SQLFormatter syntax preservation', () => {
     );
 
     expect(output).toContain("payload ->> 'user_id'");
-    expect(output).toContain('amount :: NUMERIC(10, 2)');
+    expect(output).toContain('amount::NUMERIC(10, 2)');
     expect(output).toContain("tags @> ARRAY['vip']");
   });
 
@@ -214,6 +214,156 @@ describe('SQLFormatter default example', () => {
 
   it('separates statements with a blank line', () => {
     expect(new SQLFormatter(options, 'standard').format('select 1; select 2;')).toBe('SELECT 1;\n\nSELECT 2;');
+  });
+});
+
+describe('SQLFormatter PostgreSQL layout', () => {
+  const pgOptions: FormatOptions = { ...options, maxLineLength: 80 };
+  const pg = (sql: string) => new SQLFormatter(pgOptions, 'postgresql').format(sql);
+
+  it('puts ON CONFLICT ... DO UPDATE on its own lines and keeps now() tight', () => {
+    expect(
+      pg('insert into users (id, email) values ($1, $2) on conflict (email) do update set email = excluded.email, updated_at = now() returning id;'),
+    ).toBe(
+      [
+        'INSERT INTO users (id, email)',
+        'VALUES ($1, $2)',
+        'ON CONFLICT (email) DO UPDATE',
+        'SET',
+        '  email = excluded.email,',
+        '  updated_at = now()',
+        'RETURNING id;',
+      ].join('\n'),
+    );
+  });
+
+  it('handles ON CONFLICT DO NOTHING and ON CONFLICT ON CONSTRAINT', () => {
+    expect(pg('insert into users (id) values (1) on conflict do nothing;')).toBe(
+      ['INSERT INTO users (id)', 'VALUES (1)', 'ON CONFLICT DO NOTHING;'].join('\n'),
+    );
+    expect(pg('insert into users (id) values (1) on conflict on constraint users_pk do nothing;')).toBe(
+      ['INSERT INTO users (id)', 'VALUES (1)', 'ON CONFLICT ON CONSTRAINT users_pk DO NOTHING;'].join('\n'),
+    );
+  });
+
+  it('does not treat a JOIN ... ON condition as ON CONFLICT', () => {
+    expect(pg('select a from t join u on u.id = t.id join v on v.id = u.id')).toBe(
+      ['SELECT a', 'FROM t', 'JOIN u ON u.id = t.id', 'JOIN v ON v.id = u.id'].join('\n'),
+    );
+  });
+
+  it('only spaces the column-list parenthesis after INSERT INTO, not later function calls', () => {
+    expect(pg('insert into t (a) values (coalesce(1, 2)) returning lower(a)')).toBe(
+      ['INSERT INTO t (a)', 'VALUES (coalesce(1, 2))', 'RETURNING lower(a)'].join('\n'),
+    );
+    expect(pg('insert into t (a) select now() from u')).toBe(['INSERT INTO t (a)', 'SELECT now()', 'FROM u'].join('\n'));
+  });
+
+  it('keeps :: casts tight on both sides', () => {
+    expect(pg("select created_at::date, $1 :: int[], array['a'] :: text[], '7 days'::interval, (a + b)::numeric(10,2) from t")).toBe(
+      [
+        'SELECT',
+        '  created_at::DATE,',
+        '  $1::INT[],',
+        "  ARRAY['a']::TEXT[],",
+        "  '7 days'::INTERVAL,",
+        '  (a + b)::NUMERIC(10, 2)',
+        'FROM t',
+      ].join('\n'),
+    );
+  });
+
+  it('keeps :: tight in every dialect and leaves minify unchanged', () => {
+    expect(new SQLFormatter(pgOptions, 'standard').format('select a :: int from t')).toBe('SELECT a::INT\nFROM t');
+    expect(new SQLFormatter(pgOptions, 'mysql').format('select a :: int from t')).toBe('SELECT a::INT\nFROM t');
+    expect(new SQLFormatter(pgOptions, 'postgresql').minify('select a::int from t')).toBe('select a :: int from t');
+  });
+
+  it('writes FILTER (WHERE ...) with a space after FILTER', () => {
+    expect(pg("select count(*) filter (where status = 'paid') as paid from orders")).toBe(
+      ["SELECT count(*) FILTER (WHERE status = 'paid') AS paid", 'FROM orders'].join('\n'),
+    );
+  });
+
+  it('uppercases NULLS FIRST/LAST, INTERVAL and TIMESTAMPTZ without adding line breaks', () => {
+    expect(pg("select a from t where created_at > now() - interval '7 days' order by t.t desc nulls last, u nulls first")).toBe(
+      ['SELECT a', 'FROM t', "WHERE created_at > now() - INTERVAL '7 days'", 'ORDER BY t.t DESC NULLS LAST, u NULLS FIRST'].join('\n'),
+    );
+    expect(pg('select cast(x as timestamptz) from t')).toBe('SELECT cast(x AS TIMESTAMPTZ)\nFROM t');
+  });
+
+  it('does not break DO $$ ... $$ anonymous blocks', () => {
+    expect(pg('do $$ begin perform 1; end $$;')).toBe('DO $$ begin perform 1; end $$;');
+  });
+});
+
+describe('SQLFormatter CREATE TABLE layout', () => {
+  const create =
+    'create table if not exists items (id bigserial primary key, sku text not null unique, price numeric(10,2) check (price >= 0), created_at timestamptz not null default now());';
+
+  it('puts each column on its own line in PostgreSQL mode', () => {
+    expect(new SQLFormatter({ ...options, maxLineLength: 80 }, 'postgresql').format(create)).toBe(
+      [
+        'CREATE TABLE IF NOT EXISTS items (',
+        '  id BIGSERIAL PRIMARY KEY,',
+        '  sku TEXT NOT NULL UNIQUE,',
+        '  price NUMERIC(10, 2) CHECK (price >= 0),',
+        '  created_at TIMESTAMPTZ NOT NULL DEFAULT now()',
+        ');',
+      ].join('\n'),
+    );
+  });
+
+  it('uses the same layout in Standard mode (only the PostgreSQL-only type words differ)', () => {
+    expect(new SQLFormatter(options, 'standard').format(create)).toBe(
+      [
+        'CREATE TABLE IF NOT EXISTS items (',
+        '  id bigserial PRIMARY KEY,',
+        '  sku TEXT NOT NULL UNIQUE,',
+        '  price NUMERIC(10, 2) CHECK (price >= 0),',
+        '  created_at timestamptz NOT NULL DEFAULT now()',
+        ');',
+      ].join('\n'),
+    );
+  });
+
+  it('splits only the outer list; table constraints and REFERENCES stay inline', () => {
+    expect(
+      new SQLFormatter(options, 'postgresql').format(
+        'create table o (id int, user_id int references users(id) on delete set null on update cascade, primary key (id, user_id), foreign key (user_id) references users(id));',
+      ),
+    ).toBe(
+      [
+        'CREATE TABLE o (',
+        '  id INT,',
+        '  user_id INT REFERENCES users (id) ON DELETE SET NULL ON UPDATE cascade,',
+        '  PRIMARY KEY (id, user_id),',
+        '  FOREIGN KEY (user_id) REFERENCES users (id)',
+        ');',
+      ].join('\n'),
+    );
+  });
+
+  it('supports leading commas and keeps a single column inline', () => {
+    expect(new SQLFormatter({ ...options, commaPosition: 'before' }, 'standard').format('create table t (a int, b text)')).toBe(
+      ['CREATE TABLE t (', '  a INT', '  , b TEXT', ')'].join('\n'),
+    );
+    expect(new SQLFormatter(options, 'standard').format('create table t (a int)')).toBe('CREATE TABLE t (a INT)');
+  });
+
+  it('spaces the column list after a quoted table name', () => {
+    expect(new SQLFormatter(options, 'mysql').format('create table `t` (id int, name varchar(20))')).toBe(
+      ['CREATE TABLE `t` (', '  id INT,', '  name VARCHAR(20)', ')'].join('\n'),
+    );
+    expect(new SQLFormatter(options, 'postgresql').format('insert into "users" (id) values (1)')).toBe(
+      ['INSERT INTO "users" (id)', 'VALUES (1)'].join('\n'),
+    );
+  });
+
+  it('does not change CREATE TABLE ... AS SELECT', () => {
+    expect(new SQLFormatter(options, 'standard').format('create table t2 as select a from t')).toBe(
+      ['CREATE TABLE t2 AS', 'SELECT a', 'FROM t'].join('\n'),
+    );
   });
 });
 
