@@ -28,7 +28,8 @@ const KEYWORDS = new Set([
   'VARCHAR', 'CHAR', 'TEXT', 'INT', 'INTEGER', 'DECIMAL', 'NUMERIC',
   'FLOAT', 'DOUBLE', 'DATE', 'TIME', 'DATETIME', 'TIMESTAMP', 'BOOLEAN',
   'BEGIN', 'COMMIT', 'ROLLBACK', 'TRANSACTION', 'INTERSECT', 'EXCEPT', 'NATURAL',
-  'WITH', 'RECURSIVE', 'LATERAL', 'ASC', 'DESC', 'OVER', 'PARTITION'
+  'WITH', 'RECURSIVE', 'LATERAL', 'ASC', 'DESC', 'OVER', 'PARTITION',
+  'INTERVAL', 'NULLS', 'FIRST', 'LAST'
 ]);
 
 const MYSQL_KEYWORDS = new Set([
@@ -40,7 +41,7 @@ const PG_KEYWORDS = new Set([
   'RETURNING', 'SERIAL', 'BIGSERIAL', 'SMALLSERIAL', 'UUID', 'JSON',
   'JSONB', 'ARRAY', 'ILIKE', 'SIMILAR', 'TO', 'WINDOW', 'OVER',
   'PARTITION', 'RANGE', 'ROWS', 'PRECEDING', 'FOLLOWING', 'UNBOUNDED',
-  'CURRENT', 'ROW'
+  'CURRENT', 'ROW', 'TIMESTAMPTZ', 'CONFLICT', 'NOTHING', 'FILTER', 'DO'
 ]);
 
 export class SQLFormatter {
@@ -248,6 +249,13 @@ export class SQLFormatter {
         continue;
       }
 
+      // INSERT ... ON CONFLICT: only an ON that is directly followed by CONFLICT.
+      if (upper === 'ON' && up(i + 1) === 'CONFLICT' && keywords.has('CONFLICT')) {
+        result.push({ text: `${token} ${tokens[i + 1]}`, clause: true });
+        i++;
+        continue;
+      }
+
       if (upper === 'INSERT' && up(i + 1) === 'INTO') {
         result.push({ text: `${token} ${tokens[i + 1]}`, clause: true });
         i++;
@@ -270,8 +278,9 @@ export class SQLFormatter {
         upper === 'OFFSET' ||
         upper === 'VALUES' ||
         (upper === 'FROM' && previous !== 'DISTINCT') ||
-        (upper === 'UPDATE' && !['KEY', 'DO', 'FOR', 'OF'].includes(previous)) ||
-        (upper === 'SET' && previous !== 'ALTER') ||
+        (upper === 'UPDATE' && !['KEY', 'DO', 'FOR', 'OF', 'ON'].includes(previous)) ||
+        (upper === 'SET' && previous !== 'ALTER' && previous !== 'DELETE' &&
+          !(previous === 'UPDATE' && i >= 2 && up(i - 2) === 'ON')) ||
         (upper === 'WITH' && atStatementStart) ||
         (upper === 'RETURNING' && keywords.has('RETURNING'));
 
@@ -293,7 +302,8 @@ export class SQLFormatter {
     const typeOrFunctionLike = new Set([
       'VARCHAR', 'CHAR', 'DECIMAL', 'NUMERIC', 'FLOAT', 'DOUBLE', 'TIMESTAMP', 'TIME',
       'DATETIME', 'INT', 'INTEGER', 'BIGINT', 'TEXT', 'IF', 'LEFT', 'RIGHT', 'DATE',
-      'UUID', 'JSON', 'JSONB', 'ARRAY', 'BOOLEAN', 'CHECK', 'REPLACE',
+      'UUID', 'JSON', 'JSONB', 'ARRAY', 'BOOLEAN', 'REPLACE', 'TIMESTAMPTZ',
+      'INTERVAL', 'FIRST', 'LAST',
     ]);
     // Clauses whose comma-separated items go on their own line (when there is more than one).
     const listClauses = new Set(['SELECT', 'SET', 'VALUES', 'RETURNING']);
@@ -310,7 +320,10 @@ export class SQLFormatter {
     let lineStart = true;
     let lineLevel = 0;
     let newStatement = false;
-    let rootSpaceParen = false;
+    // Set after INSERT INTO / CREATE TABLE: the first "(" that follows the table name is a column
+    // list and gets a space before it ("users (id)"). Consumed by that "(" or by any clause/AS.
+    let tableParen: 'insert' | 'create' | null = null;
+    let afterCast = false;
     let statementFirstWord = '';
     let previous: SqlToken | null = null;
     let previousPrevious: SqlToken | null = null;
@@ -328,6 +341,8 @@ export class SQLFormatter {
     const currentLineLength = () => out.length - (out.lastIndexOf('\n') + 1);
 
     const emit = (text: string, spaceBefore: boolean) => {
+      if (afterCast) spaceBefore = false;
+      afterCast = false;
       if (spaceBefore && !lineStart && out && !/[\s([]$/.test(out)) out += ' ';
       out += text;
       lineStart = false;
@@ -353,20 +368,25 @@ export class SQLFormatter {
       return false;
     };
 
+    const isTableParen = (frame: Frame) => tableParen !== null && stack.length === 1 && frame === stack[0];
+
     const spaceBeforeParen = (frame: Frame) => {
       if (!previous) return false;
       if (previous.clause) return true;
       if (previous.text === '(' || previous.text === '[') return false;
-      if (this.isProtectedToken(previous.text)) return false;
+      if (this.isProtectedToken(previous.text)) {
+        // Quoted table names: INSERT INTO "users" (id), CREATE TABLE `t` (...).
+        return /^["`]/.test(previous.text) && (isTableParen(frame) || previousPrevious?.text.toUpperCase() === 'REFERENCES');
+      }
       const upper = previous.text.toUpperCase();
       if (/^[A-Za-z_][A-Za-z0-9_$]*$/.test(previous.text)) {
         if (keywords.has(upper)) return !typeOrFunctionLike.has(upper);
-        return rootSpaceParen && stack.length === 1 && frame === stack[0];
+        return isTableParen(frame) || previousPrevious?.text.toUpperCase() === 'REFERENCES';
       }
       if (previous.text.endsWith('.')) return false;
       if (/[A-Za-z0-9_$]$/.test(previous.text)) {
         // Qualified names such as schema.func or t.col.
-        return rootSpaceParen && stack.length === 1 && frame === stack[0];
+        return isTableParen(frame) || previousPrevious?.text.toUpperCase() === 'REFERENCES';
       }
       return true;
     };
@@ -383,7 +403,8 @@ export class SQLFormatter {
         lineStart = true;
         lineLevel = 0;
         newStatement = false;
-        rootSpaceParen = false;
+        tableParen = null;
+        afterCast = false;
         statementFirstWord = '';
         stack.length = 1;
         stack[0] = { sub: true, level: 0, clause: '', list: false, pendingBreak: false };
@@ -431,20 +452,28 @@ export class SQLFormatter {
           frame.clause = name;
           frame.list = false;
           frame.pendingBreak = listClauses.has(name) && isMultiItemList(i);
-          if (name === 'INSERT INTO') rootSpaceParen = true;
+          tableParen = name === 'INSERT INTO' ? 'insert' : null;
         }
       } else if (text === '(') {
         const next = tokens[i + 1];
         const nextUpper = next && !this.isProtectedToken(next.text) ? next.text.toUpperCase() : '';
         const isSubquery = next?.clause === true && (nextUpper === 'SELECT' || nextUpper === 'WITH');
         emit('(', spaceBeforeParen(frame));
-        stack.push({
-          sub: isSubquery,
-          level: lineLevel + 1,
-          clause: '',
-          list: false,
-          pendingBreak: false,
-        });
+        // CREATE TABLE name ( ... ): one column or constraint per line when there is more than one.
+        const columnList = !isSubquery && tableParen === 'create' && stack.length === 1 && frame === stack[0] &&
+          isMultiItemList(i);
+        tableParen = null;
+        if (columnList) {
+          stack.push({ sub: true, level: 0, clause: '', list: false, pendingBreak: true });
+        } else {
+          stack.push({
+            sub: isSubquery,
+            level: lineLevel + 1,
+            clause: '',
+            list: false,
+            pendingBreak: false,
+          });
+        }
       } else if (text === ')') {
         const closing = stack.length > 1 ? stack.pop()! : null;
         if (closing?.sub) {
@@ -481,11 +510,14 @@ export class SQLFormatter {
         const isKeyword = keywords.has(upper) && /^[A-Za-z_][A-Za-z0-9_$]*$/.test(text);
         const display = isKeyword && this.options.uppercaseKeywords ? upper : text;
         const afterQualifier = previous?.text.endsWith('.') && !previous.clause && text === '*';
-        if (maxLength > 0 && !lineStart && /^[A-Za-z0-9_]/.test(display) && currentLineLength() + display.length + 1 > maxLength) {
+        const isCast = text === '::';
+        if (maxLength > 0 && !lineStart && !afterCast && /^[A-Za-z0-9_]/.test(display) && currentLineLength() + display.length + 1 > maxLength) {
           newline(frame.level + 1);
         }
-        emit(display, !afterQualifier);
-        if (upper === 'TABLE' && statementFirstWord === 'CREATE') rootSpaceParen = true;
+        emit(display, !afterQualifier && !isCast);
+        if (isCast) afterCast = true;
+        if (upper === 'TABLE' && statementFirstWord === 'CREATE') tableParen = 'create';
+        if (upper === 'AS' && tableParen !== null) tableParen = null;
       }
 
       previousPrevious = previous;
