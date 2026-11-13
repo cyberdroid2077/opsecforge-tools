@@ -32,7 +32,7 @@ If you are responding to a suspected exposure, use the companion guide: [Environ
 | Is a `.env` file secure? | A `.env` file is plaintext. Keep local variants out of version control, use non-production values for development, and restrict filesystem and backup access. |
 | Can another process read environment variables? | Not automatically. Operating-system identity and isolation matter, but privileged users, debuggers, same-user processes, platform administrators, and a compromised workload may be able to read them. |
 | Should production secrets use environment variables? | Prefer workload identity where available, otherwise a managed secret store and the safest delivery method supported by the platform. If environment injection is required, keep each credential narrow, short-lived, and out of logs. |
-| Should I mount secrets as files instead of environment variables? | Where the platform supports it, usually yes. Kubernetes, Docker Compose, and systemd can all deliver a secret as a file. Some platforms only offer environment variables. See the platform comparison below. |
+| Should I mount secrets as files instead of environment variables? | Where the platform supports it, usually yes. Kubernetes, Docker Compose, and systemd can all deliver a secret as a file. Some platforms only offer environment variables. See the [platform comparison below](#how-common-platforms-deliver-secrets-environment-variable-or-file). |
 | What if an environment variable leaked? | Revoke or rotate the credential first, then investigate and remove reachable copies. Follow the dedicated [environment-variable leak response guide](/blog/environment-variable-leaks-security-risks). |
 
 ## What environment variables do—and do not—protect

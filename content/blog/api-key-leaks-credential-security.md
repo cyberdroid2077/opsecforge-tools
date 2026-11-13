@@ -22,7 +22,7 @@ This guide covers the practical questions: where keys escape, what to do first, 
 
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Before sharing configuration</p>
-  <h2 class="mt-0 text-2xl font-bold text-slate-100">Mask likely secrets locally</h2>
+  <h2 data-toc-skip class="mt-0 text-2xl font-bold text-slate-100">Mask likely secrets locally</h2>
   <p class="text-slate-300">Use the browser-local Safe-to-Share Sanitizer to mask likely credentials in environment files, logs, and snippets. Detection is heuristic, so review the result before sharing.</p>
   <a href="/tools/env-sanitizer" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Safe-to-Share Sanitizer →</a>
 </div>

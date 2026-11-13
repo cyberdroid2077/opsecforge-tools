@@ -31,10 +31,102 @@ export type BlogPostMetadata = {
   primarySource?: string;
 };
 
+export type BlogHeading = {
+  id: string;
+  text: string;
+  level: 2 | 3;
+};
+
 type BlogPost = BlogPostMetadata & {
   contentHtml: string;
+  headings: BlogHeading[];
   faqs?: FaqItem[];
 };
+
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+
+function decodeEntities(value: string): string {
+  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, body: string) => {
+    if (body[0] === '#') {
+      const isHex = body[1] === 'x' || body[1] === 'X';
+      const code = isHex ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
+      if (Number.isFinite(code) && code > 0 && code <= 0x10ffff) {
+        return String.fromCodePoint(code);
+      }
+      return match;
+    }
+    return NAMED_ENTITIES[body.toLowerCase()] ?? match;
+  });
+}
+
+function headingPlainText(innerHtml: string): string {
+  return decodeEntities(innerHtml.replace(/<[^>]*>/g, '')).replace(/\s+/g, ' ').trim();
+}
+
+function slugifyHeading(text: string): string {
+  const slug = text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'section';
+}
+
+const HEADING_PATTERN = /<(h[23])(\s[^>]*)?>([\s\S]*?)<\/\1>/gi;
+const EXISTING_ID_PATTERN = /\sid\s*=\s*(?:"([^"]*)"|'([^']*)')/i;
+const TOC_SKIP_PATTERN = /\sdata-toc-skip(?=[\s=/]|$)/i;
+
+/**
+ * Adds a stable, de-duplicated id to every <h2>/<h3> and returns the table of contents.
+ * Existing ids are kept; headings with `data-toc-skip` get an id but are left out of `headings`.
+ */
+export function addHeadingAnchors(htmlInput: string): { html: string; headings: BlogHeading[] } {
+  const used = new Set<string>();
+  for (const match of htmlInput.matchAll(HEADING_PATTERN)) {
+    const existing = EXISTING_ID_PATTERN.exec(match[2] ?? '');
+    const existingId = existing ? (existing[1] ?? existing[2]) : '';
+    if (existingId) {
+      used.add(existingId);
+    }
+  }
+
+  const headings: BlogHeading[] = [];
+  const result = htmlInput.replace(
+    HEADING_PATTERN,
+    (_match, tag: string, attrs: string | undefined, inner: string) => {
+      const attributes = attrs ?? '';
+      const level = tag.toLowerCase() === 'h2' ? 2 : 3;
+      const text = headingPlainText(inner);
+      const existing = EXISTING_ID_PATTERN.exec(attributes);
+      const existingId = existing ? (existing[1] ?? existing[2]) : '';
+
+      let id = existingId;
+      let openTag = `<${tag}${attributes}>`;
+      if (!id) {
+        const base = slugifyHeading(text);
+        id = base;
+        for (let n = 2; used.has(id); n += 1) {
+          id = `${base}-${n}`;
+        }
+        used.add(id);
+        openTag = `<${tag} id="${id}"${attributes}>`;
+      }
+
+      if (!TOC_SKIP_PATTERN.test(attributes)) {
+        headings.push({ id, text, level });
+      }
+      return `${openTag}${inner}</${tag}>`;
+    },
+  );
+
+  return { html: result, headings };
+}
 
 export function getAllPosts(): BlogPostMetadata[] {
   if (!fs.existsSync(postsDirectory)) {
@@ -87,10 +179,11 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     .use(remarkGfm)
     .use(html, { sanitize: false })
     .process(contentWithoutDuplicateTitle);
-  const contentHtml = processedContent
+  const demotedHtml = processedContent
     .toString()
     .replace(/<h1(\s[^>]*)?>/gi, '<h2$1>')
     .replace(/<\/h1>/gi, '</h2>');
+  const { html: contentHtml, headings } = addHeadingAnchors(demotedHtml);
 
   return {
     slug,
@@ -105,6 +198,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     qualityReviewed: data.reviewed ? String(data.reviewed) : undefined,
     primarySource: data.primary_source ? String(data.primary_source) : undefined,
     contentHtml,
+    headings,
     faqs: (data.faqs as FaqItem[] | undefined) ?? [],
   };
 }

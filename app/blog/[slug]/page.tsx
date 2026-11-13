@@ -58,6 +58,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
+  const tocHeadings = post.headings.filter((heading) => heading.level === 2);
+
   const faqSchema = post.faqs && post.faqs.length > 0 ? {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -177,8 +179,29 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           )}
         </header>
 
+        {tocHeadings.length >= 3 && (
+          <nav
+            aria-label="On this page"
+            className="mb-10 rounded-lg border border-slate-800 bg-slate-900/40 px-5 py-4 text-sm"
+          >
+            <p className="mb-2 font-semibold text-slate-100">On this page</p>
+            <ul className="space-y-1.5">
+              {tocHeadings.map((heading) => (
+                <li key={heading.id}>
+                  <a
+                    href={`#${heading.id}`}
+                    className="text-slate-400 transition-colors hover:text-emerald-400"
+                  >
+                    {heading.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
         <div
-          className="space-y-6 leading-8 text-slate-300 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_a]:text-emerald-400 [&_a]:underline [&_a]:underline-offset-4 [&_h1]:mt-10 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-slate-100 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-slate-100 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-slate-100 [&_li]:ml-6 [&_ul>li]:list-disc [&_ol>li]:list-decimal [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-sm [&_th]:border [&_th]:border-slate-700 [&_th]:bg-slate-800/60 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-slate-100 [&_td]:border [&_td]:border-slate-700 [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_p]:text-slate-300 [&_strong]:text-slate-100 [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-500 [&_blockquote]:bg-slate-800/50 [&_blockquote]:p-6 [&_blockquote]:rounded-r-lg [&_blockquote_p]:m-0 [&_blockquote_strong]:text-emerald-400"
+          className="space-y-6 leading-8 text-slate-300 [&_h2]:scroll-mt-24 [&_h3]:scroll-mt-24 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_a]:text-emerald-400 [&_a]:underline [&_a]:underline-offset-4 [&_h1]:mt-10 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:text-slate-100 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-slate-100 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-slate-100 [&_li]:ml-6 [&_ul>li]:list-disc [&_ol>li]:list-decimal [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:text-sm [&_th]:border [&_th]:border-slate-700 [&_th]:bg-slate-800/60 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-slate-100 [&_td]:border [&_td]:border-slate-700 [&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_p]:text-slate-300 [&_strong]:text-slate-100 [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-500 [&_blockquote]:bg-slate-800/50 [&_blockquote]:p-6 [&_blockquote]:rounded-r-lg [&_blockquote_p]:m-0 [&_blockquote_strong]:text-emerald-400"
           dangerouslySetInnerHTML={{ __html: post.contentHtml }}
         />
 
