@@ -25,7 +25,7 @@ The distinction matters: a matching digest is useful only when the expected valu
 
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">File and text checksums</p>
-  <h2 class="mt-0 text-2xl font-bold text-slate-100">Compare a file with its trusted SHA-256 digest</h2>
+  <h2 data-toc-skip class="mt-0 text-2xl font-bold text-slate-100">Compare a file with its trusted SHA-256 digest</h2>
   <p class="text-slate-300">Select a file up to 8 GiB for SHA-256 or SHA-512 comparison without uploading it. Text hashing is also available; legacy outputs are for compatibility and bcrypt is for learning or testing.</p>
   <a href="/tools/hash-generator#file-checksum" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Compare a file checksum →</a>
 </div>

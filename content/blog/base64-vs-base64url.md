@@ -23,7 +23,7 @@ primary_source: "https://www.rfc-editor.org/rfc/rfc4648"
 
 <div class="my-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
   <p class="mb-2 text-sm font-bold uppercase tracking-widest text-emerald-400">Try it locally</p>
-  <h2 class="mt-0 text-2xl font-bold text-slate-100">Try standard Base64 and Base64URL on a sample</h2>
+  <h2 data-toc-skip class="mt-0 text-2xl font-bold text-slate-100">Try standard Base64 and Base64URL on a sample</h2>
   <p class="text-slate-300">The converter runs in the loaded browser page. It decodes either variant, shows bytes that are not UTF-8 text as hex, and can convert between standard and URL-safe forms without decoding. It does not verify JWTs.</p>
   <a href="/tools/base64-converter" class="mt-4 inline-flex rounded-full bg-emerald-500 px-6 py-3 font-bold !text-slate-950 !no-underline hover:bg-emerald-400">Open the Base64 Converter →</a>
 </div>

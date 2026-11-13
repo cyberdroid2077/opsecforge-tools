@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'node:fs';
-import { getAllPosts, getPostBySlug, getReviewedPosts } from './blog';
+import { addHeadingAnchors, getAllPosts, getPostBySlug, getReviewedPosts } from './blog';
 
 vi.mock('node:fs', () => ({
   default: {
@@ -128,7 +128,7 @@ describe('blog utilities', () => {
 
       const post = await getPostBySlug('reviewed-post');
       expect(post!.contentHtml).not.toContain('<h1');
-      expect(post!.contentHtml).toContain('<h2 class="legacy">Legacy heading</h2>');
+      expect(post!.contentHtml).toContain('<h2 id="legacy-heading" class="legacy">Legacy heading</h2>');
       expect(post!.updated).toBe('2026-07-24');
       expect(post!.sourceReviewed).toBe('2026-07-24');
       expect(post!.primarySource).toBe('https://www.nist.gov/example');
@@ -141,6 +141,122 @@ describe('blog utilities', () => {
       const post = await getPostBySlug('fallback-slug');
       expect(post!.title).toBe('fallback-slug');
     });
+  });
+});
+
+describe('addHeadingAnchors', () => {
+  it('adds ids to plain h2 and h3 headings and collects them', () => {
+    const { html, headings } = addHeadingAnchors('<h2>Why It Matters</h2><p>x</p><h3>Step 1: Setup</h3>');
+    expect(html).toBe('<h2 id="why-it-matters">Why It Matters</h2><p>x</p><h3 id="step-1-setup">Step 1: Setup</h3>');
+    expect(headings).toEqual([
+      { id: 'why-it-matters', text: 'Why It Matters', level: 2 },
+      { id: 'step-1-setup', text: 'Step 1: Setup', level: 3 },
+    ]);
+  });
+
+  it('keeps existing attributes on raw HTML headings', () => {
+    const { html, headings } = addHeadingAnchors('<h2 class="m-0 text-2xl font-bold">Encoding Process</h2>');
+    expect(html).toBe('<h2 id="encoding-process" class="m-0 text-2xl font-bold">Encoding Process</h2>');
+    expect(headings).toEqual([{ id: 'encoding-process', text: 'Encoding Process', level: 2 }]);
+  });
+
+  it('strips inline tags and decodes entities for text and id', () => {
+    const { html, headings } = addHeadingAnchors(
+      '<h2>Use <code>fetch</code> &amp; <a href="/x">&lt;b&gt;</a> &quot;safely&quot; &#x27;now&#39;</h2>',
+    );
+    expect(headings).toEqual([
+      { id: 'use-fetch-b-safely-now', text: 'Use fetch & <b> "safely" \'now\'', level: 2 },
+    ]);
+    expect(html).toContain('<h2 id="use-fetch-b-safely-now">Use <code>fetch</code>');
+  });
+
+  it('falls back to "section" when the text has no usable characters', () => {
+    const { headings } = addHeadingAnchors('<h2>!!!</h2><h2>???</h2>');
+    expect(headings.map((h) => h.id)).toEqual(['section', 'section-2']);
+  });
+
+  it('de-duplicates repeated headings with numeric suffixes', () => {
+    const { headings } = addHeadingAnchors('<h2>Setup</h2><h3>Setup</h3><h2>Setup</h2>');
+    expect(headings.map((h) => h.id)).toEqual(['setup', 'setup-2', 'setup-3']);
+  });
+
+  it('preserves existing ids and reserves them against later headings', () => {
+    const { html, headings } = addHeadingAnchors('<h2>Overview</h2><h2 id="overview">Custom</h2>');
+    expect(html).toContain('<h2 id="overview">Custom</h2>');
+    expect(html).toContain('<h2 id="overview-2">Overview</h2>');
+    expect(headings).toEqual([
+      { id: 'overview-2', text: 'Overview', level: 2 },
+      { id: 'overview', text: 'Custom', level: 2 },
+    ]);
+  });
+
+  it('gives data-toc-skip headings an id but leaves them out of headings', () => {
+    const { html, headings } = addHeadingAnchors(
+      '<h2 data-toc-skip class="mt-0">Try it locally</h2><h2>Real Section</h2>',
+    );
+    expect(html).toContain('<h2 id="try-it-locally" data-toc-skip class="mt-0">Try it locally</h2>');
+    expect(headings).toEqual([{ id: 'real-section', text: 'Real Section', level: 2 }]);
+  });
+
+  it('does not touch escaped headings inside code blocks', () => {
+    const input = '<pre><code>&lt;h2&gt;Fake&lt;/h2&gt;</code></pre><h2>Real</h2>';
+    const { html, headings } = addHeadingAnchors(input);
+    expect(html).toBe('<pre><code>&lt;h2&gt;Fake&lt;/h2&gt;</code></pre><h2 id="real">Real</h2>');
+    expect(headings).toHaveLength(1);
+  });
+});
+
+describe('getPostBySlug headings', () => {
+  function mockPost(body: string) {
+    vi.mocked(fs.existsSync).mockReturnValue(true as any);
+    vi.mocked(fs.readFileSync).mockReturnValue(
+      `---\ntitle: Synthetic\ndate: "2026-01-01"\n---\n${body}` as any,
+    );
+  }
+
+  it('adds ids to markdown headings and exposes them', async () => {
+    mockPost('## First Part\n\ntext\n\n### Detail\n\nmore\n\n## Second Part\n');
+    const post = await getPostBySlug('synthetic');
+    expect(post!.contentHtml).toContain('<h2 id="first-part">First Part</h2>');
+    expect(post!.contentHtml).toContain('<h3 id="detail">Detail</h3>');
+    expect(post!.headings.map((h) => [h.level, h.id])).toEqual([
+      [2, 'first-part'],
+      [3, 'detail'],
+      [2, 'second-part'],
+    ]);
+  });
+
+  it('handles inline code and entities in markdown headings', async () => {
+    mockPost('## Using `fetch` & more\n\ntext\n');
+    const post = await getPostBySlug('synthetic');
+    expect(post!.headings).toEqual([{ id: 'using-fetch-more', text: 'Using fetch & more', level: 2 }]);
+  });
+
+  it('gives demoted h1 headings an id', async () => {
+    mockPost('<h1 class="legacy">Legacy heading</h1>\nBody');
+    const post = await getPostBySlug('synthetic');
+    expect(post!.contentHtml).toContain('<h2 id="legacy-heading" class="legacy">Legacy heading</h2>');
+    expect(post!.headings).toEqual([{ id: 'legacy-heading', text: 'Legacy heading', level: 2 }]);
+  });
+
+  it('keeps toc-skip card headings out of headings and ignores code-block headings', async () => {
+    mockPost(
+      [
+        '<div><h2 data-toc-skip class="mt-0">Try the tool</h2></div>',
+        '',
+        '## Real Section',
+        '',
+        '```html',
+        '<h2>Not a heading</h2>',
+        '```',
+        '',
+      ].join('\n'),
+    );
+    const post = await getPostBySlug('synthetic');
+    expect(post!.headings.map((h) => h.id)).toEqual(['real-section']);
+    // remark-html escapes only the opening angle bracket inside code.
+    expect(post!.contentHtml).toContain('&#x3C;h2>Not a heading&#x3C;/h2>');
+    expect(post!.contentHtml).not.toContain('id="not-a-heading"');
   });
 });
 
