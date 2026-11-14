@@ -136,7 +136,7 @@ export const toolGroups: ToolGroup[] = [
       {
         name: 'UUID Generator',
         href: '/tools/uuid-generator',
-        description: 'Generate random v4 or time-ordered v7 UUIDs (RFC 9562) using the browser crypto API.',
+        description: 'Generate random v4 or time-ordered v7 UUIDs (RFC 9562), or inspect an existing UUID for its version, variant and timestamp.',
         article: {
           title: 'How to generate a UUID v4 in the browser',
           href: '/blog/how-to-generate-uuids-in-browser',

@@ -6,6 +6,7 @@ import { Check, Copy, Hash, Lock, RefreshCw, ShieldCheck } from 'lucide-react';
 import {
   createUuidV4,
   createUuidV7Batch,
+  inspectUuid,
   normalizeUuidCount,
   readUuidV7Timestamp,
   type UuidVersion,
@@ -21,7 +22,13 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
   const [error, setError] = useState('');
   const [v7Time, setV7Time] = useState<number | null>(null);
 
+  const [inspectInput, setInspectInput] = useState('');
+
   const normalizedCount = useMemo(() => normalizeUuidCount(count), [count]);
+  const inspection = useMemo(
+    () => (inspectInput.trim() === '' ? null : inspectUuid(inspectInput)),
+    [inspectInput],
+  );
 
   const generateUuids = () => {
     try {
@@ -84,12 +91,16 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
           <h1 className="mb-6 text-4xl font-extrabold tracking-tight text-slate-100 lg:text-5xl">
             UUID / GUID Generator
             <span className="mt-3 block text-3xl font-medium text-slate-400">
-              Generate one or one hundred identifiers instantly in the browser
+              Generate identifiers, or decode an existing one, in the browser
             </span>
           </h1>
           <p className="max-w-3xl text-lg leading-relaxed text-slate-400">
             Produce random v4 or time-ordered v7 UUIDs (RFC 9562) locally, with optional uppercase
-            output and hyphen removal for systems that want compact or normalized identifiers.
+            output and hyphen removal. To check an ID you already have, use{' '}
+            <a className="text-emerald-400 underline hover:text-emerald-300" href="#inspect">
+              Inspect a UUID
+            </a>{' '}
+            to read its version, variant and any embedded timestamp.
           </p>
         </section>
 
@@ -210,6 +221,125 @@ export default function UuidGeneratorTool({ children }: { children?: ReactNode }
               </span>
             </div>
             <span>Uses crypto.randomUUID() or crypto.getRandomValues(); v7 adds Date.now()</span>
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="inspect"
+          className="mb-24 rounded-[2rem] border border-slate-800 bg-slate-900/40 p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-sm lg:p-8"
+        >
+          <h2 id="inspect" className="mb-2 scroll-mt-24 text-2xl font-bold tracking-tight text-slate-100">
+            Inspect a UUID
+          </h2>
+          <p className="mb-6 max-w-3xl text-sm leading-relaxed text-slate-400">
+            Paste an existing UUID to read its variant, version and embedded fields. Parsing happens in this page; the
+            value is not sent anywhere or stored.
+          </p>
+
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
+            <label
+              htmlFor="uuid-inspect-input"
+              className="block text-xs font-bold uppercase tracking-[0.22em] text-slate-500"
+            >
+              UUID to inspect
+            </label>
+            <button
+              type="button"
+              onClick={() => setInspectInput(output.split('\n')[0])}
+              disabled={!output}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-200 transition-all hover:border-emerald-500/30 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Inspect first generated ID
+            </button>
+          </div>
+          <input
+            id="uuid-inspect-input"
+            type="text"
+            value={inspectInput}
+            onChange={(event) => setInspectInput(event.target.value)}
+            placeholder="e.g. 017f22e2-79b0-7cc3-98c4-dc0c0c07398f, {…} or urn:uuid:…"
+            spellCheck={false}
+            autoComplete="off"
+            autoCapitalize="off"
+            autoCorrect="off"
+            className="w-full rounded-2xl border border-slate-800 bg-slate-950/70 px-5 py-4 font-mono text-base text-cyan-300 outline-none transition-all placeholder:text-slate-700 focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
+          />
+
+          <div aria-live="polite" className="mt-6">
+            {inspection === null ? (
+              <p className="text-sm text-slate-500">
+                Accepts hyphenated or compact hex in any case, optionally in braces or with a urn:uuid: prefix.
+              </p>
+            ) : inspection.ok ? (
+              <>
+                <dl className="grid gap-x-8 gap-y-4 rounded-3xl border border-slate-800 bg-slate-950 p-6 text-sm sm:grid-cols-[11rem_1fr]">
+                  <dt className="font-bold uppercase tracking-widest text-slate-500">Canonical form</dt>
+                  <dd className="break-all font-mono text-emerald-300">{inspection.canonical}</dd>
+
+                  <dt className="font-bold uppercase tracking-widest text-slate-500">Variant</dt>
+                  <dd className="text-slate-200">{inspection.variantLabel}</dd>
+
+                  <dt className="font-bold uppercase tracking-widest text-slate-500">Version</dt>
+                  <dd className="text-slate-200">
+                    <span className="font-mono text-cyan-300">
+                      {inspection.special === 'nil'
+                        ? 'Nil'
+                        : inspection.special === 'max'
+                          ? 'Max'
+                          : inspection.version !== null
+                            ? `v${inspection.version}`
+                            : inspection.undefinedVersion
+                              ? 'Undefined'
+                              : 'Not applicable'}
+                    </span>
+                    <span className="mt-1 block text-slate-400">{inspection.versionNote}</span>
+                  </dd>
+
+                  {inspection.timestamp ? (
+                    <>
+                      <dt className="font-bold uppercase tracking-widest text-slate-500">Timestamp</dt>
+                      <dd className="font-mono text-slate-200">
+                        {inspection.timestamp.iso ?? 'Outside the range a JavaScript Date can show'}
+                        <span className="mt-1 block text-slate-400">{inspection.timestamp.unixMs} ms since the Unix epoch</span>
+                      </dd>
+                    </>
+                  ) : null}
+
+                  {inspection.clockSequence !== null ? (
+                    <>
+                      <dt className="font-bold uppercase tracking-widest text-slate-500">Clock sequence</dt>
+                      <dd className="font-mono text-slate-200">
+                        {inspection.clockSequence}
+                        <span className="text-slate-400"> (0x{inspection.clockSequence.toString(16).padStart(4, '0')})</span>
+                      </dd>
+                    </>
+                  ) : null}
+
+                  {inspection.node ? (
+                    <>
+                      <dt className="font-bold uppercase tracking-widest text-slate-500">Node</dt>
+                      <dd className="text-slate-200">
+                        <span className="font-mono">{inspection.node}</span>
+                        <span className="mt-1 block text-slate-400">{inspection.nodeNote}</span>
+                      </dd>
+                    </>
+                  ) : null}
+                </dl>
+
+                {inspection.timestamp ? (
+                  <p className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 text-sm text-amber-200">
+                    Privacy: anyone who sees this ID can read when it was created.
+                    {inspection.nodeIsMulticast === false
+                      ? ' The node field may also be the MAC address of the machine that generated it.'
+                      : ''}
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <p role="alert" className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-4 text-sm text-rose-300">
+                {inspection.error}
+              </p>
+            )}
           </div>
         </section>
 
