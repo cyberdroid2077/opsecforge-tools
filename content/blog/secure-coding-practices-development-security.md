@@ -1,8 +1,8 @@
 ---
 title: "Secure Coding Practices: What They Are and a Checklist by Development Stage"
 date: "2026-04-06"
-updated: "2026-10-24"
-description: "Secure coding practices are the habits that keep code enforcing its security rules when input is hostile or a component fails. Nine practices with code patterns, sources, and a design-to-deploy checklist."
+updated: "2026-11-15"
+description: "Secure coding practices keep code enforcing its security rules when input is hostile or a component fails. Nine practices with code patterns and sources, a design-to-deploy checklist, and a secure code review checklist."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["secure-coding", "devsecops", "input-validation", "secrets-management", "vulnerability-prevention"]
@@ -14,7 +14,7 @@ primary_source: "https://csrc.nist.gov/pubs/sp/800/218/final"
 
 **Secure coding practices are the design and coding habits that keep software enforcing its security rules when input is hostile, a caller is untrusted, or a dependency fails.** They are not a final scan. Each one targets a specific class of flaw, which is why this page does not try to teach all of them: it names the flaw, shows what it looks like in code, and sends you to the page on this site (and the primary source) that goes deep.
 
-[NIST's Secure Software Development Framework (SP 800-218)](https://csrc.nist.gov/pubs/sp/800/218/final) organizes this work into preparing the organization, protecting the software, producing well-secured software, and responding to vulnerabilities. The practices below cover the "producing well-secured software" part for web and API code. Use the [stage checklist](#checklist-by-development-stage) at the end if you want to jump straight to what to do when.
+[NIST's Secure Software Development Framework (SP 800-218)](https://csrc.nist.gov/pubs/sp/800/218/final) organizes this work into preparing the organization, protecting the software, producing well-secured software, and responding to vulnerabilities. The practices below cover the "producing well-secured software" part for web and API code. Use the [stage checklist](#checklist-by-development-stage) at the end if you want to jump straight to what to do when, or the [code review checklist](#secure-code-review-checklist) if you have a pull request open right now.
 
 ## 1. Check authorization on the object, not just the login
 
@@ -67,7 +67,7 @@ Any feature that fetches a URL for the user (link previews, image import, webhoo
 
 For passwords, NIST SP 800-63B-4 centers on length, screening against a blocklist of commonly used or compromised values, and not forcing arbitrary composition rules; see [what it requires and how to calculate entropy](/blog/password-security-vulnerabilities-best-practices) and try the [Password Generator](/tools/password-generator). Store passwords with a dedicated password hashing function, not a plain hash ([OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)).
 
-For JWTs, the verifier must fix the accepted algorithm itself instead of trusting the token's header, and must check the claims it relies on (issuer, audience, expiry). Decoding a token is not verifying it. Deep dives: [JWT vulnerabilities and safe validation](/blog/jwt-token-vulnerabilities-authentication-security) and [signing and issuing tokens](/blog/jwt-encoder-security-token-generation-best-practices); inspect a token locally with the [JWT Decoder](/tools/jwt-decoder), which parses but does not verify signatures. Sources: [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html), [RFC 8725 (JWT best current practices)](https://www.rfc-editor.org/rfc/rfc8725.html), [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html).
+For JWTs, the verifier must fix the accepted algorithm itself instead of trusting the token's header, and must check the claims it relies on (issuer, audience, expiry). Decoding a token is not verifying it. Deep dives: [JWT vulnerabilities and safe validation](/blog/jwt-token-vulnerabilities-authentication-security) and [signing and issuing tokens](/blog/jwt-encoder-security-token-generation-best-practices); inspect a token locally with the [JWT Decoder](/tools/jwt-decoder), which can also check a signature against a key you paste. That check is a debugging aid; it does not replace verification in your server. Sources: [NIST SP 800-63B-4](https://pages.nist.gov/800-63-4/sp800-63b.html), [RFC 8725 (JWT best current practices)](https://www.rfc-editor.org/rfc/rfc8725.html), [OWASP Authentication Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html).
 
 ## 7. Verify webhook signatures over the raw body
 
@@ -107,6 +107,7 @@ Endpoints without limits on request rate, payload size, query depth, or batch si
 - [ ] For every new route, ask who else's data it returns if the ID changes, and which request fields reach the database.
 - [ ] Add tests for the denied path: another user's ID, a lower role, an extra JSON field, an unsigned webhook.
 - [ ] Search the diff for secrets and for pasted config; sanitize shared files with the [Safe-to-Share Sanitizer](/tools/env-sanitizer).
+- [ ] Walk the diff against the [code review checklist](#secure-code-review-checklist) below.
 
 **Deploy and operate**
 - [ ] CI credentials are short-lived and scoped ([CI/CD token exposure](/blog/oauth-token-leakage-ci-cd-2026)); leak response is rehearsed ([leak response](/blog/environment-variable-leaks-security-risks)).
@@ -114,9 +115,35 @@ Endpoints without limits on request rate, payload size, query depth, or batch si
 - [ ] Logs record authentication and authorization failures without tokens or passwords ([OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)).
 - [ ] You can receive a vulnerability report, ship a fix, and add a test or rule so the same flaw does not return (NIST SSDF group RV).
 
+## Secure code review checklist
+
+A reviewer sees a diff, not a threat model. This checklist is therefore keyed to what appears in the changed lines: when you see the pattern in the left column, ask the question in the middle. Each row maps back to one of the nine practices above.
+
+| In the diff | Ask | Practice |
+| --- | --- | --- |
+| A new route or handler that takes an ID from the path, query, or body | Where is the caller compared with the object's owner or tenant? Is there a test that requests it with a second account? | [1](#1-check-authorization-on-the-object-not-just-the-login) |
+| A request body passed whole to a model: `update(req.body)`, `Model(**data)`, `{ ...req.body }` | Which fields can a client set this way that the form never shows (`role`, `owner_id`, `verified`)? | [2](#2-bind-only-the-fields-a-client-may-set) |
+| SQL next to an f-string, `+`, a template literal, or a raw-query helper such as `.raw()`; a sort column or direction read from the request | Is every value a bound parameter, and does every identifier come from a fixed list in the code? | [3](#3-keep-data-out-of-the-query-text) |
+| `innerHTML`, React's `dangerouslySetInnerHTML`, Vue's `v-html`, Django's `mark_safe`, the Jinja `safe` filter | Where does the value come from? If it can contain user input, which sanitizer and policy does it pass through first? | [4](#4-validate-input-on-the-server-and-encode-output-for-its-destination) |
+| An outbound HTTP call whose URL, host, or path is built from request data or a stored user setting | Is there a host allowlist, is the connected IP checked, and what happens on a redirect? | [5](#5-do-not-let-user-supplied-urls-reach-internal-networks) |
+| A JWT read with a decode-only call (`jwt.decode()` in Node's jsonwebtoken, `verify_signature: False` in PyJWT), or a verify call with no algorithm list | Is the signature verified before any claim is used, with the algorithm fixed in code and issuer, audience, and expiry checked? | [6](#6-use-current-password-rules-and-validate-tokens-fully) |
+| A password stored or compared through a general-purpose hash (`sha256`, `md5`) | Why is this not a password hashing function with a per-password salt? | [6](#6-use-current-password-rules-and-validate-tokens-fully) |
+| A webhook handler that parses JSON before the signature check, or compares signatures with `==` | Is the HMAC computed over the raw bytes, and is the comparison constant-time? | [7](#7-verify-webhook-signatures-over-the-raw-body) |
+| A new long literal string, a committed `.env` or config file, a log line that prints headers or a whole request, a secret in a variable that the build exposes to the browser (for example a `NEXT_PUBLIC_` name) | Is this a credential or could it contain one? If it already reached the remote, has it been revoked, not just deleted? | [8](#8-keep-secrets-out-of-code-logs-and-shared-files) |
+| A new endpoint, a `limit` or page-size parameter, a batch or bulk operation, a debug or internal route | What caps the request rate, payload size, and result count? Is the route listed wherever you keep your API inventory, and does it sit behind the gateway? | [9](#9-limit-resource-use-and-know-every-endpoint-you-expose) |
+
+Three habits make the table more useful:
+
+- **Read the tests first.** If the change adds a route and every test uses the happy path, the denied path is untested. Ask for one test per rule: another user's ID, a lower role, an extra JSON field, an unsigned webhook.
+- **Review what the diff does not show.** A new handler may be missing a middleware that its neighbors get from a router group. Open the file, not just the hunk, and check how the route is registered.
+- **Treat a search hit as a question.** Searching for the patterns above finds candidates; `innerHTML` assigned a constant string is fine. A clean search does not prove the absence of a flaw either, since the same bug can be written in ways no pattern matches.
+
+For a longer, language-neutral list, see the [OWASP Secure Code Review Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Code_Review_Cheat_Sheet.html) and the [OWASP Code Review Guide](https://owasp.org/www-project-code-review-guide/).
+
 ## Sources
 
 - [NIST SP 800-218, Secure Software Development Framework 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
+- [OWASP Secure Code Review Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Code_Review_Cheat_Sheet.html)
 - [OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/), a detailed requirements list to take this page's practices further
 - [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
 - [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
