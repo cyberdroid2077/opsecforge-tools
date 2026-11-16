@@ -1,12 +1,12 @@
 ---
 title: "Environment Variable Leaks: How Secrets Escape and What to Do"
 date: "2026-04-03"
-updated: "2026-11-10"
-description: "Exposed a .env file or environment variable? Revoke real credentials first, investigate where they escaped, remove reachable copies, and fix the leak path."
+updated: "2026-11-16"
+description: "Leaked a .env file? See which values need rotating and where to revoke each one at the issuer, then find every copy and fix the leak path."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["environment-variables", "secrets-management", "credential-leaks", "devsecops", "incident-response"]
-source_reviewed: "2026-11-10"
+source_reviewed: "2026-11-16"
 primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
 ---
 
@@ -16,9 +16,9 @@ primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Manageme
   CREDENTIAL EXPOSURE
 </div>
 
-Environment variables often carry database passwords, API keys, signing secrets, and service credentials. Moving a secret out of source code is useful, but the environment is still only a delivery mechanism. The value can escape through a committed file, a build layer, a log, a diagnostic bundle, or a compromised workload.
+If a `.env` file with real credentials was committed, published, pasted, or built into an image, treat every value in it as leaked. Revoke or rotate each one with the service that issued it, then clean up the copies. Deleting the file or making the repository private does not make a value that was already copied stop working.
 
-This guide focuses on leak paths, detection, and incident response. For the broader design question, start with [Are Environment Variables Secure?](/blog/environment-variable-security-secrets-management).
+The table below shows where to revoke common values. This guide also covers how values escape and how to find every copy. For the broader design question, start with [Are Environment Variables Secure?](/blog/environment-variable-security-secrets-management).
 
 ## Exposed a `.env` file? Do these five things
 
@@ -31,6 +31,31 @@ If an exposed `.env` file contained real credentials, treat each one as compromi
 5. **Fix the original leak path.** Add the appropriate ignore rule, scanner, log filter, build-secret mount, access restriction, or identity-based replacement.
 
 The Safe-to-Share Sanitizer can help review text before it is shared, but it is heuristic and cannot prove that a file contains no secrets. If a value has already escaped, use the issuing provider's revocation control.
+
+## Which values in a leaked .env need rotating, and where to revoke them
+
+Not every line in a `.env` file is a secret. `NODE_ENV`, `PORT`, and a publishable key that the provider designs to be public do not need rotating. If you cannot tell whether a value is sensitive, treat it as a secret.
+
+| Variable name you might see | What it is | What to do |
+| --- | --- | --- |
+| `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | An IAM user access key pair | Create a new access key, switch your workloads to it, then deactivate and delete the old one. See [Update access keys](https://docs.aws.amazon.com/IAM/latest/UserGuide/id-credentials-access-keys-update.html). |
+| `GITHUB_TOKEN`, `GH_TOKEN` | In a `.env` file, usually a GitHub personal access token | Delete the token in your GitHub settings and create a replacement with the narrowest scopes that work. See [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). |
+| `STRIPE_SECRET_KEY` | A Stripe secret API key (`sk_live_…`) | Expire the key in the Stripe Dashboard, create a new one, and update the code that uses it. An expired key can no longer make API calls. See [API keys](https://docs.stripe.com/keys). |
+| `STRIPE_PUBLISHABLE_KEY` | A Stripe publishable key (`pk_live_…`) | Usually no rotation needed. Stripe documents publishable keys as safe to expose outside your back end. Check that the secret key was not in the same file. See [API keys](https://docs.stripe.com/keys). |
+| `STRIPE_WEBHOOK_SECRET` | A webhook endpoint signing secret (`whsec_…`) | Roll the endpoint's signing secret in Stripe, then update your webhook handler. See [Webhooks](https://docs.stripe.com/webhooks#roll-endpoint-secrets). |
+| `SENDGRID_API_KEY` | A SendGrid API key | Delete the key in SendGrid's API key settings and create a new one. SendGrid rejects later calls that use a deleted key. See [API keys](https://www.twilio.com/docs/sendgrid/ui/account-and-settings/api-keys#delete-your-api-key). |
+| `ANTHROPIC_API_KEY` | An Anthropic API key | Create a new key and deactivate the exposed one. Anthropic says it automatically deactivates a key that GitHub reports from a public repository, but a leak anywhere else is yours to revoke. See [API key best practices](https://support.claude.com/en/articles/9767949-api-key-best-practices-keeping-your-keys-safe-and-secure). |
+| `NPM_TOKEN` | An npm access token | Delete the token on the npm website, or run `npm token delete <token-id>`, then issue a new one. See [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens). |
+| `GOOGLE_APPLICATION_CREDENTIALS` | A path to a Google Cloud service account key file | Treat the key file's contents as leaked. Delete that service account key in Google Cloud and create a new one only if you need it. See [Create and delete service account keys](https://cloud.google.com/iam/docs/keys-create-delete#deleting). |
+| `DATABASE_URL` | A connection string that usually embeds a database user and password | Change the password of that database role, for example with PostgreSQL's `ALTER ROLE … WITH PASSWORD '…'`, then update the connection string. See [ALTER ROLE](https://www.postgresql.org/docs/current/sql-alterrole.html). |
+| `JWT_SECRET`, `SESSION_SECRET` | A signing key you generated yourself | Generate a new random value and deploy it. There is no issuer to contact. Tokens or sessions signed with the old value will stop validating, so users will have to sign in again. |
+| `NEXT_PUBLIC_*`, `VITE_*` | Variables that the build inlines into the JavaScript sent to browsers | If a real secret was ever stored under one of these names, it was delivered to every visitor. Revoke it at its issuer. See [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables#bundling-environment-variables-for-the-browser) and [Vite env variables](https://vite.dev/guide/env-and-mode). |
+
+A few notes on using the table:
+
+- Variable names are only a convention. What matters is who issued the value, so check the service the value belongs to, not just the name.
+- After you rotate, confirm that the old value is rejected and the new one works. See [Verify the replacement](#5-verify-the-replacement) below.
+- GitHub's [secret scanning partner program](https://docs.github.com/en/code-security/tutorials/secret-scanning-partner-program) describes how matches found in public repositories and public npm packages can be sent to the service provider. Treat that as a possible extra safeguard, not a reason to wait: revoke the value yourself.
 
 ## How environment variables leak
 
