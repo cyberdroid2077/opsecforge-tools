@@ -1,12 +1,12 @@
 ---
 title: "Are Environment Variables Secure? A Practical Secrets Management Guide"
 date: "2026-04-07"
-updated: "2026-11-11"
-description: "Environment variables keep secrets out of source code but are not a secret manager. See how Kubernetes, Docker, systemd, GitHub Actions, ECS, and Vercel deliver secrets."
+updated: "2026-11-17"
+description: "Environment variables keep secrets out of code, but same-user and child processes can usually read them. See who has access and how Kubernetes, Docker, and systemd deliver secrets."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["environment-variables", "secrets-management", "dotenv-security", "credential-leaks", "devops-security"]
-source_reviewed: "2026-11-11"
+source_reviewed: "2026-11-17"
 primary_source: "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
 ---
 
@@ -30,7 +30,7 @@ If you are responding to a suspected exposure, use the companion guide: [Environ
 | --- | --- |
 | Are environment variables secure? | They can be reasonable configuration transport in a controlled runtime, but they are not encrypted storage or a security boundary. |
 | Is a `.env` file secure? | A `.env` file is plaintext. Keep local variants out of version control, use non-production values for development, and restrict filesystem and backup access. |
-| Can another process read environment variables? | Not automatically. Operating-system identity and isolation matter, but privileged users, debuggers, same-user processes, platform administrators, and a compromised workload may be able to read them. |
+| Can another process read environment variables? | On Linux, `/proc/<pid>/environ` is gated by a ptrace access check: a caller whose user and group IDs match the target (and the target is dumpable), or one holding `CAP_SYS_PTRACE`, can pass it. Child processes also inherit a copy of the whole environment. See [who can read a process's environment](#who-can-read-the-environment-variables-of-a-process). |
 | Should production secrets use environment variables? | Prefer workload identity where available, otherwise a managed secret store and the safest delivery method supported by the platform. If environment injection is required, keep each credential narrow, short-lived, and out of logs. |
 | Should I mount secrets as files instead of environment variables? | Where the platform supports it, usually yes. Kubernetes, Docker Compose, and systemd can all deliver a secret as a file. Some platforms only offer environment variables. See the [platform comparison below](#how-common-platforms-deliver-secrets-environment-variable-or-file). |
 | What if an environment variable leaked? | Revoke or rotate the credential first, then investigate and remove reachable copies. Follow the dedicated [environment-variable leak response guide](/blog/environment-variable-leaks-security-risks). |
@@ -48,7 +48,42 @@ It does not make the secret encrypted or invisible. A value may still be exposed
 - a process, administrator, debugger, or compromised workload with sufficient access;
 - chat messages, issue reports, screenshots, and pasted terminal output.
 
-Operating-system permissions and container boundaries still matter. It is inaccurate to assume that every local process can automatically read every other process's environment. It is equally unsafe to treat the environment as a security boundary: privileged users, same-user processes, debuggers, platform administrators, or a compromised application may be able to reach the value.
+Operating-system permissions and container boundaries still matter, but the environment is not a security boundary. The next section lists the specific paths that the Linux, Docker, and Kubernetes documentation describe.
+
+## Who can read the environment variables of a process?
+
+On Linux the answer depends on a few documented mechanisms. This section summarizes what the manual pages and platform docs say. It is documentation-based, not a test of any particular system, and kernel configuration and security modules can change the outcome.
+
+| Path | Who can read it | Documentation |
+| --- | --- | --- |
+| `/proc/<pid>/environ` | Callers that pass a `PTRACE_MODE_READ_FSCREDS` check | [proc_pid_environ(5)](https://man7.org/linux/man-pages/man5/proc_pid_environ.5.html), [ptrace(2)](https://man7.org/linux/man-pages/man2/ptrace.2.html) |
+| Child processes | Every program the application starts, by default | [environ(7)](https://man7.org/linux/man-pages/man7/environ.7.html) |
+| Container environment | Docker says "often available to all processes" | [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/) |
+| Kubernetes Secrets | Anyone authorized to create a Pod in the namespace | [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) |
+
+### Linux: /proc/&lt;pid&gt;/environ
+
+proc_pid_environ(5) says the file "contains the initial environment that was set when the currently executing program was started via execve(2)," and that "Permission to access this file is governed by a ptrace access mode PTRACE_MODE_READ_FSCREDS check." Per the page, later `putenv(3)` changes are not reflected, so the file shows the startup values.
+
+ptrace(2) describes that check. Access is denied unless the target's real, effective, and saved-set user and group IDs match the caller's, or the caller has the CAP_SYS_PTRACE capability in the user namespace of the target. It is also denied if the target's "dumpable" attribute is not 1 and the caller lacks that capability. Then the "LSM security_ptrace_access_check() interface is invoked," and "The results depend on the LSM(s)," so a Linux Security Module can add its own restrictions. In short, expect a process running with the same user and group IDs to be able to read the file unless the target is non-dumpable or a security module intervenes.
+
+To see what your own process exposes, run `tr '\0' '\n' < /proc/self/environ`. The man page says entries are separated by null bytes.
+
+### Child processes
+
+environ(7) says: "When a child process is created via fork(2), it inherits a copy of its parent's environment." Any shell command, build script, or third-party CLI your application launches starts with every variable unless you pass a trimmed environment.
+
+### Docker containers
+
+Docker's [Compose environment-variable guide](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/) advises: "Don't use environment variables to pass sensitive information, such as passwords, in to your containers. Use secrets instead." The [Compose secrets page](https://docs.docker.com/compose/how-tos/use-secrets/) adds that "Environment variables are often available to all processes, and it can be difficult to track access." Anyone you allow to run commands inside a container, or to read its configuration through the Docker API, should be counted as part of that audience.
+
+### Who can create Pods in Kubernetes
+
+The [Kubernetes section below](#kubernetes) covers etcd and API access. One further sentence from the same Secrets page: "anyone who is authorized to create a Pod in a namespace can use that access to read any Secret in that namespace; this includes indirect access such as the ability to create a Deployment."
+
+### What this means
+
+Treat every process that shares the user ID, every child process, and every person who can create workloads or read their configuration as inside the audience for an environment variable. Run untrusted code under a separate user or container, pass child processes only what they need, and rely on file permissions or a secret store when the audience must be narrower. The ps(1) manual also lists an `e` option, "Show the environment after the command," so a process listing is one more place environment values can appear.
 
 ## Protect `.env` files during development
 
