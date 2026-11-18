@@ -1,13 +1,15 @@
 ---
 title: "How to Generate a UUID v4 in Your Browser"
 date: "2026-03-27"
-reviewed: "2026-10-26"
-description: "Generate RFC 9562 UUID v4 identifiers with browser Web Crypto, understand their collision probability, and learn when UUIDs are—and are not—the right choice."
+reviewed: "2026-11-18"
+description: "Generate a UUID v4 with crypto.randomUUID(). See browser and Node.js support, why it is undefined on plain HTTP pages, and a secure getRandomValues() fallback."
 category: "Developer Tools"
 tags: ["uuid", "guid", "uuid-v4", "web-crypto", "database", "browser"]
 faqs:
   - question: "How do I generate a UUID v4 in the browser?"
     answer: "Use crypto.randomUUID() in a secure browser context. For older browsers with Web Crypto support, fill 16 bytes with crypto.getRandomValues(), then set the UUID v4 version and variant bits. Do not fall back to Math.random()."
+  - question: "Why is crypto.randomUUID not a function?"
+    answer: "The Web Crypto specification exposes randomUUID() only in secure contexts. On a page loaded over plain HTTP from anything other than localhost, such as a dev server opened by LAN IP address, crypto.randomUUID is undefined, while crypto.getRandomValues() still works. Browsers released before Chrome 92, Firefox 95 and Safari 15.4 also lack it."
   - question: "Can two UUID v4 values be the same?"
     answer: "Yes, because the space is finite, but a correctly generated UUID v4 has 122 random bits. Collision risk grows with the number of identifiers generated, so systems must still handle uniqueness conflicts rather than assuming they are impossible."
   - question: "Should I use a UUID as a session token or API secret?"
@@ -15,6 +17,8 @@ faqs:
 ---
 
 # How to Generate a UUID v4 in Your Browser
+
+To generate a UUID v4 in a browser, call `crypto.randomUUID()`. It is built in, needs no library, and returns a lowercase string such as `2c5ea4c0-4067-4a9f-ae55-3f10c8d8f996`. It only exists on pages served over HTTPS or from localhost; anywhere else, build the UUID from `crypto.getRandomValues()` with the [fallback below](#what-the-fallback-does-bit-by-bit).
 
 A UUID is a 128-bit identifier represented as 32 hexadecimal digits, usually grouped as `8-4-4-4-12`. In current standards, [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html) defines UUID versions 1 through 8 and supersedes RFC 4122.
 
@@ -40,6 +44,28 @@ The OpsecForge generator follows that rule: it uses `crypto.randomUUID()` when a
     Open UUID Generator →
   </a>
 </div>
+
+## Why crypto.randomUUID Is Not a Function: Browser, HTTP and Node.js Support
+
+`TypeError: crypto.randomUUID is not a function` has two common causes: the page is not a secure context, or the runtime predates the method. The versions below come from MDN's browser-compat-data and the Node.js documentation, checked on 2026-11-18.
+
+| Runtime | `crypto.randomUUID()` | `crypto.getRandomValues()` |
+| --- | --- | --- |
+| Chrome, Edge | 92 | Chrome 11, Edge 12 |
+| Firefox | 95 | 21 |
+| Safari (macOS and iOS) | 15.4 | 5 |
+| Node.js, global `crypto` | 19.0.0 without a flag | 19.0.0 without a flag |
+| Node.js, `require("node:crypto")` | `randomUUID()` since 14.17.0 and 15.6.0 | `webcrypto.getRandomValues()` since 15.0.0 |
+| Deno | 1.11 | 1.0 |
+| Bun | 1.0.0 | 1.0.0 |
+
+**Plain HTTP pages.** The interface definition in the [Web Cryptography specification](https://w3c.github.io/webcrypto/#crypto-interface) marks `randomUUID()` and `subtle` as `[SecureContext]` but leaves `getRandomValues()` unmarked. A page loaded over `http://` from anything other than localhost is not a secure context, so `crypto` is there, `crypto.getRandomValues()` works, and `crypto.randomUUID` is `undefined`. The usual way to hit this is a dev server opened by LAN address, for example `http://192.168.1.20:3000` from a phone, or an internal tool that is served without TLS. The code runs on `http://localhost:3000` and fails on the other URL in the same browser. We have not reproduced this in a browser for this article; it follows from the specification and MDN's secure-context note.
+
+**Web Workers.** The same definition is `Exposed=(Window,Worker)`, so both methods are available in workers as `self.crypto`, subject to the same secure-context rule.
+
+**Node.js.** The [global `crypto` object](https://nodejs.org/api/globals.html#crypto) has been available without the `--experimental-global-webcrypto` flag since v19.0.0. On older versions, import the module instead: [`require("node:crypto").randomUUID()`](https://nodejs.org/api/crypto.html#cryptorandomuuidoptions) was added in v14.17.0 and v15.6.0. On Node.js 22.23.1, `typeof globalThis.crypto.randomUUID` and `typeof require("node:crypto").randomUUID` both print `function`.
+
+The fallback in the next section is not a rough equivalent. The specification defines `randomUUID()` as: fill 16 bytes with cryptographically secure random bytes, set the four most significant bits of byte 6 to `0100`, set the two most significant bits of byte 8 to `10`, and join the bytes as lowercase hexadecimal with hyphens. The fallback performs those same steps on bytes from `getRandomValues()`.
 
 ## What the Fallback Does, Bit by Bit
 
@@ -158,7 +184,7 @@ uuidV7Time("017F22E2-79B0-7CC3-98C4-DC0C0C07398F").toISOString();
 
 The ISO result, `19:22:22Z`, is the RFC's 2:22:22 PM at UTC−5 expressed in UTC, so the decode matches the specification. The 48-bit value fits exactly in a JavaScript number, so no `BigInt` is needed.
 
-This is the concrete cost of choosing v7: anyone who sees the identifier can recover its creation time to the millisecond, with no key or special access. That is useful for debugging and sorting. It is a disclosure if the ID appears in URLs, exports or logs shared with people who should not learn when a record was created. Note that `crypto.randomUUID()` only produces version 4; generating v7 requires a library or your own code that gets its random bits from `getRandomValues()`.
+This is the concrete cost of choosing v7: anyone who sees the identifier can recover its creation time to the millisecond, with no key or special access. That is useful for debugging and sorting. It is a disclosure if the ID appears in URLs, exports or logs shared with people who should not learn when a record was created. Note that the Web Crypto `crypto.randomUUID()` only produces version 4. In a browser, generating v7 requires a library or your own code that gets its random bits from `getRandomValues()`. On the server, the Node.js documentation lists [`crypto.randomUUIDv7()`](https://nodejs.org/api/crypto.html#cryptorandomuuidv7options) in the `node:crypto` module as added in v26.1.0, with the caveat that its timestamp "relies on a non-monotonic clock and is not guaranteed to be strictly increasing". It is not part of Web Crypto, and it is absent from the Node.js 22.23.1 we tested with (`typeof` prints `undefined`), so feature-detect it as well.
 
 ## UUID v4, UUID v7, or an Integer?
 
@@ -193,5 +219,9 @@ For authenticated sessions, prefer your framework's established session mechanis
 - [MDN: Crypto.randomUUID()](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID)
 - [MDN: Crypto.getRandomValues()](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues)
 - [MDN: Secure contexts](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Secure_Contexts)
+- [W3C: Web Cryptography API, Crypto interface](https://w3c.github.io/webcrypto/#crypto-interface) (`[SecureContext]` on `randomUUID()`, worker exposure, the generation algorithm)
+- [MDN browser-compat-data: api/Crypto.json](https://github.com/mdn/browser-compat-data/blob/main/api/Crypto.json) (browser, Deno and Bun versions)
+- [Node.js: crypto.randomUUID() and crypto.randomUUIDv7()](https://nodejs.org/api/crypto.html#cryptorandomuuidoptions)
+- [Node.js: global crypto](https://nodejs.org/api/globals.html#crypto)
 - [OWASP: Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
 - [OWASP: Insecure Direct Object Reference Prevention](https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html)
