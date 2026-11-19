@@ -18,6 +18,7 @@ import {
   PASSWORD_GUIDE_ROWS,
   PASSWORD_POLICY_EXAMPLE,
   SQL_GUIDE_EXAMPLE,
+  SQL_MYSQL_GUIDE_EXAMPLE,
   SQL_POSTGRES_GUIDE_EXAMPLE,
   UNIX_GUIDE_EXAMPLE,
   UUID_GUIDE_EXAMPLE,
@@ -257,6 +258,13 @@ describe('sql guide example', () => {
 
     expect(pg.format(SQL_POSTGRES_GUIDE_EXAMPLE.input)).toBe(SQL_POSTGRES_GUIDE_EXAMPLE.output);
     expect(pg.format(SQL_POSTGRES_GUIDE_EXAMPLE.castInput)).toBe(SQL_POSTGRES_GUIDE_EXAMPLE.castOutput);
+  });
+
+  it('formats the MySQL upsert and comment examples exactly as shown', () => {
+    const mysql = new SQLFormatter(options, 'mysql');
+
+    expect(mysql.format(SQL_MYSQL_GUIDE_EXAMPLE.input)).toBe(SQL_MYSQL_GUIDE_EXAMPLE.output);
+    expect(mysql.format(SQL_MYSQL_GUIDE_EXAMPLE.commentInput)).toBe(SQL_MYSQL_GUIDE_EXAMPLE.commentOutput);
   });
 });
 
