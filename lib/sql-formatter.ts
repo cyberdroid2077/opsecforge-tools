@@ -34,14 +34,38 @@ const KEYWORDS = new Set([
 
 const MYSQL_KEYWORDS = new Set([
   'ENGINE', 'CHARSET', 'COLLATE', 'AUTO_INCREMENT', 'UNSIGNED', 'ZEROFILL',
-  'COMMENT', 'DELIMITER', 'LIMIT', 'OFFSET'
+  'COMMENT', 'DELIMITER', 'LIMIT', 'OFFSET',
+  // Reserved words in MySQL, so they cannot be unquoted column names.
+  'ADD', 'CASCADE', 'CHANGE', 'CHARACTER', 'COLUMN', 'CURRENT_TIMESTAMP', 'DESCRIBE',
+  'DIV', 'EXPLAIN', 'FOR', 'FORCE', 'FULLTEXT', 'IGNORE', 'LOCK', 'REGEXP', 'RENAME',
+  'REPLACE', 'RESTRICT', 'RLIKE', 'SEPARATOR', 'SHOW', 'STRAIGHT_JOIN', 'USE', 'XOR',
+  'TINYINT', 'SMALLINT', 'MEDIUMINT', 'TINYTEXT', 'MEDIUMTEXT', 'LONGTEXT', 'BLOB',
+  'BINARY', 'VARBINARY',
+  // Not reserved, but rarely anything else where they appear.
+  'ENUM', 'MODIFY', 'TRUNCATE', 'ROLLUP'
 ]);
+
+// Keywords that are written like a function call or a sized type: no space before "(".
+const TYPE_OR_FUNCTION_LIKE = new Set([
+  'VARCHAR', 'CHAR', 'DECIMAL', 'NUMERIC', 'FLOAT', 'DOUBLE', 'TIMESTAMP', 'TIME',
+  'DATETIME', 'INT', 'INTEGER', 'BIGINT', 'TEXT', 'IF', 'LEFT', 'RIGHT', 'DATE',
+  'UUID', 'JSON', 'JSONB', 'ARRAY', 'BOOLEAN', 'REPLACE', 'TIMESTAMPTZ',
+  'INTERVAL', 'FIRST', 'LAST', 'VALUES', 'ENUM', 'TINYINT', 'SMALLINT', 'MEDIUMINT',
+  'BINARY', 'VARBINARY', 'CURRENT_TIMESTAMP',
+]);
+
+// MySQL INSERT modifiers that can sit between INSERT and INTO.
+const INSERT_MODIFIERS = ['IGNORE', 'LOW_PRIORITY', 'HIGH_PRIORITY', 'DELAYED'];
+
+const isCommentToken = (token: string, dialect: SQLDialect) =>
+  token.startsWith('--') || token.startsWith('/*') || (dialect === 'mysql' && token.startsWith('#'));
 
 const PG_KEYWORDS = new Set([
   'RETURNING', 'SERIAL', 'BIGSERIAL', 'SMALLSERIAL', 'UUID', 'JSON',
   'JSONB', 'ARRAY', 'ILIKE', 'SIMILAR', 'TO', 'WINDOW', 'OVER',
   'PARTITION', 'RANGE', 'ROWS', 'PRECEDING', 'FOLLOWING', 'UNBOUNDED',
-  'CURRENT', 'ROW', 'TIMESTAMPTZ', 'CONFLICT', 'NOTHING', 'FILTER', 'DO'
+  'CURRENT', 'ROW', 'TIMESTAMPTZ', 'CONFLICT', 'NOTHING', 'FILTER', 'DO',
+  'ADD', 'COLUMN', 'CASCADE', 'RENAME'
 ]);
 
 export class SQLFormatter {
@@ -68,6 +92,7 @@ export class SQLFormatter {
     let current = '';
     let inString = false;
     let stringChar = '';
+    let backslashEscapes = false;
     let inComment = false;
     let commentType = '';
 
@@ -90,6 +115,14 @@ export class SQLFormatter {
           inComment = true;
           commentType = 'block';
           i++;
+          continue;
+        }
+        // MySQL also starts a line comment with "#". In PostgreSQL "#" is an operator character.
+        if (char === '#' && this.dialect === 'mysql') {
+          if (current) tokens.push(current);
+          current = '#';
+          inComment = true;
+          commentType = 'line';
           continue;
         }
       }
@@ -129,6 +162,10 @@ export class SQLFormatter {
       }
 
       if (!inString && (char === "'" || char === '"' || char === '`')) {
+        // Backslash escapes a quote in MySQL strings and in PostgreSQL E'...' strings. A plain
+        // PostgreSQL string such as 'C:\dir\' ends at its quote, and so does any quoted identifier.
+        backslashEscapes = char !== '`' &&
+          (this.dialect !== 'postgresql' || (char === "'" && /^e$/i.test(current)));
         if (current) tokens.push(current);
         current = char;
         inString = true;
@@ -138,24 +175,29 @@ export class SQLFormatter {
 
       if (inString) {
         current += char;
-        if (char === stringChar && nextChar === stringChar) {
+        if (char !== stringChar) continue;
+
+        // A backslash-escaped quote (\" or \') does not end the string. Check this before the
+        // doubled-quote rule, otherwise "say \"hi\"" is read as an unterminated string.
+        let precedingBackslashes = 0;
+        for (let j = i - 1; j >= 0 && sql[j] === '\\'; j--) precedingBackslashes++;
+        if (backslashEscapes && precedingBackslashes % 2 === 1) continue;
+
+        if (nextChar === stringChar) {
           current += nextChar;
           i++;
           continue;
         }
 
-        let precedingBackslashes = 0;
-        for (let j = i - 1; j >= 0 && sql[j] === '\\'; j--) precedingBackslashes++;
-        if (char === stringChar && precedingBackslashes % 2 === 0) {
-          tokens.push(current);
-          current = '';
-          inString = false;
-        }
+        tokens.push(current);
+        current = '';
+        inString = false;
         continue;
       }
 
+      // "<=>" is MySQL's NULL-safe equality (and a pgvector distance operator, like "<->" and "<#>").
       const operator = [
-        '->>', '#>>', '!~~*', '~~*', '!~*', '::', '->', '#>', '||', '&&',
+        '<=>', '<->', '<#>', '->>', '#>>', '!~~*', '~~*', '!~*', '::', '->', '#>', '||', '&&',
         '<=', '>=', '!=', '<>', ':=', '=>', '<<', '>>', '@>', '<@', '?&',
         '?|', '@@', '@?', '^@', '!~~', '~~', '!~', '~*'
       ].find(candidate => sql.startsWith(candidate, i));
@@ -190,8 +232,7 @@ export class SQLFormatter {
   }
 
   private isProtectedToken(token: string): boolean {
-    return token.startsWith('--') ||
-      token.startsWith('/*') ||
+    return isCommentToken(token, this.dialect) ||
       token.startsWith("'") ||
       token.startsWith('"') ||
       token.startsWith('`') ||
@@ -210,6 +251,10 @@ export class SQLFormatter {
       return previous ? previous.text.toUpperCase() : '';
     };
 
+    // True between ON DUPLICATE KEY UPDATE and the end of the statement, where VALUES(col) is a
+    // function call and not the start of a row list.
+    let inOnDuplicate = false;
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
       const upper = up(i);
@@ -218,6 +263,8 @@ export class SQLFormatter {
         result.push({ text: token, clause: false });
         continue;
       }
+
+      if (upper === ';') inOnDuplicate = false;
 
       // [NATURAL] [LEFT|RIGHT|FULL|INNER|CROSS] [OUTER] JOIN
       let j = i;
@@ -256,9 +303,23 @@ export class SQLFormatter {
         continue;
       }
 
-      if (upper === 'INSERT' && up(i + 1) === 'INTO') {
+      // MySQL INSERT ... ON DUPLICATE KEY UPDATE col = VALUES(col), ...
+      if (upper === 'ON' && up(i + 1) === 'DUPLICATE' && up(i + 2) === 'KEY' && up(i + 3) === 'UPDATE') {
+        result.push({ text: tokens.slice(i, i + 4).join(' '), clause: true });
+        inOnDuplicate = true;
+        i += 3;
+        continue;
+      }
+
+      if ((upper === 'INSERT' || upper === 'REPLACE') && up(i + 1) === 'INTO') {
         result.push({ text: `${token} ${tokens[i + 1]}`, clause: true });
         i++;
+        continue;
+      }
+
+      if (upper === 'INSERT' && INSERT_MODIFIERS.includes(up(i + 1)) && up(i + 2) === 'INTO') {
+        result.push({ text: tokens.slice(i, i + 3).join(' '), clause: true });
+        i += 2;
         continue;
       }
 
@@ -276,10 +337,10 @@ export class SQLFormatter {
         upper === 'HAVING' ||
         upper === 'LIMIT' ||
         upper === 'OFFSET' ||
-        upper === 'VALUES' ||
+        (upper === 'VALUES' && !inOnDuplicate) ||
         (upper === 'FROM' && previous !== 'DISTINCT') ||
         (upper === 'UPDATE' && !['KEY', 'DO', 'FOR', 'OF', 'ON'].includes(previous)) ||
-        (upper === 'SET' && previous !== 'ALTER' && previous !== 'DELETE' &&
+        (upper === 'SET' && !['ALTER', 'DELETE', 'CHARACTER'].includes(previous) &&
           !(previous === 'UPDATE' && i >= 2 && up(i - 2) === 'ON')) ||
         (upper === 'WITH' && atStatementStart) ||
         (upper === 'RETURNING' && keywords.has('RETURNING'));
@@ -299,14 +360,8 @@ export class SQLFormatter {
     const maxLength = this.options.maxLineLength;
     const leadingComma = this.options.commaPosition === 'before';
 
-    const typeOrFunctionLike = new Set([
-      'VARCHAR', 'CHAR', 'DECIMAL', 'NUMERIC', 'FLOAT', 'DOUBLE', 'TIMESTAMP', 'TIME',
-      'DATETIME', 'INT', 'INTEGER', 'BIGINT', 'TEXT', 'IF', 'LEFT', 'RIGHT', 'DATE',
-      'UUID', 'JSON', 'JSONB', 'ARRAY', 'BOOLEAN', 'REPLACE', 'TIMESTAMPTZ',
-      'INTERVAL', 'FIRST', 'LAST',
-    ]);
     // Clauses whose comma-separated items go on their own line (when there is more than one).
-    const listClauses = new Set(['SELECT', 'SET', 'VALUES', 'RETURNING']);
+    const listClauses = new Set(['SELECT', 'SET', 'VALUES', 'RETURNING', 'ON DUPLICATE KEY UPDATE']);
 
     interface Frame {
       sub: boolean;
@@ -325,6 +380,13 @@ export class SQLFormatter {
     let tableParen: 'insert' | 'create' | null = null;
     let afterCast = false;
     let statementFirstWord = '';
+    // ALTER TABLE name action, action, ...: one action per line once there is more than one.
+    let alterActions = false;
+    let alterName: 'none' | 'expected' | 'reading' | 'done' = 'none';
+    // Where a "," or ";" that follows a line comment is inserted, so it does not end up inside
+    // the comment: the end of the text before the run of comments, or -1.
+    let beforeLineComment = -1;
+    let commentRunStart = -1;
     let previous: SqlToken | null = null;
     let previousPrevious: SqlToken | null = null;
     const stack: Frame[] = [{ sub: true, level: 0, clause: '', list: false, pendingBreak: false }];
@@ -370,25 +432,48 @@ export class SQLFormatter {
 
     const isTableParen = (frame: Frame) => tableParen !== null && stack.length === 1 && frame === stack[0];
 
+    // The name before "(" is a table, key or index name rather than a function: REFERENCES t (id),
+    // KEY idx (col), ADD INDEX idx (col), CREATE INDEX idx ON t USING btree (col).
+    const isNamedColumnList = (frame: Frame) => {
+      const before = previousPrevious && !this.isProtectedToken(previousPrevious.text)
+        ? previousPrevious.text.toUpperCase()
+        : '';
+      if (before === 'REFERENCES' || before === 'KEY' || before === 'INDEX') return true;
+      return (before === 'ON' || before === 'USING') && statementFirstWord === 'CREATE' && frame === stack[0] && frame.clause === '';
+    };
+
     const spaceBeforeParen = (frame: Frame) => {
       if (!previous) return false;
       if (previous.clause) return true;
       if (previous.text === '(' || previous.text === '[') return false;
       if (this.isProtectedToken(previous.text)) {
         // Quoted table names: INSERT INTO "users" (id), CREATE TABLE `t` (...).
-        return /^["`]/.test(previous.text) && (isTableParen(frame) || previousPrevious?.text.toUpperCase() === 'REFERENCES');
+        return /^["`]/.test(previous.text) && (isTableParen(frame) || isNamedColumnList(frame));
       }
       const upper = previous.text.toUpperCase();
       if (/^[A-Za-z_][A-Za-z0-9_$]*$/.test(previous.text)) {
-        if (keywords.has(upper)) return !typeOrFunctionLike.has(upper);
-        return isTableParen(frame) || previousPrevious?.text.toUpperCase() === 'REFERENCES';
+        if (keywords.has(upper)) return !TYPE_OR_FUNCTION_LIKE.has(upper);
+        return isTableParen(frame) || isNamedColumnList(frame);
       }
       if (previous.text.endsWith('.')) return false;
       if (/[A-Za-z0-9_$]$/.test(previous.text)) {
         // Qualified names such as schema.func or t.col.
-        return isTableParen(frame) || previousPrevious?.text.toUpperCase() === 'REFERENCES';
+        return isTableParen(frame) || isNamedColumnList(frame);
       }
       return true;
+    };
+
+    // Where a line that got too long continues: one level deeper than the items of a list, so a
+    // wrapped column definition does not look like the next column.
+    const wrapLevel = (frame: Frame) =>
+      frame.level + 1 + (frame.list || (alterActions && stack.length === 1) ? 1 : 0);
+
+    const isQuotedIdentifier = (value: string) => value.startsWith('`') || value.startsWith('"');
+    // `db`.`table`, t.`col` and `t`.col are one qualified name: no space on either side of the dot.
+    const continuesQualifiedName = (value: string) => {
+      if (!previous || previous.clause) return false;
+      if (isQuotedIdentifier(value)) return !this.isProtectedToken(previous.text) && previous.text.endsWith('.');
+      return value.startsWith('.') && isQuotedIdentifier(previous.text);
     };
 
     for (let i = 0; i < tokens.length; i++) {
@@ -396,9 +481,11 @@ export class SQLFormatter {
       const text = tok.text;
       const upper = text.toUpperCase();
       const frame = top();
-      const isComment = text.startsWith('--') || text.startsWith('/*');
+      const isComment = isCommentToken(text, this.dialect);
 
       if (newStatement) {
+        alterActions = false;
+        alterName = 'none';
         out = out.trimEnd() + '\n\n';
         lineStart = true;
         lineLevel = 0;
@@ -413,13 +500,30 @@ export class SQLFormatter {
       }
 
       if (isComment) {
-        const commentLevel = frame.list || frame.pendingBreak ? frame.level + 1 : lineLevel;
+        const commentLevel = frame.list || frame.pendingBreak ? frame.level + 1 : frame.sub ? lineLevel : frame.level;
+        if (commentRunStart === -1) commentRunStart = out.trimEnd().length;
+        if (!text.startsWith('/*')) beforeLineComment = commentRunStart;
         if (out) newline(commentLevel);
         out += text;
         lineStart = false;
         newline(commentLevel);
         continue;
       }
+      const afterLineComment = beforeLineComment;
+      beforeLineComment = -1;
+      commentRunStart = -1;
+      // Attach closing punctuation to the previous token, or put it before a preceding line comment.
+      const attach = (punctuation: string) => {
+        if (afterLineComment > 0) {
+          out = out.slice(0, afterLineComment) + punctuation + out.slice(afterLineComment);
+        } else if (afterLineComment === 0) {
+          out += punctuation;
+          lineStart = false;
+        } else {
+          out = out.trimEnd() + punctuation;
+          lineStart = false;
+        }
+      };
 
       if (!statementFirstWord && !this.isProtectedToken(text)) statementFirstWord = upper;
 
@@ -435,12 +539,25 @@ export class SQLFormatter {
         }
       }
 
+      // First action of a multi-action ALTER TABLE: the first word after the (possibly qualified
+      // or quoted) table name.
+      if (alterName === 'expected' && !['IF', 'EXISTS', 'ONLY'].includes(upper)) {
+        alterName = 'reading';
+      } else if (alterName === 'reading' && !text.startsWith('.') && !previous?.text.endsWith('.')) {
+        alterName = 'done';
+        if (stack.length === 1 && !tok.clause && /^[A-Za-z_]/.test(text) && isMultiItemList(i)) {
+          alterActions = true;
+          newline(1);
+        }
+      }
+
       if (this.isProtectedToken(text)) {
         const isPrefixedString = text.startsWith("'") && previous && /^(E|N|X|B)$/i.test(previous.text);
-        if (maxLength > 0 && !lineStart && currentLineLength() + text.length + 1 > maxLength && !isPrefixedString) {
-          newline(frame.level + 1);
+        const glued = isPrefixedString || continuesQualifiedName(text);
+        if (maxLength > 0 && !lineStart && currentLineLength() + text.length + 1 > maxLength && !glued) {
+          newline(wrapLevel(frame));
         }
-        emit(text, !isPrefixedString);
+        emit(text, !glued);
       } else if (tok.clause) {
         const inlineFrame = !frame.sub;
         if (inlineFrame) {
@@ -452,7 +569,7 @@ export class SQLFormatter {
           frame.clause = name;
           frame.list = false;
           frame.pendingBreak = listClauses.has(name) && isMultiItemList(i);
-          tableParen = name === 'INSERT INTO' ? 'insert' : null;
+          tableParen = /^(INSERT|REPLACE)( \w+)? INTO$/.test(name) ? 'insert' : null;
         }
       } else if (text === '(') {
         const next = tokens[i + 1];
@@ -481,15 +598,22 @@ export class SQLFormatter {
           out += ')';
           lineStart = false;
         } else {
-          out = out.trimEnd() + ')';
-          lineStart = false;
+          attach(')');
         }
       } else if (text === '[') {
         const spaced = !(previous && (/^[A-Za-z_][A-Za-z0-9_$]*$/.test(previous.text) || previous.text === ')' || previous.text === ']' || this.isProtectedToken(previous.text)));
         emit('[', spaced);
       } else if (text === ']') {
-        out = out.trimEnd() + ']';
-        lineStart = false;
+        attach(']');
+      } else if (text === ',' && alterActions && stack.length === 1) {
+        if (leadingComma) {
+          newline(1);
+          out += ',';
+          lineStart = false;
+        } else {
+          attach(',');
+          newline(1);
+        }
       } else if (text === ',') {
         const breaksList = frame.sub && (frame.list || (frame.clause === 'WITH'));
         if (breaksList && leadingComma) {
@@ -497,14 +621,14 @@ export class SQLFormatter {
           out += ',';
           lineStart = false;
         } else if (breaksList) {
-          out = out.trimEnd() + ',';
+          attach(',');
           newline(frame.clause === 'WITH' ? frame.level : frame.level + 1);
         } else {
-          out = out.trimEnd() + ', ';
+          attach(',');
+          if (afterLineComment === -1) out += ' ';
         }
       } else if (text === ';') {
-        out = out.trimEnd() + ';';
-        lineStart = false;
+        attach(';');
         newStatement = true;
       } else {
         const isKeyword = keywords.has(upper) && /^[A-Za-z_][A-Za-z0-9_$]*$/.test(text);
@@ -512,11 +636,12 @@ export class SQLFormatter {
         const afterQualifier = previous?.text.endsWith('.') && !previous.clause && text === '*';
         const isCast = text === '::';
         if (maxLength > 0 && !lineStart && !afterCast && /^[A-Za-z0-9_]/.test(display) && currentLineLength() + display.length + 1 > maxLength) {
-          newline(frame.level + 1);
+          newline(wrapLevel(frame));
         }
-        emit(display, !afterQualifier && !isCast);
+        emit(display, !afterQualifier && !isCast && !continuesQualifiedName(text));
         if (isCast) afterCast = true;
         if (upper === 'TABLE' && statementFirstWord === 'CREATE') tableParen = 'create';
+        if (upper === 'TABLE' && statementFirstWord === 'ALTER' && alterName === 'none') alterName = 'expected';
         if (upper === 'AS' && tableParen !== null) tableParen = null;
       }
 
@@ -530,7 +655,9 @@ export class SQLFormatter {
 
   minify(sql: string): string {
     if (!sql.trim()) return '';
-    const tokens = this.tokenize(sql).filter(token => !token.startsWith('--') && !token.startsWith('/*'));
+    const tokens = this.tokenize(sql).filter(token => !isCommentToken(token, this.dialect));
+    const keywords = this.getAllKeywords();
+    const isQuotedIdentifier = (value: string) => value.startsWith('`') || value.startsWith('"');
     let result = '';
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
@@ -538,7 +665,18 @@ export class SQLFormatter {
       const noSpaceBefore = [')', ']', ',', ';'].includes(token);
       const noSpaceAfterPrevious = previousToken === '(' || previousToken === '[';
       const prefixedString = token.startsWith("'") && previousToken && /^(E|N|X|B)$/i.test(previousToken);
-      if (result && !noSpaceBefore && !noSpaceAfterPrevious && !prefixedString) result += ' ';
+      // `db`.`table` stays one qualified name.
+      const qualifiedName = previousToken !== undefined && (
+        (isQuotedIdentifier(token) && !this.isProtectedToken(previousToken) && previousToken.endsWith('.')) ||
+        (token.startsWith('.') && isQuotedIdentifier(previousToken)));
+      const afterQualifier = token === '*' && previousToken !== undefined &&
+        !this.isProtectedToken(previousToken) && previousToken.endsWith('.');
+      // MySQL only reads name(...) as a function call when there is no space before "(".
+      const callParen = token === '(' && previousToken !== undefined && (
+        /^[A-Za-z_][A-Za-z0-9_$.]*$/.test(previousToken) || previousToken.startsWith('`')) &&
+        (!keywords.has(previousToken.toUpperCase()) || TYPE_OR_FUNCTION_LIKE.has(previousToken.toUpperCase()));
+      if (result && !noSpaceBefore && !noSpaceAfterPrevious && !prefixedString && !qualifiedName &&
+        !afterQualifier && !callParen) result += ' ';
       result += token;
     }
     return result.trim();

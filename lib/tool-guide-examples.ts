@@ -177,6 +177,24 @@ export const SQL_POSTGRES_GUIDE_EXAMPLE = {
   castOutput: ['SELECT', '  created_at::DATE,', '  $1::INT[],', "  '7 days'::INTERVAL", 'FROM events'].join('\n'),
 } as const;
 
+// Formatted with the MySQL dialect, indent 2, uppercase keywords, commas after, max line 120.
+export const SQL_MYSQL_GUIDE_EXAMPLE = {
+  input:
+    "insert into `users` (`id`, `email`) values (1, 'a@example.com'), (2, 'b@example.com') on duplicate key update `email` = values(`email`), updated_at = now()",
+  output: [
+    'INSERT INTO `users` (`id`, `email`)',
+    'VALUES',
+    "  (1, 'a@example.com'),",
+    "  (2, 'b@example.com')",
+    'ON DUPLICATE KEY UPDATE',
+    '  `email` = VALUES(`email`),',
+    '  updated_at = now()',
+  ].join('\n'),
+  // "#" starts a comment only in MySQL mode; the comma stays outside the comment.
+  commentInput: 'select `o`.`id` # order id\n, `o`.`total` from `orders` `o` where `o`.`coupon` <=> null',
+  commentOutput: ['SELECT', '  `o`.`id`,', '  # order id', '  `o`.`total`', 'FROM `orders` `o`', 'WHERE `o`.`coupon` <=> NULL'].join('\n'),
+} as const;
+
 export const HASH_GUIDE_VECTOR = {
   // "abc" is the first example message in NIST FIPS 180-4 / the NIST example values.
   message: 'abc',

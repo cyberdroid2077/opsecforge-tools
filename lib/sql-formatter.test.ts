@@ -336,7 +336,7 @@ describe('SQLFormatter CREATE TABLE layout', () => {
       [
         'CREATE TABLE o (',
         '  id INT,',
-        '  user_id INT REFERENCES users (id) ON DELETE SET NULL ON UPDATE cascade,',
+        '  user_id INT REFERENCES users (id) ON DELETE SET NULL ON UPDATE CASCADE,',
         '  PRIMARY KEY (id, user_id),',
         '  FOREIGN KEY (user_id) REFERENCES users (id)',
         ');',
@@ -380,5 +380,152 @@ describe('SQLFormatter dialect setting', () => {
 
     expect(new SQLFormatter(options, 'postgresql').format(sql)).toBe('SELECT $$a;b$$');
     expect(new SQLFormatter(options, 'standard').format(sql)).not.toBe('SELECT $$a;b$$');
+  });
+});
+
+describe('SQLFormatter MySQL layout', () => {
+  const mysql = new SQLFormatter(options, 'mysql');
+
+  it('puts ON DUPLICATE KEY UPDATE on its own line and keeps VALUES(col) as a function call', () => {
+    expect(
+      mysql.format(
+        "insert into users (id, email) values (1, 'a@example.com'), (2, 'b@example.com') on duplicate key update email = values(email), updated_at = now();",
+      ),
+    ).toBe(
+      [
+        'INSERT INTO users (id, email)',
+        'VALUES',
+        "  (1, 'a@example.com'),",
+        "  (2, 'b@example.com')",
+        'ON DUPLICATE KEY UPDATE',
+        '  email = VALUES(email),',
+        '  updated_at = now();',
+      ].join('\n'),
+    );
+  });
+
+  it('treats VALUES as a row list again in the next statement', () => {
+    expect(
+      mysql.format('insert into t (a) values (1) on duplicate key update a = values(a); insert into t2 (a) values (1), (2);'),
+    ).toBe(
+      [
+        'INSERT INTO t (a)',
+        'VALUES (1)',
+        'ON DUPLICATE KEY UPDATE a = VALUES(a);',
+        '',
+        'INSERT INTO t2 (a)',
+        'VALUES',
+        '  (1),',
+        '  (2);',
+      ].join('\n'),
+    );
+  });
+
+  it('keeps INSERT IGNORE INTO and REPLACE INTO together and spaces the column list', () => {
+    expect(mysql.format('insert ignore into `users` (`id`) values (1)')).toBe('INSERT IGNORE INTO `users` (`id`)\nVALUES (1)');
+    expect(mysql.format('replace into users (id) values (1)')).toBe('REPLACE INTO users (id)\nVALUES (1)');
+    expect(mysql.format("select replace(name, 'a', 'b') from t")).toBe("SELECT REPLACE(name, 'a', 'b')\nFROM t");
+  });
+
+  it('keeps the NULL-safe <=> operator in one piece', () => {
+    expect(mysql.format('select * from t where a <=> b')).toBe('SELECT *\nFROM t\nWHERE a <=> b');
+    expect(mysql.minify('select * from t where a <=> b')).toBe('select * from t where a <=> b');
+    expect(new SQLFormatter(options, 'postgresql').format('select a <-> b, a <#> b, a <=> b')).toBe(
+      'SELECT\n  a <-> b,\n  a <#> b,\n  a <=> b',
+    );
+  });
+
+  it('writes backtick-qualified names without spaces around the dot', () => {
+    expect(mysql.format('select `u`.`id`, `u`.*, db.`users`.id, `u`.name from `db`.`users` `u`')).toBe(
+      ['SELECT', '  `u`.`id`,', '  `u`.*,', '  db.`users`.id,', '  `u`.name', 'FROM `db`.`users` `u`'].join('\n'),
+    );
+    expect(new SQLFormatter(options, 'postgresql').format('select "u"."id" from "public"."users" "u"')).toBe(
+      'SELECT "u"."id"\nFROM "public"."users" "u"',
+    );
+    expect(mysql.minify('select `u`.`id`, `u`.* from `db`.`users` `u`')).toBe('select `u`.`id`, `u`.* from `db`.`users` `u`');
+  });
+
+  it('treats # as a line comment in MySQL mode only', () => {
+    const output = mysql.format("select a # first column\n, b from t where c = '#fff' and d = 1 # trailing\n and e = 2;");
+
+    expect(output.split('\n')).toEqual([
+      'SELECT',
+      '  a,',
+      '  # first column',
+      '  b',
+      'FROM t',
+      "WHERE c = '#fff' AND d = 1",
+      '# trailing',
+      'AND e = 2;',
+    ]);
+    expect(mysql.minify("select a # note\n from t where c = '#fff'")).toBe("select a from t where c = '#fff'");
+    expect(new SQLFormatter(options, 'postgresql').format("select a #> '{b}' from t")).toBe("SELECT a #> '{b}'\nFROM t");
+  });
+
+  it('does not let CHARACTER SET start a SET clause', () => {
+    expect(mysql.format('create table t (id int, name varchar(20) character set utf8mb4 not null, key idx_name (name))')).toBe(
+      ['CREATE TABLE t (', '  id INT,', '  name VARCHAR(20) CHARACTER SET utf8mb4 NOT NULL,', '  KEY idx_name (name)', ')'].join('\n'),
+    );
+  });
+
+  it('reads backslash-escaped quotes inside MySQL strings', () => {
+    expect(mysql.format('select * from t where a = "say \\"hi\\"" and b = \'it\\\'s\' and c = 1')).toBe(
+      'SELECT *\nFROM t\nWHERE a = "say \\"hi\\"" AND b = \'it\\\'s\' AND c = 1',
+    );
+  });
+
+  it('keeps name(...) tight when compacting, as MySQL requires for function calls', () => {
+    expect(mysql.minify('select count(*), ifnull(a, 0) from t where b in (1, 2)')).toBe(
+      'select count(*), ifnull(a, 0) from t where b in (1, 2)',
+    );
+  });
+});
+
+describe('SQLFormatter string and comment safety', () => {
+  it('ends a plain PostgreSQL string at its quote even after a backslash', () => {
+    const pg = new SQLFormatter(options, 'postgresql');
+
+    expect(pg.format("select 'C:\\dir\\' as p, 'x' as q from t")).toBe("SELECT\n  'C:\\dir\\' AS p,\n  'x' AS q\nFROM t");
+    expect(pg.format("select E'it\\'s' as p, 1 as q")).toBe("SELECT\n  E'it\\'s' AS p,\n  1 AS q");
+  });
+
+  it('never moves a comma or semicolon into a line comment', () => {
+    const pg = new SQLFormatter(options, 'postgresql');
+
+    expect(pg.format('select a -- first\n, b from t -- done\n;').split('\n')).toEqual([
+      'SELECT',
+      '  a,',
+      '  -- first',
+      '  b',
+      'FROM t;',
+      '-- done',
+    ]);
+    expect(pg.format('select f(a -- note\n, b) from t').split('\n')).toEqual(['SELECT f(a,', '  -- note', '  b)', 'FROM t']);
+  });
+});
+
+describe('SQLFormatter ALTER TABLE layout', () => {
+  it('puts each action on its own line when there is more than one', () => {
+    expect(
+      new SQLFormatter(options, 'mysql').format(
+        'alter table `shop`.`users` add column age int unsigned not null default 0, add index idx_age (age), drop column legacy;',
+      ),
+    ).toBe(
+      [
+        'ALTER TABLE `shop`.`users`',
+        '  ADD COLUMN age INT UNSIGNED NOT NULL DEFAULT 0,',
+        '  ADD INDEX idx_age (age),',
+        '  DROP COLUMN legacy;',
+      ].join('\n'),
+    );
+    expect(new SQLFormatter(options, 'postgresql').format('alter table users add column a int, drop column b')).toBe(
+      'ALTER TABLE users\n  ADD COLUMN a INT,\n  DROP COLUMN b',
+    );
+  });
+
+  it('leaves a single action on the ALTER TABLE line', () => {
+    expect(new SQLFormatter(options, 'mysql').format('alter table users add column price decimal(10,2)')).toBe(
+      'ALTER TABLE users ADD COLUMN price DECIMAL(10, 2)',
+    );
   });
 });

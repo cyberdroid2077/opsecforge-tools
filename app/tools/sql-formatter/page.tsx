@@ -17,7 +17,7 @@ import {
   type FormatOptions,
   type SQLDialect,
 } from '@/lib/sql-formatter';
-import { SQL_GUIDE_EXAMPLE, SQL_POSTGRES_GUIDE_EXAMPLE } from '@/lib/tool-guide-examples';
+import { SQL_GUIDE_EXAMPLE, SQL_MYSQL_GUIDE_EXAMPLE, SQL_POSTGRES_GUIDE_EXAMPLE } from '@/lib/tool-guide-examples';
 
 export default function SQLFormatterPage() {
   const [input, setInput] = useState(DEFAULT_SQL);
@@ -108,7 +108,7 @@ export default function SQLFormatterPage() {
             </div>
 
             <p className="mb-8 text-sm leading-relaxed text-amber-300/90">
-              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. It lays out SELECT, INSERT, UPDATE and DELETE statements; CREATE TABLE gets one column or constraint per line, and other statements are mostly left on one line. Review vendor-specific syntax before running the result.
+              This tool preserves quoted strings, comments, PostgreSQL dollar-quoted bodies, and common dialect operators, but it does not parse, validate, or execute SQL. It lays out SELECT, INSERT, UPDATE and DELETE statements; CREATE TABLE gets one column or constraint per line, ALTER TABLE one action per line, and other statements are mostly left on one line. Review vendor-specific syntax before running the result.
             </p>
 
             {showOptions && mode === 'format' && (
@@ -202,14 +202,18 @@ export default function SQLFormatterPage() {
 
                 <h2 className="mt-16 text-3xl font-bold text-slate-100">What the dialect setting changes</h2>
                 <p className="text-slate-400">
-                    The three settings share one layout engine. The dialect changes three things: which extra words are treated as
+                    The three settings share one layout engine. The dialect changes four things: which extra words are treated as
                     keywords (for example <code>ILIKE</code>, <code>JSONB</code>, <code>TIMESTAMPTZ</code>, <code>FILTER</code>,{' '}
-                    <code>CONFLICT</code> and <code>NOTHING</code> in PostgreSQL; <code>ENGINE</code>, <code>UNSIGNED</code> and{' '}
-                    <code>CHARSET</code> in MySQL), whether PostgreSQL dollar-quoted strings such as <code>$$ ... $$</code> are kept
-                    as one token, and whether <code>RETURNING</code> and <code>ON CONFLICT</code> start their own lines. Backtick-quoted
-                    identifiers and operators like <code>-&gt;&gt;</code> and <code>::</code> are recognised in every mode, and{' '}
-                    <code>::</code> casts are written without spaces (<code>created_at::DATE</code>) in every mode. No dialect-specific
-                    syntax is checked: the formatter will lay out invalid SQL without complaint.
+                    <code>CONFLICT</code> and <code>NOTHING</code> in PostgreSQL; <code>ENGINE</code>, <code>UNSIGNED</code>,{' '}
+                    <code>ENUM</code>, <code>REGEXP</code> and <code>CHARSET</code> in MySQL), whether PostgreSQL dollar-quoted strings
+                    such as <code>$$ ... $$</code> are kept as one token, whether <code>RETURNING</code> and <code>ON CONFLICT</code>{' '}
+                    start their own lines, and how comments and string escapes are read: <code>#</code> starts a comment only in MySQL
+                    mode (in PostgreSQL it is an operator character), and in PostgreSQL mode a backslash escapes a quote only inside
+                    an <code>E&apos;...&apos;</code> string, so <code>&apos;C:\dir\&apos;</code> ends at its second quote. Backtick-quoted
+                    identifiers, <code>ON DUPLICATE KEY UPDATE</code> and operators like <code>-&gt;&gt;</code>, <code>&lt;=&gt;</code>{' '}
+                    and <code>::</code> are recognised in every mode, and <code>::</code> casts are written without spaces
+                    (<code>created_at::DATE</code>) in every mode. No dialect-specific syntax is checked: the formatter will lay out
+                    invalid SQL without complaint.
                 </p>
                 <p className="text-slate-400">
                     Concretely, <code>{SQL_GUIDE_EXAMPLE.returningInput}</code> puts <code>RETURNING id</code> on its own line in
@@ -234,7 +238,48 @@ export default function SQLFormatterPage() {
                     In every dialect, a <code>CREATE TABLE</code> with more than one column or constraint puts each one on its own
                     line; only the outer parenthesis is split, so <code>NUMERIC(10, 2)</code>, <code>CHECK (...)</code> and{' '}
                     <code>PRIMARY KEY (a, b)</code> stay on one line. Type names such as <code>TIMESTAMPTZ</code> and{' '}
-                    <code>BIGSERIAL</code> are only uppercased in PostgreSQL mode.
+                    <code>BIGSERIAL</code> are only uppercased in PostgreSQL mode. An <code>ALTER TABLE</code> with more than one
+                    comma-separated action puts each action on its own indented line.
+                </p>
+
+                <h2 className="mt-16 text-3xl font-bold text-slate-100">Formatting MySQL queries</h2>
+                <p className="text-slate-400">
+                    A MySQL upsert in MySQL mode, with indent 2 and uppercase keywords. <code>ON DUPLICATE KEY UPDATE</code> starts
+                    a new line and its assignments get one line each. Inside that clause <code>VALUES(`email`)</code> is a function
+                    call, so it stays inline instead of starting a second row list. Backtick-quoted names keep their backticks, and a
+                    qualified name such as <code>`shop`.`users`</code> is written without spaces around the dot.
+                </p>
+                <div className="not-prose grid min-w-0 gap-4 md:grid-cols-2">
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Input</figcaption>
+                        <pre tabIndex={0} aria-label="MySQL example input (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-cyan-300">{SQL_MYSQL_GUIDE_EXAMPLE.input}</pre>
+                    </figure>
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Output</figcaption>
+                        <pre tabIndex={0} aria-label="MySQL example output (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-emerald-300">{SQL_MYSQL_GUIDE_EXAMPLE.output}</pre>
+                    </figure>
+                </div>
+                <p className="text-slate-400">
+                    Two MySQL details the formatter handles in MySQL mode. A <code>#</code> comment runs to the end of its line, and
+                    the comma that followed it in the input is moved in front of the comment so it is not commented out. The
+                    NULL-safe comparison <code>&lt;=&gt;</code> is kept as one operator:
+                </p>
+                <div className="not-prose grid min-w-0 gap-4 md:grid-cols-2">
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Input</figcaption>
+                        <pre tabIndex={0} aria-label="MySQL comment example input (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-cyan-300">{SQL_MYSQL_GUIDE_EXAMPLE.commentInput}</pre>
+                    </figure>
+                    <figure className="min-w-0">
+                        <figcaption className="mb-2 text-xs font-bold uppercase tracking-widest text-slate-500">Output</figcaption>
+                        <pre tabIndex={0} aria-label="MySQL comment example output (scrollable)" className="max-w-full overflow-x-auto rounded-2xl border border-slate-800 bg-slate-950 p-4 font-mono text-sm leading-6 text-emerald-300">{SQL_MYSQL_GUIDE_EXAMPLE.commentOutput}</pre>
+                    </figure>
+                </div>
+                <p className="text-slate-400">
+                    Minify mode writes function calls as <code>count(*)</code> with no space before the parenthesis. That matters in
+                    MySQL: with the default SQL mode (<code>IGNORE_SPACE</code> off), built-in functions such as{' '}
+                    <code>COUNT</code> are only recognised when the name is followed directly by <code>(</code>. The formatter does
+                    not know your server&apos;s SQL mode, and it treats <code>&quot;text&quot;</code> as one quoted token whether your server
+                    reads it as a string or, under <code>ANSI_QUOTES</code>, as an identifier.
                 </p>
             </article>
         </section>
