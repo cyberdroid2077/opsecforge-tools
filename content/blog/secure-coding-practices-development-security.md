@@ -1,12 +1,12 @@
 ---
 title: "Secure Coding Practices: What They Are and a Checklist by Development Stage"
 date: "2026-04-06"
-updated: "2026-11-15"
-description: "Secure coding practices keep code enforcing its security rules when input is hostile or a component fails. Nine practices with code patterns and sources, a design-to-deploy checklist, and a secure code review checklist."
+updated: "2026-11-20"
+description: "Nine secure coding practices with code patterns and sources, a design-to-deploy checklist, a secure code review checklist, and how the OWASP, ASVS, CERT and NIST standards differ."
 author: "OpsecForge Security Team"
 category: "Application Security"
 tags: ["secure-coding", "devsecops", "input-validation", "secrets-management", "vulnerability-prevention"]
-source_reviewed: "2026-10-24"
+source_reviewed: "2026-11-20"
 primary_source: "https://csrc.nist.gov/pubs/sp/800/218/final"
 ---
 
@@ -14,7 +14,7 @@ primary_source: "https://csrc.nist.gov/pubs/sp/800/218/final"
 
 **Secure coding practices are the design and coding habits that keep software enforcing its security rules when input is hostile, a caller is untrusted, or a dependency fails.** They are not a final scan. Each one targets a specific class of flaw, which is why this page does not try to teach all of them: it names the flaw, shows what it looks like in code, and sends you to the page on this site (and the primary source) that goes deep.
 
-[NIST's Secure Software Development Framework (SP 800-218)](https://csrc.nist.gov/pubs/sp/800/218/final) organizes this work into preparing the organization, protecting the software, producing well-secured software, and responding to vulnerabilities. The practices below cover the "producing well-secured software" part for web and API code. Use the [stage checklist](#checklist-by-development-stage) at the end if you want to jump straight to what to do when, or the [code review checklist](#secure-code-review-checklist) if you have a pull request open right now.
+[NIST's Secure Software Development Framework (SP 800-218)](https://csrc.nist.gov/pubs/sp/800/218/final) organizes this work into preparing the organization, protecting the software, producing well-secured software, and responding to vulnerabilities. The practices below cover the "producing well-secured software" part for web and API code. Use the [stage checklist](#checklist-by-development-stage) at the end if you want to jump straight to what to do when, or the [code review checklist](#secure-code-review-checklist) if you have a pull request open right now. If you came looking for a published standard, see [which secure coding standards and guidelines exist and how they differ](#secure-coding-standards-and-guidelines-which-document-to-use).
 
 ## 1. Check authorization on the object, not just the login
 
@@ -140,10 +140,43 @@ Three habits make the table more useful:
 
 For a longer, language-neutral list, see the [OWASP Secure Code Review Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Code_Review_Cheat_Sheet.html) and the [OWASP Code Review Guide](https://owasp.org/www-project-code-review-guide/).
 
+## Secure coding standards and guidelines: which document to use
+
+There is no single "secure coding standard". The documents people cite under that name answer different questions: a checklist for developers, a list of requirements an assessor can verify, language-specific rules, a ranking of weaknesses, and a process framework. Pick by the question you have.
+
+| Document | What it is | Use it when |
+| --- | --- | --- |
+| [OWASP Secure Coding Practices Quick Reference Guide](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/) | A [checklist](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/stable-en/02-checklist/05-checklist) in 14 areas. The project is archived; OWASP says the checklists were migrated to the [OWASP Developer Guide](https://owasp.org/www-project-developer-guide/). | You want a short list to read through or turn into team rules. For anything new, start from the Developer Guide, where the checklists are now kept. |
+| [OWASP Application Security Verification Standard (ASVS)](https://owasp.org/www-project-application-security-verification-standard/) | Requirements for designing, developing and testing web applications and services. Version 5.0.0, published 30 May 2025, about 350 requirements in 17 chapters, in three levels. | You need requirements you can test and report against, or want to put security requirements in a contract. |
+| [OWASP Top 10](https://owasp.org/www-project-top-ten/) and [OWASP API Security Top 10](https://owasp.org/www-project-api-security/) | OWASP calls the Top 10 an awareness document; the current edition is 2025. The API list on the project page is the 2023 edition. | You want to know which risks to learn first, or to train a team. |
+| [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/) | A concise collection of information on specific application security topics. | You are implementing one thing, such as password storage, and want a worked answer. |
+| [SEI CERT Coding Standards](https://www.sei.cmu.edu/library/sei-cert-c-coding-standard-rules-for-developing-safe-reliable-and-secure-systems-2016-edition/) | Rules and recommendations for C, C++, Java, and Perl. | You write in one of those languages and want language-level rules. |
+| [CWE Top 25](https://cwe.mitre.org/top25/) | MITRE's 2025 list of the most severe and prevalent weaknesses, based on 39,080 CVE records. | You want to prioritize which weakness classes to test for. |
+| [NIST SP 800-218 (SSDF)](https://csrc.nist.gov/pubs/sp/800/218/final) | Version 1.1, February 2022: high-level secure development practices to fit into any development life cycle. | You are setting process, or answering a customer who asks for SSDF alignment. |
+
+The [ASVS describes its levels](https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x03-What-is-the-ASVS.md) this way: Level 1 holds the minimum requirements, Level 2 is the level most applications should strive for, and Level 3 is for applications that need to show the highest level of security.
+
+**How this page's nine practices line up with the OWASP checklist.** The checklist's areas are Input validation, Output encoding, Authentication and password management, Session management, Access control, Cryptographic practices, Error handling and logging, Data protection, Communication security, System configuration, Database security, File management, Memory management, and General coding practices.
+
+- Practice 1 (object-level authorization): Access control.
+- Practice 3 (query text): Database security, which starts with "Use strongly typed parameterized queries".
+- Practice 4 (validation and encoding): Input validation and Output encoding.
+- Practice 6 (passwords and tokens): Authentication and password management covers the password side. The checklist has no JWT-specific section.
+- Practice 8 (secrets): Data protection covers part of it, such as not storing passwords or connection strings in clear text on the client side.
+- Practice 9 (resource limits): the closest item sits under Access control, "Limit the number of transactions a single user or device can perform in a given period of time". The checklist has no area for API inventory.
+- Practices 2 (mass assignment), 5 (server-side request forgery) and 7 (webhook signatures) have no clearly matching area, so a team that adopts the checklist as its standard still has to add them.
+
+**How to pick.** A team that needs something it can audit against should start from ASVS. A team writing C, C++, Java, or Perl can add the CERT rules for that language. The Top 10 and the CWE Top 25 describe risks and weaknesses, not requirements, so use them to decide what to learn or test first rather than as something to comply with. The SSDF covers process, so it complements code-level documents and does not replace them. For a single task, go to the matching cheat sheet.
+
 ## Sources
 
 - [NIST SP 800-218, Secure Software Development Framework 1.1](https://csrc.nist.gov/pubs/sp/800/218/final)
+- [OWASP Secure Coding Practices Quick Reference Guide (archived project page)](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/) and its [checklist](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/stable-en/02-checklist/05-checklist)
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+- [OWASP API Security Project](https://owasp.org/www-project-api-security/)
+- [SEI CERT C Coding Standard (2016 edition), Software Engineering Institute](https://www.sei.cmu.edu/library/sei-cert-c-coding-standard-rules-for-developing-safe-reliable-and-secure-systems-2016-edition/)
+- [CWE Top 25 Most Dangerous Software Weaknesses, MITRE](https://cwe.mitre.org/top25/)
 - [OWASP Secure Code Review Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secure_Code_Review_Cheat_Sheet.html)
-- [OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/), a detailed requirements list to take this page's practices further
+- [OWASP Application Security Verification Standard](https://owasp.org/www-project-application-security-verification-standard/), a detailed requirements list to take this page's practices further, and its ["What is the ASVS" chapter (5.0.0)](https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x03-What-is-the-ASVS.md)
 - [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/)
 - [OWASP Cheat Sheet Series](https://cheatsheetseries.owasp.org/)
