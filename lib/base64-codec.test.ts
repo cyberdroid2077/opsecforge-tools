@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
   analyzeBase64Input,
+  buildBase64DataUrl,
   convertBase64Variant,
+  decodeBase64Bytes,
   decodeBase64Detailed,
   decodeBase64Text,
+  detectFileSignature,
+  encodeBase64Bytes,
   encodeBase64Text,
   formatHexView,
+  parseBase64DataUrl,
 } from './base64-codec';
 
 describe('base64 input diagnostics', () => {
@@ -125,5 +130,64 @@ describe('base64 text codec', () => {
 
   it('rejects decoded bytes that are not UTF-8 text', () => {
     expect(() => decodeBase64Text('/w==', 'standard')).toThrow('not valid UTF-8');
+  });
+});
+
+describe('base64 bytes, data URLs, and file signatures', () => {
+  it('encodes every byte value and round-trips through both variants', () => {
+    const bytes = Uint8Array.from({ length: 256 }, (_, index) => index);
+
+    expect(encodeBase64Bytes(bytes, 'standard')).toBe(Buffer.from(bytes).toString('base64'));
+    expect(encodeBase64Bytes(bytes, 'url')).toBe(Buffer.from(bytes).toString('base64url'));
+    expect([...decodeBase64Bytes(encodeBase64Bytes(bytes, 'url'), 'url')]).toEqual([...bytes]);
+  });
+
+  it('encodes input larger than one String.fromCharCode chunk', () => {
+    const bytes = Uint8Array.from({ length: 0x8000 * 2 + 5 }, (_, index) => (index * 31) % 256);
+
+    expect(encodeBase64Bytes(bytes, 'standard')).toBe(Buffer.from(bytes).toString('base64'));
+  });
+
+  it('splits a base64 data URL and leaves other input alone', () => {
+    expect(parseBase64DataUrl('data:image/png;base64,iVBORw0KGgo=')).toEqual({
+      mediaType: 'image/png',
+      payload: 'iVBORw0KGgo=',
+      payloadOffset: 22,
+    });
+    expect(parseBase64DataUrl('data:text/plain;charset=utf-8;base64,aMOpbGxv')?.mediaType).toBe('text/plain;charset=utf-8');
+    // RFC 2397: an omitted media type means text/plain;charset=US-ASCII.
+    expect(parseBase64DataUrl('data:;base64,YQ==')).toEqual({
+      mediaType: 'text/plain;charset=US-ASCII',
+      payload: 'YQ==',
+      payloadOffset: 13,
+    });
+    expect(parseBase64DataUrl('data:text/plain,hello')).toBeNull();
+    expect(parseBase64DataUrl('SGVsbG8=')).toBeNull();
+    expect(parseBase64DataUrl('data:text/plain,a;base64,b')).toBeNull();
+  });
+
+  it('builds a data URL with the standard alphabet and a fallback media type', () => {
+    const bytes = Uint8Array.from([0xfb, 0xff, 0xbf, 0x3e]);
+
+    expect(buildBase64DataUrl('image/png', bytes)).toBe('data:image/png;base64,+/+/Pg==');
+    expect(buildBase64DataUrl('', bytes)).toBe('data:application/octet-stream;base64,+/+/Pg==');
+  });
+
+  it('recognises file signatures and nothing else', () => {
+    const of = (...bytes: number[]) => detectFileSignature(Uint8Array.from(bytes));
+    const text = (value: string) => detectFileSignature(new TextEncoder().encode(value));
+
+    expect(of(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0)?.extension).toBe('png');
+    expect(of(0xff, 0xd8, 0xff, 0xe0)?.extension).toBe('jpg');
+    expect(text('GIF89a...')?.extension).toBe('gif');
+    expect(text('GIF87a...')?.extension).toBe('gif');
+    expect(text('%PDF-1.7')?.extension).toBe('pdf');
+    expect(of(0x50, 0x4b, 0x03, 0x04)?.extension).toBe('zip');
+    expect(of(0x1f, 0x8b, 0x08)?.extension).toBe('gz');
+    expect(text('RIFF\u0010\u0000\u0000\u0000WEBPVP8 ')?.extension).toBe('webp');
+    expect(text('RIFF\u0010\u0000\u0000\u0000WAVEfmt ')).toBeNull();
+    expect(of(0x89, 0x50, 0x4e)).toBeNull();
+    expect(text('Hello')).toBeNull();
+    expect(of()).toBeNull();
   });
 });

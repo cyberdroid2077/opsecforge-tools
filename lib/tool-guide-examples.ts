@@ -76,6 +76,33 @@ export const BASE64_JWT_HEADER = {
   decoded: '{"alg":"HS256","typ":"JWT"}',
 } as const;
 
+/**
+ * `prefix` is the part of the Base64 text that the signature bytes fully determine
+ * (floor(bytes * 8 / 6) characters), so it is the same for every file of that type.
+ */
+export const BASE64_SIGNATURE_ROWS = [
+  { type: 'PNG image', hex: '89 50 4e 47 0d 0a 1a 0a', prefix: 'iVBORw0KGg' },
+  { type: 'JPEG image', hex: 'ff d8 ff', prefix: '/9j/' },
+  { type: 'GIF image', hex: '47 49 46 38 39 61', prefix: 'R0lGODlh' },
+  { type: 'PDF document', hex: '25 50 44 46 2d', prefix: 'JVBERi' },
+  { type: 'ZIP archive', hex: '50 4b 03 04', prefix: 'UEsDB' },
+  { type: 'gzip data (deflate)', hex: '1f 8b 08', prefix: 'H4sI' },
+] as const;
+
+/** A complete 1x1 pixel PNG, 70 bytes. */
+export const BASE64_PNG_EXAMPLE = {
+  encoded: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  bytes: 70,
+} as const;
+
+/** The value is the one used in the Kubernetes "Managing Secrets using kubectl" documentation. */
+export const BASE64_K8S_SECRET_EXAMPLE = {
+  encoded: 'UyFCXCpkJHpEc2I9',
+  decoded: 'S!B\\*d$zDsb=',
+  withNewline: 'YWRtaW4K',
+  withoutNewline: 'YWRtaW4=',
+} as const;
+
 export const JSON_GUIDE_PRECISION = {
   input: '{"id":12345678901234567890,"price":10.50,"exp":1e2}',
   minified: '{"id":12345678901234567000,"price":10.5,"exp":100}',

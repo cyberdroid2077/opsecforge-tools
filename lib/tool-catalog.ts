@@ -39,7 +39,7 @@ export const toolGroups: ToolGroup[] = [
       {
         name: 'Base64 Converter',
         href: '/tools/base64-converter',
-        description: 'Encode and decode standard Base64 and Base64URL strings locally.',
+        description: 'Encode and decode standard Base64 and Base64URL text or files locally.',
         article: {
           title: 'Base64 vs Base64URL',
           href: '/blog/base64-vs-base64url',
