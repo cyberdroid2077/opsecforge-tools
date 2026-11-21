@@ -1,9 +1,10 @@
 import { createHash, createHmac } from 'node:crypto';
+import { crc32 } from 'node:zlib';
 import CryptoJS from 'crypto-js';
 import { describe, expect, it } from 'vitest';
 import { compareDigest, digestFile } from './file-checksum';
 import { analyzeTimeClaim, decodeJwt, encodeJwt } from './jwt';
-import { decodeBase64Text, encodeBase64Text } from './base64-codec';
+import { decodeBase64Bytes, decodeBase64Text, detectFileSignature, encodeBase64Bytes, encodeBase64Text } from './base64-codec';
 import { beautifyJson, findUnsafeIntegers, minifyJson } from './json-format';
 import { countStringsUsingEveryPool, estimateEntropyBits, policyEntropyBits } from './password';
 import { SQLFormatter } from './sql-formatter';
@@ -11,6 +12,9 @@ import {
   BASE64_BASIC_AUTH,
   BASE64_GUIDE_ROWS,
   BASE64_JWT_HEADER,
+  BASE64_K8S_SECRET_EXAMPLE,
+  BASE64_PNG_EXAMPLE,
+  BASE64_SIGNATURE_ROWS,
   HASH_GUIDE_VECTOR,
   JWT_ENCODER_GUIDE,
   JSON_GUIDE_ERRORS,
@@ -172,6 +176,42 @@ describe('base64 guide examples', () => {
     expect(() => decodeBase64Text('PDw_Pz8-Pg', 'standard')).toThrow('Invalid Base64 input.');
     expect(() => decodeBase64Text('PDw/Pz8+Pg==', 'url')).toThrow('Invalid Base64URL input.');
     expect(() => decodeBase64Text('/w==', 'standard')).toThrow('not valid UTF-8');
+  });
+
+  it.each(BASE64_SIGNATURE_ROWS)('lists the Base64 prefix of the $type signature', ({ type, hex, prefix }) => {
+    const bytes = Uint8Array.from(hex.split(' '), (pair) => parseInt(pair, 16));
+    expect(encodeBase64Bytes(bytes, 'standard').slice(0, Math.floor((bytes.length * 8) / 6))).toBe(prefix);
+    // Whatever bytes follow the signature, the listed prefix stays the same.
+    for (const next of [0x00, 0xff]) {
+      const longer = Uint8Array.from([...bytes, next, next, next]);
+      expect(encodeBase64Bytes(longer, 'standard').startsWith(prefix)).toBe(true);
+      expect(detectFileSignature(longer)?.label.startsWith(type.split(' ')[0])).toBe(true);
+    }
+  });
+
+  it('decodes the Kubernetes Secret example and shows the trailing-newline difference', () => {
+    expect(decodeBase64Text(BASE64_K8S_SECRET_EXAMPLE.encoded, 'standard')).toBe(BASE64_K8S_SECRET_EXAMPLE.decoded);
+    expect(encodeBase64Text('admin\n', 'standard')).toBe(BASE64_K8S_SECRET_EXAMPLE.withNewline);
+    expect(encodeBase64Text('admin', 'standard')).toBe(BASE64_K8S_SECRET_EXAMPLE.withoutNewline);
+  });
+
+  it('decodes the PNG example to a complete PNG', () => {
+    const bytes = decodeBase64Bytes(BASE64_PNG_EXAMPLE.encoded, 'standard');
+    expect(bytes.length).toBe(BASE64_PNG_EXAMPLE.bytes);
+    expect(detectFileSignature(bytes)?.label).toBe('PNG image');
+    expect(encodeBase64Bytes(bytes, 'standard')).toBe(BASE64_PNG_EXAMPLE.encoded);
+
+    // Walk the chunks and check each CRC so the example is a real image, not just a signature.
+    const data = Buffer.from(bytes);
+    const chunks: string[] = [];
+    for (let offset = 8; offset < data.length; ) {
+      const length = data.readUInt32BE(offset);
+      chunks.push(data.subarray(offset + 4, offset + 8).toString('latin1'));
+      expect(crc32(data.subarray(offset + 4, offset + 8 + length))).toBe(data.readUInt32BE(offset + 8 + length));
+      offset += 12 + length;
+    }
+    expect(chunks).toEqual(['IHDR', 'IDAT', 'IEND']);
+    expect([data.readUInt32BE(16), data.readUInt32BE(20)]).toEqual([1, 1]);
   });
 });
 

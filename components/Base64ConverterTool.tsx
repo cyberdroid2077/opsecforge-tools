@@ -1,17 +1,24 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowLeftRight, Check, Copy, Lock, ShieldCheck, Trash2, Type } from 'lucide-react';
+import { ArrowLeftRight, Check, Copy, Download, Lock, ShieldCheck, Trash2, Type } from 'lucide-react';
 import {
   type Base64Analysis,
+  type Base64DataUrl,
   type Base64Variant,
+  BASE64_IMAGE_PREVIEW_BYTE_LIMIT,
   analyzeBase64Input,
+  buildBase64DataUrl,
   convertBase64Variant,
   decodeBase64Detailed,
+  detectFileSignature,
   encodeBase64Text,
   formatHexView,
+  parseBase64DataUrl,
 } from '@/lib/base64-codec';
+import { downloadFromPage } from '@/lib/browser-download';
+import Base64FilePanel from './Base64FilePanel';
 
 type Mode = 'encode' | 'decode';
 
@@ -19,7 +26,7 @@ type BinaryResult = ReturnType<typeof formatHexView>;
 
 const variantLabel = (item: Base64Variant) => (item === 'url' ? 'Base64URL' : 'Standard');
 
-const describeAnalysis = (analysis: Base64Analysis) => {
+const describeAnalysis = (analysis: Base64Analysis, dataUrl: Base64DataUrl | null) => {
   const rows: Array<[string, string]> = [];
   const detected = {
     standard: 'Standard (+ /)',
@@ -34,6 +41,11 @@ const describeAnalysis = (analysis: Base64Analysis) => {
     incorrect: `Incorrect (${analysis.paddingCount} supplied)`,
   }[analysis.paddingStatus];
 
+  const offset = dataUrl ? dataUrl.payloadOffset : 0;
+
+  if (dataUrl) {
+    rows.push(['Data URL', `${dataUrl.mediaType} (prefix skipped)`]);
+  }
   rows.push(['Variant', detected]);
   rows.push(['Padding', padding]);
   rows.push([
@@ -43,7 +55,7 @@ const describeAnalysis = (analysis: Base64Analysis) => {
   rows.push([
     'Invalid characters',
     analysis.invalidChar
-      ? `${JSON.stringify(analysis.invalidChar.char)} at position ${analysis.invalidChar.index + 1}`
+      ? `${JSON.stringify(analysis.invalidChar.char)} at position ${analysis.invalidChar.index + offset + 1}`
       : 'None',
   ]);
   rows.push(['Whitespace stripped', String(analysis.whitespaceStripped)]);
@@ -58,6 +70,7 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [binary, setBinary] = useState<BinaryResult | null>(null);
+  const [decoded, setDecoded] = useState<Uint8Array<ArrayBuffer> | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [hexCopied, setHexCopied] = useState(false);
@@ -66,11 +79,21 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
   const [convertPadding, setConvertPadding] = useState(false);
   const [convertCopied, setConvertCopied] = useState(false);
 
-  const analysis = mode === 'decode' && input ? analyzeBase64Input(input) : null;
+  const dataUrl = mode === 'decode' && input ? parseBase64DataUrl(input) : null;
+  const analysis = mode === 'decode' && input ? analyzeBase64Input(dataUrl ? dataUrl.payload : input) : null;
   const suggestedVariant: Base64Variant | null =
     analysis && (analysis.variant === 'standard' || analysis.variant === 'url') && analysis.variant !== variant
       ? analysis.variant
       : null;
+
+  const signature = useMemo(() => (decoded ? detectFileSignature(decoded) : null), [decoded]);
+  const imagePreview = useMemo(
+    () =>
+      decoded && signature?.previewable && decoded.length <= BASE64_IMAGE_PREVIEW_BYTE_LIMIT
+        ? buildBase64DataUrl(signature.mediaType, decoded)
+        : '',
+    [decoded, signature],
+  );
 
   let converted = '';
   let convertError = '';
@@ -86,6 +109,7 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
     setInput(nextInput);
     setError('');
     setBinary(null);
+    setDecoded(null);
     setHexCopied(false);
 
     if (!nextInput) {
@@ -97,9 +121,11 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
       if (nextMode === 'encode') {
         setOutput(encodeBase64Text(nextInput, nextVariant));
       } else {
-        const { bytes, text } = decodeBase64Detailed(nextInput, nextVariant);
+        const payload = parseBase64DataUrl(nextInput)?.payload ?? nextInput;
+        const { bytes, text } = decodeBase64Detailed(payload, nextVariant);
         setOutput(text ?? '');
         setBinary(text === null ? formatHexView(bytes) : null);
+        setDecoded(bytes);
       }
     } catch (err) {
       setOutput('');
@@ -126,16 +152,38 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
       return;
     }
 
+    if (nextMode === 'decode') {
+      // Decode again so the decoded bytes, file signature, and download match the swapped panels.
+      runConversion(output, nextMode);
+      return;
+    }
+
     setInput(output);
     setOutput(input);
     setBinary(null);
+    setDecoded(null);
     setError('');
+  };
+
+  const saveDecoded = () => {
+    if (!decoded) {
+      return;
+    }
+
+    if (signature) {
+      downloadFromPage(decoded, `decoded.${signature.extension}`, signature.mediaType);
+    } else if (binary) {
+      downloadFromPage(decoded, 'decoded.bin', 'application/octet-stream');
+    } else {
+      downloadFromPage(decoded, 'decoded.txt', 'text/plain;charset=utf-8');
+    }
   };
 
   const clearAll = () => {
     setInput('');
     setOutput('');
     setBinary(null);
+    setDecoded(null);
     setError('');
     setCopied(false);
     setHexCopied(false);
@@ -211,7 +259,7 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
                 Text Conversion Mode
               </div>
               <p className="max-w-2xl text-sm leading-relaxed text-slate-400">
-                Encode UTF-8 text as standard Base64 or unpadded Base64URL, then decode it back. Decoded bytes that are not valid UTF-8 are shown as hex instead of text.
+                Encode UTF-8 text or a local file as standard Base64 or unpadded Base64URL, then decode it back. Decoded bytes that are not valid UTF-8 are shown as hex and can be saved as a file.
               </p>
             </div>
 
@@ -302,7 +350,7 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
                 placeholder={
                   mode === 'encode'
                     ? 'Paste raw text, JSON fragments, or credentials here.'
-                    : 'Paste a Base64 string here.'
+                    : 'Paste a Base64 string or a data: URL here.'
                 }
                 className="h-[420px] w-full resize-none rounded-3xl border border-slate-800 bg-slate-950/70 p-6 font-mono text-sm leading-6 text-cyan-300 outline-none transition-all placeholder:text-slate-700 focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
                 spellCheck={false}
@@ -332,7 +380,7 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
             <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/60 p-5" role="region" aria-label="Input check">
               <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Input check</div>
               <dl className="grid grid-cols-1 gap-x-8 gap-y-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
-                {describeAnalysis(analysis).map(([label, value]) => (
+                {describeAnalysis(analysis, dataUrl).map(([label, value]) => (
                   <div key={label} className="flex flex-col">
                     <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</dt>
                     <dd className="font-mono text-slate-300">{value}</dd>
@@ -386,6 +434,41 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
               ) : null}
             </div>
           ) : null}
+
+          {mode === 'decode' && decoded ? (
+            <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/60 p-5" role="region" aria-label="Decoded bytes">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-[0.22em] text-slate-500">Decoded bytes</div>
+                  <p className="mt-1 text-sm text-slate-400">
+                    {decoded.length} byte{decoded.length === 1 ? '' : 's'}.{' '}
+                    {signature
+                      ? `Starts with the ${signature.label} signature; the rest of the data is not validated.`
+                      : binary
+                        ? 'No file signature this page knows.'
+                        : 'Valid UTF-8 text.'}
+                  </p>
+                </div>
+                <button
+                  onClick={saveDecoded}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-bold text-slate-200 transition-all hover:border-emerald-500/30 hover:text-emerald-300"
+                >
+                  <Download size={14} />
+                  Save as decoded.{signature ? signature.extension : binary ? 'bin' : 'txt'}
+                </button>
+              </div>
+              {imagePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element -- a data: URL built from the pasted bytes; nothing to optimize or fetch
+                <img
+                  src={imagePreview}
+                  alt="Preview of the decoded image"
+                  className="mt-4 max-h-64 max-w-full rounded-xl border border-slate-800 bg-slate-900"
+                />
+              ) : null}
+            </div>
+          ) : null}
+
+          <Base64FilePanel variant={variant} />
 
           <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950/60 p-5" role="region" aria-label="Convert variant">
             <div className="mb-1 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
@@ -452,7 +535,7 @@ export default function Base64ConverterTool({ children }: { children?: ReactNode
             <div className="flex items-center gap-5">
               <span className="flex items-center gap-1.5">
                 <Type size={14} className="text-emerald-500" />
-                UTF-8 text and hex view
+                Text, files, and hex view
               </span>
               <span className="flex items-center gap-1.5">
                 <Lock size={14} className="text-cyan-500" />

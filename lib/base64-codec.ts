@@ -14,14 +14,18 @@ const bytesToBinary = (bytes: Uint8Array) => {
   return binary;
 };
 
-export function encodeBase64Text(value: string, variant: Base64Variant) {
-  const encoded = btoa(bytesToBinary(encoder.encode(value)));
+export function encodeBase64Bytes(bytes: Uint8Array, variant: Base64Variant) {
+  const encoded = btoa(bytesToBinary(bytes));
 
   if (variant === 'url') {
     return encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   }
 
   return encoded;
+}
+
+export function encodeBase64Text(value: string, variant: Base64Variant) {
+  return encodeBase64Bytes(encoder.encode(value), variant);
 }
 
 const normalizeBase64 = (value: string, variant: Base64Variant) => {
@@ -209,3 +213,75 @@ export function convertBase64Variant(value: string, to: Base64Variant, options: 
 
   return options.padding ? `${swapped}${'='.repeat((4 - (swapped.length % 4)) % 4)}` : swapped;
 }
+
+export interface Base64DataUrl {
+  /** Media type as written before `;base64`; RFC 2397's default when the URL omits it. */
+  mediaType: string;
+  payload: string;
+  /** Index in the original input where the payload starts. */
+  payloadOffset: number;
+}
+
+/** Splits an RFC 2397 `data:` URL that carries a `;base64` payload. Returns null for anything else. */
+export function parseBase64DataUrl(value: string): Base64DataUrl | null {
+  const match = /^\s*data:([^,]*?);base64,/i.exec(value);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    mediaType: match[1] || 'text/plain;charset=US-ASCII',
+    payload: value.slice(match[0].length),
+    payloadOffset: match[0].length,
+  };
+}
+
+export function buildBase64DataUrl(mediaType: string, bytes: Uint8Array) {
+  return `data:${mediaType || 'application/octet-stream'};base64,${encodeBase64Bytes(bytes, 'standard')}`;
+}
+
+export interface FileSignature {
+  label: string;
+  extension: string;
+  mediaType: string;
+  /** True for raster formats the page previews in an img element. */
+  previewable: boolean;
+}
+
+const ascii = (text: string) => Array.from(text, (char) => char.charCodeAt(0));
+
+const FILE_SIGNATURES: Array<FileSignature & { magic: number[]; offset?: number; also?: { magic: number[]; offset: number } }> = [
+  { label: 'PNG image', extension: 'png', mediaType: 'image/png', previewable: true, magic: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] },
+  { label: 'JPEG image', extension: 'jpg', mediaType: 'image/jpeg', previewable: true, magic: [0xff, 0xd8, 0xff] },
+  { label: 'GIF image', extension: 'gif', mediaType: 'image/gif', previewable: true, magic: ascii('GIF87a') },
+  { label: 'GIF image', extension: 'gif', mediaType: 'image/gif', previewable: true, magic: ascii('GIF89a') },
+  { label: 'WebP image', extension: 'webp', mediaType: 'image/webp', previewable: true, magic: ascii('RIFF'), also: { magic: ascii('WEBP'), offset: 8 } },
+  { label: 'PDF document', extension: 'pdf', mediaType: 'application/pdf', previewable: false, magic: ascii('%PDF-') },
+  { label: 'ZIP archive (also .docx, .xlsx, .jar)', extension: 'zip', mediaType: 'application/zip', previewable: false, magic: [0x50, 0x4b, 0x03, 0x04] },
+  { label: 'gzip data', extension: 'gz', mediaType: 'application/gzip', previewable: false, magic: [0x1f, 0x8b] },
+];
+
+const startsWithAt = (bytes: Uint8Array, magic: number[], offset = 0) =>
+  bytes.length >= offset + magic.length && magic.every((byte, index) => bytes[offset + index] === byte);
+
+/**
+ * Matches the leading bytes against a short list of well-known file signatures.
+ * A match only means the data starts like that format; it does not validate the rest of the file.
+ */
+export function detectFileSignature(bytes: Uint8Array): FileSignature | null {
+  for (const { magic, also, ...signature } of FILE_SIGNATURES) {
+    if (startsWithAt(bytes, magic) && (!also || startsWithAt(bytes, also.magic, also.offset))) {
+      return signature;
+    }
+  }
+
+  return null;
+}
+
+/** Largest file the page encodes in one step; the output is about 4/3 of this in characters. */
+export const BASE64_FILE_BYTE_LIMIT = 5 * 1024 * 1024;
+/** Longest encoded string rendered in the output box; the full value is still copied or saved. */
+export const BASE64_PREVIEW_CHAR_LIMIT = 100_000;
+/** Largest decoded image shown as an inline preview. */
+export const BASE64_IMAGE_PREVIEW_BYTE_LIMIT = 2 * 1024 * 1024;
