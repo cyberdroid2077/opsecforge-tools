@@ -1,13 +1,13 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'JWT Decoder - Decode JSON Web Tokens Instantly',
-  description: 'Free JWT decoder that decodes JSON Web Tokens instantly in your browser. The pasted token is not sent to OpsecForge for processing. Inspect JWT headers and payloads, and optionally check HS/RS/PS/ES/EdDSA signatures locally with a key you paste; a valid signature does not by itself make a token trustworthy.',
+  title: 'JWT & JWE Decoder - Decode or Decrypt JSON Web Tokens Locally',
+  description: 'Decode a JWT header and payload in your browser, or paste a five-part encrypted JWT (JWE) to read its header and part sizes and decrypt it with a test key. The token is not sent to OpsecForge. Optional local HS/RS/PS/ES/EdDSA signature check; a valid signature or a successful decryption does not by itself make a token trustworthy.',
   alternates: { canonical: '/tools/jwt-decoder' },
-  keywords: ['JWT decoder', 'decode JWT', 'JWT inspector', 'JSON Web Token decoder', 'JWT parser', 'JWT viewer', 'decode token', 'client-side JWT'],
+  keywords: ['JWT decoder', 'decode JWT', 'JWE decoder', 'decrypt JWE', 'JWT inspector', 'JSON Web Token decoder', 'JWT parser', 'JWT viewer', 'client-side JWT'],
   openGraph: {
-    title: 'JWT Decoder - Decode JSON Web Tokens Instantly | OpsecForge',
-    description: 'Free JWT decoder that decodes JSON Web Tokens in your browser. The pasted token is not uploaded for processing. Optional local signature check with a key you paste; decoding alone does not verify it.',
+    title: 'JWT & JWE Decoder - Decode or Decrypt JSON Web Tokens Locally | OpsecForge',
+    description: 'Decodes JSON Web Tokens in your browser and reads or decrypts encrypted JWTs (JWE) with a key you paste. The pasted token is not uploaded for processing. Optional local signature check; decoding alone does not verify it.',
   },
 };
 

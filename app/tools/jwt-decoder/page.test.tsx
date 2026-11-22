@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import JwtDecoder from './page';
 import { base64UrlEncodeString } from '@/lib/jwt';
 import { VECTORS } from '@/lib/jwt-verify.test-vectors';
+import { JWE_EXAMPLE } from '@/lib/jwe-example';
+import { JWE_VECTORS } from '@/lib/jwe.test-vectors';
 
 afterEach(() => {
   cleanup();
@@ -22,7 +24,7 @@ const token = (payload: Record<string, unknown>) =>
 
 const decode = (payload: Record<string, unknown>) => {
   render(<JwtDecoder />);
-  fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT here...'), {
+  fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT or JWE here...'), {
     target: { value: token(payload) },
   });
 };
@@ -54,7 +56,7 @@ describe('JWT decoder page', () => {
 
   it('shows a readable error for an invalid token', () => {
     render(<JwtDecoder />);
-    fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT here...'), {
+    fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT or JWE here...'), {
       target: { value: 'not-a-jwt' },
     });
     expect(screen.getByText(/Must have 3 parts/)).toBeInTheDocument();
@@ -63,7 +65,7 @@ describe('JWT decoder page', () => {
 
 describe('JWT decoder page: optional local signature verification', () => {
   const pasteToken = (value: string) =>
-    fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT here...'), { target: { value } });
+    fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT or JWE here...'), { target: { value } });
   const clickVerify = () => fireEvent.click(screen.getByText('Verify signature', { selector: 'button' }));
 
   const setup = () => {
@@ -149,5 +151,129 @@ describe('JWT decoder page: optional local signature verification', () => {
     pasteToken(VECTORS.hs.HS256);
     expect(screen.queryByText(/Cannot Be Verified/i)).toBeNull();
     expect(screen.queryByText(/does not request it/i)).toBeNull();
+  });
+});
+
+describe('JWT decoder page: encrypted JWTs (JWE)', () => {
+  const pasteToken = (value: string) =>
+    fireEvent.change(screen.getByPlaceholderText('Paste your encoded JWT or JWE here...'), { target: { value } });
+
+  const setup = () => {
+    vi.stubGlobal('crypto', webcrypto);
+    const fetchSpy = vi.fn();
+    vi.stubGlobal('fetch', fetchSpy);
+    const setItem = vi.spyOn(Storage.prototype, 'setItem');
+    const hrefBefore = window.location.href;
+    render(<JwtDecoder />);
+    return { fetchSpy, setItem, hrefBefore };
+  };
+
+  it('shows the protected header and part sizes of a five-part token instead of a format error', () => {
+    setup();
+    pasteToken(JWE_EXAMPLE.token);
+
+    expect(screen.queryByText(/Must have 3 parts/)).toBeNull();
+    expect(screen.getByText(/This is an encrypted JWT \(JWE\)/)).toBeInTheDocument();
+    expect(screen.getByText(/"enc": "A256GCM"/)).toBeInTheDocument();
+    expect(screen.getByText('12 bytes (96 bits)')).toBeInTheDocument();
+    expect(screen.getByText('16 bytes (128 bits)')).toBeInTheDocument();
+    expect(screen.getByText('empty')).toBeInTheDocument();
+    // Nothing is decrypted until the user asks.
+    expect(screen.queryByText(/test-user-123/, { selector: 'span' })).toBeNull();
+    expect(screen.queryByText('Verify signature', { selector: 'button' })).toBeNull();
+  });
+
+  it('decrypts the guide example with its test key, with no network, storage or URL use', async () => {
+    const { fetchSpy, setItem, hrefBefore } = setup();
+    pasteToken(JWE_EXAMPLE.token);
+    fireEvent.change(screen.getByLabelText('Shared key (oct JWK, hex or Base64URL)'), { target: { value: JWE_EXAMPLE.keyHex } });
+    expect(screen.queryByText(/^Decrypted with/)).toBeNull();
+    fireEvent.click(screen.getByText('Decrypt', { selector: 'button' }));
+
+    expect(await screen.findByText(/^Decrypted with dir and A256GCM/)).toBeInTheDocument();
+    expect(screen.getByText('"test-user-123"')).toBeInTheDocument();
+    expect(screen.getByText(/2100-01-01 00:00:00\.000 UTC/)).toBeInTheDocument();
+    expect(screen.getByText(/does not show who created the token/)).toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(setItem).not.toHaveBeenCalled();
+    expect(window.localStorage.length).toBe(0);
+    expect(window.sessionStorage.length).toBe(0);
+    expect(window.location.href).toBe(hrefBefore);
+  });
+
+  it('reports a wrong key as a failure and shows no plaintext', async () => {
+    setup();
+    pasteToken(JWE_EXAMPLE.token);
+    fireEvent.change(screen.getByLabelText('Shared key (oct JWK, hex or Base64URL)'), { target: { value: 'ab'.repeat(32) } });
+    fireEvent.click(screen.getByText('Decrypt', { selector: 'button' }));
+
+    expect(await screen.findByText('Decryption failed')).toBeInTheDocument();
+    expect(screen.queryByText('"test-user-123"')).toBeNull();
+  });
+
+  it('drops the key and the result when the token changes', async () => {
+    setup();
+    pasteToken(JWE_EXAMPLE.token);
+    fireEvent.change(screen.getByLabelText('Shared key (oct JWK, hex or Base64URL)'), { target: { value: JWE_EXAMPLE.keyHex } });
+    fireEvent.click(screen.getByText('Decrypt', { selector: 'button' }));
+    expect(await screen.findByText(/^Decrypted with/)).toBeInTheDocument();
+
+    pasteToken(JWE_VECTORS.dir.token);
+    expect(screen.queryByText(/^Decrypted with/)).toBeNull();
+    expect(screen.getByLabelText('Shared key (oct JWK, hex or Base64URL)')).toHaveValue('');
+  });
+
+  it('asks for the right kind of key per algorithm and explains RSA1_5', () => {
+    setup();
+    pasteToken(JWE_VECTORS.rsaOaep.token);
+    expect(screen.getByLabelText('RSA private key (PKCS#8 PEM or JWK)')).toBeInTheDocument();
+    expect(screen.getByText(/recipient's RSA key is 4096 bits/)).toBeInTheDocument();
+
+    pasteToken(JWE_VECTORS.pbes2.token);
+    expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
+
+    pasteToken(JWE_VECTORS.ecdhEs.token);
+    expect(screen.getByLabelText('EC private key (PKCS#8 PEM or JWK)')).toBeInTheDocument();
+
+    pasteToken(JWE_VECTORS.rsa15.token);
+    expect(screen.getByText(/Web Crypto API in browsers does not offer that algorithm/)).toBeInTheDocument();
+    expect(screen.queryByText('Decrypt', { selector: 'button' })).toBeNull();
+  });
+
+  it('hands a nested JWT back to the decoder', async () => {
+    setup();
+    // dir + A128GCM around the HS256 test vector, built here with Web Crypto.
+    const keyBytes = new Uint8Array(16).fill(5);
+    const header = base64UrlEncodeString('{"alg":"dir","enc":"A128GCM","cty":"JWT"}');
+    const iv = new Uint8Array(12).fill(1);
+    const cryptoKey = await webcrypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt']);
+    const sealed = Buffer.from(
+      await webcrypto.subtle.encrypt(
+        { name: 'AES-GCM', iv, additionalData: new TextEncoder().encode(header), tagLength: 128 },
+        cryptoKey,
+        new TextEncoder().encode(VECTORS.hs.HS256),
+      ),
+    );
+    const token = [
+      header,
+      '',
+      Buffer.from(iv).toString('base64url'),
+      sealed.subarray(0, -16).toString('base64url'),
+      sealed.subarray(-16).toString('base64url'),
+    ].join('.');
+
+    pasteToken(token);
+    fireEvent.change(screen.getByLabelText('Shared key (oct JWK, hex or Base64URL)'), { target: { value: '05'.repeat(16) } });
+    fireEvent.click(screen.getByText('Decrypt', { selector: 'button' }));
+    fireEvent.click(await screen.findByText('Decode the nested token'));
+
+    expect(screen.getByPlaceholderText('Paste your encoded JWT or JWE here...')).toHaveValue(VECTORS.hs.HS256);
+    expect(screen.getByText('Verify signature', { selector: 'button' })).toBeInTheDocument();
+  });
+
+  it('shows a readable error for a five-part token whose header is not JSON', () => {
+    setup();
+    pasteToken('bm90LWpzb24.a.b.c.d');
+    expect(screen.getByText(/protected header segment is not valid JSON/)).toBeInTheDocument();
   });
 });

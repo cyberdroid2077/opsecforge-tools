@@ -12,6 +12,9 @@ import {
   type JwtAnalysis,
 } from '@/lib/jwt';
 import { jwtKeyKindForAlg, verifyJwtSignature, type JwtVerifyResult } from '@/lib/jwt-verify';
+import { isJweCompact } from '@/lib/jwe';
+import { JWE_EXAMPLE } from '@/lib/jwe-example';
+import JwePanel from './JwePanel';
 
 const formatClaim = (key: string, value: unknown, claims: JwtAnalysis['timeClaims']): string => {
     if (isTimeClaim(key) && claims[key]) {
@@ -42,6 +45,9 @@ export default function JwtDecoder() {
     resetVerification();
   };
 
+  // Five dot-separated parts is an encrypted JWT (JWE), which has its own view.
+  const isJwe = isJweCompact(input);
+
   const { decoded, error, alerts, timeClaims } = useMemo(() => {
     const empty = {
       decoded: null as DecodedJwt | null,
@@ -49,7 +55,7 @@ export default function JwtDecoder() {
       alerts: [] as JwtAlert[],
       timeClaims: {} as JwtAnalysis['timeClaims'],
     };
-    if (!input) return empty;
+    if (!input || isJwe) return empty;
 
     try {
       const result = decodeJwt(input);
@@ -58,7 +64,7 @@ export default function JwtDecoder() {
     } catch (err: unknown) {
       return { ...empty, error: err instanceof Error ? err.message : 'Failed to decode token' };
     }
-  }, [input]);
+  }, [input, isJwe]);
 
   const headerAlg = decoded && typeof decoded.header.alg === 'string' ? decoded.header.alg : null;
   const keyKind = jwtKeyKindForAlg(headerAlg);
@@ -129,7 +135,7 @@ export default function JwtDecoder() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Paste your encoded JWT here..."
+              placeholder="Paste your encoded JWT or JWE here..."
               className="w-full h-[480px] bg-slate-900/50 border border-slate-800 rounded-2xl p-6 font-mono text-sm focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all outline-none resize-none placeholder:text-slate-700 text-emerald-500 break-all"
             />
           </div>
@@ -138,7 +144,10 @@ export default function JwtDecoder() {
           <div className="flex flex-col gap-4">
             <label className="text-sm font-bold text-slate-400 uppercase tracking-widest px-1">Decoded Content</label>
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-[480px] overflow-y-auto font-mono text-sm">
-              {error ? (
+              {isJwe ? (
+                // Keyed by the token so the pasted key and any result are dropped when the token changes.
+                <JwePanel key={input} token={input} onDecodeNested={setInput} />
+              ) : error ? (
                 <div className="flex items-center gap-3 text-rose-400 bg-rose-500/10 p-4 rounded-xl border border-rose-500/20">
                   <ShieldAlert size={18} /> {error}
                 </div>
@@ -347,7 +356,10 @@ export default function JwtDecoder() {
                     A JWT (JSON Web Token) Decoder is a specialized tool that parses and displays the contents of JWT tokens without requiring server-side processing. JWTs are compact, URL-safe tokens used for authentication and information exchange in modern web applications.
                 </p>
                 <p>
-                    They consist of three Base64Url-encoded parts separated by dots: the <strong>header</strong>, the <strong>payload</strong> (carrying claims and user data), and the <strong>signature</strong>. Developers frequently need to inspect these tokens during debugging or security audits to verify token structure and claims.
+                    A signed JWT (a JWS) consists of three Base64Url-encoded parts separated by dots: the <strong>header</strong>, the <strong>payload</strong> (carrying claims and user data), and the <strong>signature</strong>. Developers frequently need to inspect these tokens during debugging or security audits to verify token structure and claims.
+                </p>
+                <p>
+                    An encrypted JWT (a JWE) has five parts instead, and only its header can be read without the key. Paste one and this page shows that header and the size of each part, and can decrypt the claims locally with a key you supply; see <a href="#jwe">encrypted JWTs</a> below.
                 </p>
 
                 <h2 className="text-3xl font-bold text-slate-100 mt-16">How local decoding works</h2>
@@ -435,6 +447,102 @@ console.log(given.length === expected.length && timingSafeEqual(given, expected)
                     type, and where the key came from.
                 </p>
 
+                <h2 id="jwe" className="text-3xl font-bold text-slate-100 mt-16">Encrypted JWTs (JWE): what you can read without the key</h2>
+                <p>
+                    A token with five dot-separated parts is a JWE in compact serialization (
+                    <a href="https://www.rfc-editor.org/rfc/rfc7516#section-3.1" rel="noopener noreferrer">RFC 7516 section 3.1</a>).
+                    Pasting it into a decoder that expects three parts gives an error, and Base64URL-decoding the long middle
+                    part gives random-looking bytes, because the claims are encrypted. The parts are:
+                </p>
+                <div className="not-prose overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-300">
+                        <thead>
+                            <tr className="border-b border-slate-700 text-xs uppercase tracking-wider text-slate-400">
+                                <th scope="col" className="py-2 pr-4">Part</th>
+                                <th scope="col" className="py-2 pr-4">Readable without the key?</th>
+                                <th scope="col" className="py-2">What it holds</th>
+                            </tr>
+                        </thead>
+                        <tbody className="align-top">
+                            <tr className="border-b border-slate-800">
+                                <th scope="row" className="py-2 pr-4 font-bold text-slate-100">1. Protected header</th>
+                                <td className="py-2 pr-4">Yes: Base64URL-encoded JSON</td>
+                                <td className="py-2"><code>alg</code> (how the content key is protected), <code>enc</code> (how the content is encrypted), often <code>kid</code>, and <code>cty: &quot;JWT&quot;</code> when the content is another JWT</td>
+                            </tr>
+                            <tr className="border-b border-slate-800">
+                                <th scope="row" className="py-2 pr-4 font-bold text-slate-100">2. Encrypted key</th>
+                                <td className="py-2 pr-4">No</td>
+                                <td className="py-2">The content encryption key, encrypted for the recipient. Empty for <code>dir</code> and plain <code>ECDH-ES</code>. With RSA its length equals the recipient&apos;s key size (256 bytes for a 2048-bit key)</td>
+                            </tr>
+                            <tr className="border-b border-slate-800">
+                                <th scope="row" className="py-2 pr-4 font-bold text-slate-100">3. Initialization vector</th>
+                                <td className="py-2 pr-4">Yes, but it is not secret</td>
+                                <td className="py-2">96 bits for the AES-GCM algorithms, 128 bits for the AES-CBC with HMAC ones</td>
+                            </tr>
+                            <tr className="border-b border-slate-800">
+                                <th scope="row" className="py-2 pr-4 font-bold text-slate-100">4. Ciphertext</th>
+                                <td className="py-2 pr-4">No</td>
+                                <td className="py-2">The encrypted claims (or the encrypted inner JWT). With AES-GCM it is exactly as long as the plaintext, so its length is visible to anyone</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" className="py-2 pr-4 font-bold text-slate-100">5. Authentication tag</th>
+                                <td className="py-2 pr-4">No</td>
+                                <td className="py-2">Integrity check over the header, IV and ciphertext: 128 bits for AES-GCM and <code>A128CBC-HS256</code>, 192 and 256 bits for the two larger CBC variants</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>
+                    So without the key you can still learn which algorithms and key ID were used, how large the recipient&apos;s RSA key is,
+                    and roughly how long the claims are. This page reports those and warns when a size does not fit the declared algorithm
+                    (sizes from <a href="https://www.rfc-editor.org/rfc/rfc7518#section-5" rel="noopener noreferrer">RFC 7518 section 5</a>),
+                    when the header uses <code>zip</code> (
+                    <a href="https://www.rfc-editor.org/rfc/rfc8725#section-3.6" rel="noopener noreferrer">RFC 8725 section 3.6</a>{' '}
+                    advises against compressing before encrypting), or <code>RSA1_5</code> (section 3.2 of the same RFC recommends RSAES-OAEP instead).
+                </p>
+                <h3 className="text-slate-100">Decrypting a JWE locally</h3>
+                <p>
+                    This synthetic token uses <code>dir</code> with <code>A256GCM</code>: the shared 256-bit key encrypts the claims directly,
+                    so part 2 is empty and you can see two dots in a row.
+                </p>
+                <pre className="whitespace-pre-wrap break-all text-xs">{JWE_EXAMPLE.token}</pre>
+                <p>
+                    Paste it above, open &quot;Decrypt locally&quot;, and enter the test key{' '}
+                    <code className="break-all">{JWE_EXAMPLE.keyHex}</code>. The claims appear, with <code>iat</code> and{' '}
+                    <code>exp</code> shown as dates. Change one character of the key, or of any part of the token, and decryption fails
+                    as a whole: AES-GCM does not return partial plaintext. The same steps in Node.js:
+                </p>
+                <pre className="text-xs">{`import { createDecipheriv } from 'node:crypto';
+const [header, encryptedKey, iv, ciphertext, tag] = token.split('.');
+const decipher = createDecipheriv('aes-256-gcm', Buffer.from(keyHex, 'hex'), Buffer.from(iv, 'base64url'));
+// The additional authenticated data is the header segment exactly as it appears in the token.
+decipher.setAAD(Buffer.from(header, 'ascii'));
+decipher.setAuthTag(Buffer.from(tag, 'base64url'));
+const claims = Buffer.concat([
+  decipher.update(Buffer.from(ciphertext, 'base64url')),
+  decipher.final(), // throws if the key, header, IV, ciphertext or tag is wrong
+]).toString('utf8');`}</pre>
+                <p>
+                    What you paste depends on <code>alg</code>: the shared key for <code>dir</code>, <code>A128KW</code>/<code>A192KW</code>/<code>A256KW</code>{' '}
+                    and <code>A128GCMKW</code>/<code>A192GCMKW</code>/<code>A256GCMKW</code> (as an <code>oct</code> JWK, hex or Base64URL); the
+                    recipient&apos;s private key for <code>RSA-OAEP</code>, <code>RSA-OAEP-256</code> and the <code>ECDH-ES</code> family on
+                    P-256, P-384 or P-521 (as a PKCS#8 PEM or a JWK); or the password for the <code>PBES2</code> algorithms. All six{' '}
+                    <code>enc</code> values from RFC 7518 are handled, and a <code>zip: &quot;DEF&quot;</code> plaintext is inflated up to 1 MiB.
+                    The implementation is tested against the worked examples in{' '}
+                    <a href="https://www.rfc-editor.org/rfc/rfc7520#section-5" rel="noopener noreferrer">RFC 7520 section 5</a>.{' '}
+                    <code>RSA1_5</code> tokens can be inspected but not decrypted, because browsers&apos; Web Crypto does not provide
+                    RSAES-PKCS1-v1_5 decryption; X25519 keys and the JSON serialization of JWE are not supported either.
+                </p>
+                <p>
+                    Decrypting needs a secret: the shared key or a private key. Use test keys here, as with HMAC secrets. If the plaintext
+                    turns out to be another token (a nested JWT, normally signed and then encrypted), the page offers to decode that
+                    inner token so you can check its signature as usual. A JWE that decrypts correctly says nothing about who created it:
+                    with <code>RSA-OAEP</code> or <code>ECDH-ES</code> anyone who has the recipient&apos;s public key can encrypt any claims they like,
+                    which is why the inner signature matters. The{' '}
+                    <Link href="/blog/cve-2026-29000-pac4j-jwt-authentication-bypass-2026">pac4j-jwt CVE-2026-29000 write-up</Link>{' '}
+                    describes a library that accepted an unsigned token inside a JWE.
+                </p>
+
                 <div className="not-prose my-10 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
                     <h3 className="mb-2 text-lg font-bold text-slate-100">Understand HS256 and JWT validation failures</h3>
                     <p className="mb-4 text-sm leading-relaxed text-slate-400">HS256 is not inherently vulnerable. Learn how weak secrets, algorithm confusion, untrusted key selection, and missing claim checks create real failures.</p>
@@ -451,7 +559,7 @@ console.log(given.length === expected.length && timingSafeEqual(given, expected)
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">Does it support encrypted JWTs (JWE)?</h4>
-                        <p className="text-slate-400 mb-0">No. This page handles three-part compact JWS input. JWE decryption and its key-handling policy are outside this inspection tool.</p>
+                        <p className="text-slate-400 mb-0">Yes, in compact form (five parts). Without a key it shows the protected header (<code>alg</code>, <code>enc</code>, <code>kid</code>) and the size of the encrypted key, IV, ciphertext and tag. With a test key you paste it decrypts locally for <code>dir</code>, AES Key Wrap, AES-GCM key wrap, <code>RSA-OAEP</code>, <code>RSA-OAEP-256</code>, <code>ECDH-ES</code> on the NIST curves and <code>PBES2</code>. <code>RSA1_5</code> can be inspected but not decrypted, and the JSON serialization is not supported. A JWE that decrypts is not thereby authentic.</p>
                     </div>
                     <div className="p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
                         <h4 className="text-slate-100 mt-0">What timestamps are automatically converted?</h4>
